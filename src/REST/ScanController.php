@@ -110,6 +110,30 @@ class ScanController extends \WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/resume',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => $this->resume_scan( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/reset',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => $this->reset_scan( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -183,6 +207,42 @@ class ScanController extends \WP_REST_Controller {
 	 */
 	public function cancel_scan( \WP_REST_Request $request ): \WP_REST_Response {
 		$this->orchestrator->cancel();
+
+		return new \WP_REST_Response( $this->orchestrator->get_status(), 200 );
+	}
+
+	/**
+	 * Resumes the current scan.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function resume_scan( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$resumed = $this->orchestrator->resume();
+
+		if ( ! $resumed ) {
+			return new \WP_Error(
+				'flc_scan_cannot_resume',
+				__( 'Scan cannot be resumed. It may have already finished or was never started.', 'flavor-link-checker' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return new \WP_REST_Response( $this->orchestrator->get_status(), 200 );
+	}
+
+	/**
+	 * Resets all scan data.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function reset_scan( \WP_REST_Request $request ): \WP_REST_Response {
+		$this->orchestrator->reset();
 
 		return new \WP_REST_Response( $this->orchestrator->get_status(), 200 );
 	}

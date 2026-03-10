@@ -460,4 +460,21 @@ class LinksRepository {
 
 		return false !== $deleted ? $deleted : 0;
 	}
+
+	/**
+	 * Deletes all links from the table.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return int Number of deleted rows.
+	 */
+	public function truncate(): int {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$deleted = $this->wpdb->query(
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$this->wpdb->prepare( 'DELETE FROM %i', $this->table )
+		);
+
+		return false !== $deleted ? $deleted : 0;
+	}
 }

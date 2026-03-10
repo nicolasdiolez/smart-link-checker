@@ -12,6 +12,7 @@ namespace FlavorLinkChecker\Queue;
 
 defined( 'ABSPATH' ) || exit;
 
+use FlavorLinkChecker\Database\InstancesRepository;
 use FlavorLinkChecker\Database\LinksRepository;
 
 /**
@@ -39,10 +40,12 @@ class BatchOrchestrator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param LinksRepository $links_repo Links CRUD repository.
+	 * @param LinksRepository     $links_repo     Links CRUD repository.
+	 * @param InstancesRepository $instances_repo Instances CRUD repository.
 	 */
 	public function __construct(
 		private readonly LinksRepository $links_repo,
+		private readonly InstancesRepository $instances_repo,
 	) {}
 
 	/**
@@ -80,6 +83,8 @@ class BatchOrchestrator {
 				'broken_count'   => 0,
 				'redirect_count' => 0,
 				'started_at'     => gmdate( 'c' ),
+				'scan_batches'   => array(),
+				'check_batches'  => array(),
 			),
 			HOUR_IN_SECONDS
 		);
@@ -99,15 +104,17 @@ class BatchOrchestrator {
 	public function start_check(): int {
 		$links    = $this->links_repo->find_pending_or_stale( PHP_INT_MAX, 0 );
 		$link_ids = array_map( fn( $link ) => $link->id, $links );
+		$chunks   = array_chunk( $link_ids, self::MAX_CHECK_BATCH_SIZE );
 
-		// Update scan status with total links.
+		// Update scan status with total links and batches.
 		$status = get_transient( 'flc_scan_status' );
 		if ( is_array( $status ) ) {
-			$status['total_links'] = count( $link_ids );
+			$status['total_links']   = count( $link_ids );
+			$status['check_batches'] = $chunks;
 			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
 		}
 
-		return $this->create_and_enqueue_check_batches( $link_ids );
+		return $this->enqueue_check_batches( $chunks );
 	}
 
 	/**
@@ -141,6 +148,121 @@ class BatchOrchestrator {
 		$status = get_transient( 'flc_scan_status' );
 		if ( is_array( $status ) ) {
 			$status['status'] = 'cancelled';
+			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
+		}
+	}
+
+	/**
+	 * Resets all scan data: cancels jobs and truncates tables.
+	 *
+	 * @since 1.2.0
+	 */
+	public function reset(): void {
+		$this->cancel();
+
+		$this->instances_repo->truncate();
+		$this->links_repo->truncate();
+
+		delete_transient( 'flc_scan_status' );
+		delete_option( 'flc_last_scan_date' );
+	}
+
+	/**
+	 * Resumes a cancelled or interrupted scan.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @return bool True if scan was resumed.
+	 */
+	public function resume(): bool {
+		$status = get_transient( 'flc_scan_status' );
+		if ( ! is_array( $status ) || 'cancelled' !== $status['status'] ) {
+			return false;
+		}
+
+		$status['status'] = 'running';
+		set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
+
+		if ( 'scanning' === $status['phase'] ) {
+			foreach ( $status['scan_batches'] as $batch_id ) {
+				SchedulerBootstrap::enqueue_scan_batch( $batch_id );
+			}
+		} elseif ( 'checking' === $status['phase'] ) {
+			$this->enqueue_check_batches( $status['check_batches'] );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Removes a scan batch from the tracking list.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param string $batch_id Batch identifier.
+	 */
+	public function remove_scan_batch( string $batch_id ): void {
+		$status = get_transient( 'flc_scan_status' );
+		if ( is_array( $status ) && isset( $status['scan_batches'] ) ) {
+			$status['scan_batches'] = array_values( array_diff( $status['scan_batches'], array( $batch_id ) ) );
+			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
+		}
+	}
+
+	/**
+	 * Removes a check batch from the tracking list.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param int[] $link_ids Link IDs that were in the batch.
+	 */
+	public function remove_check_batch( array $link_ids ): void {
+		$status = get_transient( 'flc_scan_status' );
+		if ( is_array( $status ) && isset( $status['check_batches'] ) ) {
+			foreach ( $status['check_batches'] as $index => $chunk ) {
+				// We compare the arrays to find the batch that just finished.
+				if ( $chunk === $link_ids ) {
+					unset( $status['check_batches'][ $index ] );
+					$status['check_batches'] = array_values( $status['check_batches'] );
+					break;
+				}
+			}
+			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
+		}
+	}
+
+	/**
+	 * Handles a check batch being split into a smaller one due to resource limits.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param int[] $old_link_ids Original batch link IDs.
+	 * @param int[] $new_link_ids Remaining link IDs.
+	 */
+	public function handle_check_batch_split( array $old_link_ids, array $new_link_ids ): void {
+		$status = get_transient( 'flc_scan_status' );
+		if ( is_array( $status ) && isset( $status['check_batches'] ) ) {
+			foreach ( $status['check_batches'] as $index => $chunk ) {
+				if ( $chunk === $old_link_ids ) {
+					$status['check_batches'][ $index ] = $new_link_ids;
+					break;
+				}
+			}
+			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
+		}
+	}
+
+	/**
+	 * Adds a check batch to the tracking list (used during re-enqueueing).
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param int[] $link_ids Link IDs in the new batch.
+	 */
+	public function add_check_batch( array $link_ids ): void {
+		$status = get_transient( 'flc_scan_status' );
+		if ( is_array( $status ) && isset( $status['check_batches'] ) ) {
+			$status['check_batches'][] = $link_ids;
 			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
 		}
 	}
@@ -181,7 +303,7 @@ class BatchOrchestrator {
 			delete_transient( 'flc_transition_lock' );
 
 			if ( $check_batches > 0 ) {
-				// Re-read transient to pick up total_links set by start_check().
+				// Re-read transient to pick up total_links and check_batches set by start_check().
 				$status = get_transient( 'flc_scan_status' );
 				if ( ! is_array( $status ) ) {
 					return $this->get_idle_status();
@@ -190,10 +312,12 @@ class BatchOrchestrator {
 				set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
 			} else {
 				$status['status'] = 'complete';
+				update_option( 'flc_last_scan_date', $status['started_at'] );
 				set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
 			}
 		} elseif ( 'checking' === $phase && 0 === $pending_count ) {
 			$status['status'] = 'complete';
+			update_option( 'flc_last_scan_date', $status['started_at'] );
 			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
 		}
 
@@ -255,14 +379,14 @@ class BatchOrchestrator {
 			'no_found_rows'  => true,
 		);
 
-		// Delta scan: only posts modified since last scan.
+		// Delta scan: only posts modified since last successful scan.
 		if ( 'delta' === $scan_type ) {
-			$status = get_transient( 'flc_scan_status' );
-			if ( is_array( $status ) && ! empty( $status['started_at'] ) ) {
+			$last_scan = get_option( 'flc_last_scan_date' );
+			if ( $last_scan ) {
 				$query_args['date_query'] = array(
 					array(
 						'column' => 'post_modified_gmt',
-						'after'  => $status['started_at'],
+						'after'  => $last_scan,
 					),
 				);
 			}
@@ -287,9 +411,10 @@ class BatchOrchestrator {
 			return 0;
 		}
 
-		$chunks      = array_chunk( $post_ids, $batch_size );
-		$batch_count = 0;
-		$fail_count  = 0;
+		$chunks       = array_chunk( $post_ids, $batch_size );
+		$batch_count  = 0;
+		$fail_count   = 0;
+		$scan_batches = array();
 
 		foreach ( $chunks as $chunk ) {
 			$batch_id = wp_unique_id( 'flc_batch_' );
@@ -306,8 +431,17 @@ class BatchOrchestrator {
 			$action_id = SchedulerBootstrap::enqueue_scan_batch( $batch_id );
 			if ( 0 === $action_id ) {
 				++$fail_count;
+			} else {
+				$scan_batches[] = $batch_id;
 			}
 			++$batch_count;
+		}
+
+		// Update status with tracked batches.
+		$status = get_transient( 'flc_scan_status' );
+		if ( is_array( $status ) ) {
+			$status['scan_batches'] = $scan_batches;
+			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
 		}
 
 		if ( $fail_count > 0 && $fail_count === $batch_count ) {
@@ -325,19 +459,14 @@ class BatchOrchestrator {
 	}
 
 	/**
-	 * Splits link IDs into batches and enqueues check actions.
+	 * Enqueues check batches from chunks.
 	 *
-	 * @since 1.0.0
+	 * @since 1.3.0
 	 *
-	 * @param int[] $link_ids Link IDs to check.
-	 * @return int Number of batches created.
+	 * @param array $chunks Array of link ID chunks.
+	 * @return int Number of batches enqueued.
 	 */
-	private function create_and_enqueue_check_batches( array $link_ids ): int {
-		if ( empty( $link_ids ) ) {
-			return 0;
-		}
-
-		$chunks      = array_chunk( $link_ids, self::MAX_CHECK_BATCH_SIZE );
+	private function enqueue_check_batches( array $chunks ): int {
 		$batch_count = 0;
 		$fail_count  = 0;
 

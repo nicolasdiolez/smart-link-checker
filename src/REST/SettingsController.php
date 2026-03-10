@@ -49,6 +49,8 @@ class SettingsController extends \WP_REST_Controller {
 		'excluded_urls'      => array(),
 		'scan_custom_fields' => false,
 		'http_request_delay' => 300,
+		'exclude_media'      => true,
+		'density'            => 'balanced',
 	);
 
 	/**
@@ -172,6 +174,19 @@ class SettingsController extends \WP_REST_Controller {
 			}
 		}
 
+		if ( isset( $params['exclude_media'] ) ) {
+			$updated['exclude_media'] = (bool) $params['exclude_media'];
+		}
+ 
+		if ( isset( $params['density'] ) ) {
+			$value = sanitize_text_field( $params['density'] );
+			if ( ! in_array( $value, array( 'comfortable', 'balanced', 'compact' ), true ) ) {
+				$errors[] = __( 'density must be comfortable, balanced, or compact.', 'flavor-link-checker' );
+			} else {
+				$updated['density'] = $value;
+			}
+		}
+
 		if ( ! empty( $errors ) ) {
 			return new \WP_Error(
 				'flc_invalid_settings',
@@ -241,6 +256,13 @@ class SettingsController extends \WP_REST_Controller {
 				'type'    => 'integer',
 				'minimum' => 0,
 				'maximum' => 5000,
+			),
+			'exclude_media'      => array(
+				'type' => 'boolean',
+			),
+			'density'            => array(
+				'type' => 'string',
+				'enum' => array( 'comfortable', 'balanced', 'compact' ),
 			),
 		);
 	}

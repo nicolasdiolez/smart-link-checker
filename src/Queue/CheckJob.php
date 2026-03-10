@@ -81,14 +81,31 @@ class CheckJob {
 				$this->rate_limit_pause();
 			}
 
-			// Check resources after each link.
 			if ( ! $this->has_resources() && $i + 1 < $count ) {
 				// Re-enqueue remaining links.
 				$remaining = array_slice( $link_ids, $i + 1 );
+
+				/**
+				 * Fires when a check batch is split due to low resources.
+				 *
+				 * @since 1.3.0
+				 * @param int[] $link_ids  Original batch IDs.
+				 * @param int[] $remaining Remaining IDs.
+				 */
+				\do_action( 'flc/check/batch_split', $link_ids, $remaining );
+
 				SchedulerBootstrap::enqueue_check_batch( $remaining );
 				return;
 			}
 		}
+
+		/**
+		 * Fires when a check batch completes.
+		 *
+		 * @since 1.3.0
+		 * @param int[] $link_ids Processed link IDs.
+		 */
+		\do_action( 'flc/check/batch_complete', $link_ids );
 	}
 
 	/**

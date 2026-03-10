@@ -10,8 +10,8 @@
 
 | Champ                  | Valeur                                              |
 |------------------------|------------------------------------------------------|
-| **Phase actuelle**     | Projet Finalisé — Prêt pour Production             |
-| **Dernière session**   | Session 15 — 2026-03-10                              |
+| **Phase actuelle**     | Maintenance & Améliorations                       |
+| **Dernière session**   | Session 18 — 2026-03-10                              |
 | **Prochaine action**   | Déploiement final                                    |
 | **Blocages connus**    | Aucun                                                |
 | **URL admin LocalWP**  | http://localhost:10008/wp-admin/?localwp_auto_login=12 |
@@ -107,6 +107,8 @@
 | 5 | readme.txt WordPress.org                                        | ✅ Fait     |
 | 6 | Test sur hébergement mutualisé simulé (128MB, 30s)              | ✅ Fait     |
 | 7 | Test avec 5000+ articles                                        | ✅ Fait     |
+| 8 | Reset Data & Exclusion média paramétrable                       | ✅ Fait     |
+| 9 | Persistance Scan & Reprise (Resume Scan)                        | ✅ Fait     |
 
 ---
 
@@ -245,6 +247,28 @@
 | 13      | `readme.txt`                      | Modifié | Nom du plugin uniformisé "Flavor Link Checker" |
 | 14      | `src/REST/LinksController.php`    | Modifié | Implémentation `update_post_content_silently()` via `$wpdb->update` pour préserver `post_modified` et éviter les révisions. |
 | 15      | `src/REST/LinksController.php`    | Modifié | Refactorisation `perform_link_deletion()` pour corriger le bug de batch delete (unlinking content). |
+| 16      | `src/Database/LinksRepository.php`| Modifié | Ajout méthode `truncate()`. |
+| 16      | `src/Database/InstancesRepository.php` | Modifié | Ajout méthode `truncate()`. |
+| 16      | `src/Queue/BatchOrchestrator.php` | Modifié | Ajout `reset()`, passage de `InstancesRepository` au constructeur. |
+| 16      | `src/REST/ScanController.php`     | Modifié | Nouveau endpoint `POST /scan/reset`. |
+| 16      | `src/REST/SettingsController.php` | Modifié | Ajout du réglage `exclude_media` (bool, default true). |
+| 16      | `src/Scanner/LinkExtractor.php`   | Modifié | Exclusion des média via extension si `exclude_media` actif. |
+| 16      | `src/Plugin.php`                  | Modifié | Injection de `InstancesRepository` dans `BatchOrchestrator`. |
+| 16      | `admin/src/utils/api.js`          | Modifié | Ajout `resetScanApi()`. |
+| 16      | `admin/src/store/actions.js`      | Modifié | Ajout `resetScan()` thunk. |
+| 16      | `admin/src/components/ScanPanel.js` | Modifié | Ajout bouton "Reset Data" + confirmation. |
+| 16      | `admin/src/components/SettingsPanel.js` | Modifié | Ajout toggle "Exclude media files". |
+| 17      | `src/REST/SettingsController.php` | Modifié | Ajout du réglage `density` (comfortable/balanced/compact). |
+| 17      | `admin/src/components/LinkTable.js` | Modifié | Support de la densité, persistance auto et fix boucle infinie. |
+| 17      | `admin/src/index.scss`            | Modifié | Ajout des styles CSS pour les 3 niveaux de densité. |
+| 18      | `src/Queue/BatchOrchestrator.php` | Modifié | Tracking des batches actifs, logique `resume()`, date persistante. |
+| 18      | `src/REST/ScanController.php`     | Modifié | Nouveau endpoint `POST /scan/resume`. |
+| 18      | `src/Plugin.php`                  | Modifié | Hooks pour fins de batches et splits (ScanJob/CheckJob). |
+| 18      | `src/Queue/ScanJob.php`           | Modifié | Trigger `flc/scan/batch_complete`. |
+| 18      | `src/Queue/CheckJob.php`          | Modifié | Trigger `flc/check/batch_complete` et `batch_split`. |
+| 18      | `admin/src/utils/api.js`          | Modifié | Ajout `resumeScanApi()`. |
+| 18      | `admin/src/store/actions.js`      | Modifié | Ajout `resumeScan()` thunk. |
+| 18      | `admin/src/components/ScanPanel.js` | Modifié | Bouton "Resume Scan" + aide Delta Scan. |
 
 ---
 
@@ -290,6 +314,12 @@
 | 35 | Session 12 | Protection des ressources (Mémoire/Temps) | Implémentation de `has_resources()` dans `ScanJob` et `CheckJob` avec seuil de 80% de `WP_MEMORY_LIMIT`. Permet de pauser et ré-enqueuer automatiquement les lots sur hébergement contraint. |
 | 36 | Session 12 | Reset de scan pour tests de charge | Ajout d'un mode `reset` dans `monitor-scan.php` qui nettoie toutes les données et transients pour un nouveau test "propre". |
 | 37 | Session 12 | Namespacing global des fonctions WP | Ajout systématique de `\` devant les fonctions WordPress globales dans la couche Queue pour assurer la compatibilité PSR-4 et lever les ambiguïtés de namespace. |
+| 38 | Session 16 | Exclusion média par extension (pas path) | L'exclusion basée sur `/wp-content/uploads/` est trop rigide. Passage à une exclusion par extension de fichier (.jpg, .png, .pdf, etc.) gérée par `LinkExtractor`, rendue optionnelle via settings. |
+| 39 | Session 16 | `BatchOrchestrator` nécessite `InstancesRepository` | Pour le `reset()`, l'orchestrateur doit pouvoir vider les deux tables. Injection de dépendance ajoutée. |
+| 40 | Session 17 | Persistance de la densité via `onChangeView` | Utiliser `onChangeView` de DataViews pour persister la densité évite les boucles infinies de synchronisation avec le store Redux. |
+| 41 | Session 18 | `flc_last_scan_date` comme Option (pas transient) | La date de dernier scan doit survivre à l'expiration des transients pour que le "Delta Scan" reste utile des semaines plus tard. |
+| 42 | Session 18 | Tracking des batches actifs pour le Resume | Stocker la liste des batch IDs en cours permet de relancer uniquement le travail pendu sans tout recommencer. |
+| 43 | Session 18 | Découplage via Actions WP (flc/scan/batch_complete) | Permet aux Jobs de notifier l'orchestrateur de leur état sans dépendance circulaire directe, facilitant la maintenance du tracking. |
 
 ---
 
@@ -641,6 +671,40 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 - **Refactorisation** : Création de la méthode partagée `perform_link_deletion()` pour centraliser la logique de suppression (DB + Content).
 - **Correction Bug** : Mise à jour de `bulk_action()` pour utiliser la nouvelle méthode, assurant que le batch delete nettoie maintenant correctement le contenu HTML.
 - **Vérification** : Pass complet des 98 tests PHP et 71 tests JS (100% OK).
+
+### Session 16 — Reset Data & Media Exclusion (2026-03-10)
+
+**Résumé :** Implémentation du bouton de réinitialisation des données et d'un système configurable pour exclure les fichiers médias (images, PDF, etc.) du scan.
+
+**Accompli :**
+- **Reset Scan** : Ajout d'un endpoint REST et d'un bouton UI pour vider les tables `flc_links` et `flc_instances`.
+- **Exclusion média** : Ajout d'un réglage `exclude_media` (activé par défaut) et d'une logique d'exclusion par extensions de fichiers dans `LinkExtractor`.
+- **Robustesse UI** : Amélioration du polling dans `ScanPanel.js` pour tolérer les erreurs réseau passagères sans arrêter la mise à jour.
+- [x] **Build** : Re-génération des assets production via `npm run build`.
+
+### Session 17 — Density Setting & UI Fixes (2026-03-10)
+
+**Résumé :** Implémentation finale du réglage "Density" (Comfortable/Balanced/Compact) avec persistance backend et styles CSS. Correction d'un bug majeur de boucle infinie.
+
+**Accompli :**
+- **Persistance Density** : Ajout du champ `density` dans les options du plugin et l'API REST des réglages.
+- **UI Sync** : Mise à jour de `LinkTable.js` pour synchroniser le réglage `density` de DataViews avec le serveur.
+- **Correction Loop** : Résolution d'un problème de boucle infinie de notifications "Settings saved" en isolant la persistance dans le callback `onChangeView`.
+- **Styles DataViews** : Ajout de styles SCSS spécifiques pour forcer l'espacement et la taille du texte selon la densité choisie.
+- **Build & Verify** : Vérification manuelle après build réussie par l'utilisateur.
+
+### Session 18 — Scan Persistence & Resume Feature (2026-03-10)
+
+**Résumé :** Implémentation d'une persistance robuste pour le dernier scan et ajout de la fonctionnalité "Resume Scan" pour reprendre un scan interrompu.
+
+**Accompli :**
+- **Date Persistante** : Passage de la date de dernier scan d'un transient 1h à une option WP `flc_last_scan_date`.
+- **Logic de Reprise** : `BatchOrchestrator` suit désormais les IDs de batches (`scan_batches`, `check_batches`) actifs.
+- **Resume Scan** : Nouvel endpoint REST et interaction frontend pour relancer les batches non terminés après une annulation ou interruption.
+- **Robustesse des Jobs** : `ScanJob` et `CheckJob` émettent maintenant des actions WP lors de la complétion ou du split de batch pour mettre à jour le tracking.
+- **UI** : Bouton "Resume Scan" dynamique et texte explicatif pour le mode "Delta Scan".
+- **Fix Routage REST** : Correction d'un oubli d'enregistrement pour `/scan/resume` et restauration de `/scan/reset` (qui avait été écrasé par erreur).
+- **Build** : Re-génération réussie des assets par l'utilisateur.
 
 **Prochaine étape :** Déploiement final.
 

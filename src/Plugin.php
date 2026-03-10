@@ -97,7 +97,7 @@ class Plugin {
 		$links_repo     = new LinksRepository( $wpdb );
 		$instances_repo = new InstancesRepository( $wpdb );
 		$query_builder  = new QueryBuilder( $wpdb );
-		$orchestrator   = new BatchOrchestrator( $links_repo );
+		$orchestrator   = new BatchOrchestrator( $links_repo, $instances_repo );
 
 		$links_ctrl    = new LinksController( $query_builder, $links_repo, $instances_repo );
 		$scan_ctrl     = new ScanController( $orchestrator );
@@ -145,9 +145,14 @@ class Plugin {
 		add_action( SchedulerBootstrap::SCAN_BATCH_HOOK, array( $scan_job, 'process_batch' ) );
 		add_action( SchedulerBootstrap::CHECK_BATCH_HOOK, array( $check_job, 'process_batch' ) );
 
-		// Orchestrator for daily recheck.
-		$orchestrator = new BatchOrchestrator( $links_repo );
+		// Orchestrator for daily recheck and batch tracking.
+		$orchestrator = new BatchOrchestrator( $links_repo, $instances_repo );
 		add_action( SchedulerBootstrap::RECHECK_DAILY_HOOK, array( $orchestrator, 'recheck_stale_links' ) );
+
+		// Batch tracking hooks.
+		add_action( 'flc/scan/batch_complete', array( $orchestrator, 'remove_scan_batch' ) );
+		add_action( 'flc/check/batch_complete', array( $orchestrator, 'remove_check_batch' ) );
+		add_action( 'flc/check/batch_split', array( $orchestrator, 'handle_check_batch_split' ), 10, 2 );
 
 		// Orphan cleanup.
 		add_action(

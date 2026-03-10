@@ -170,6 +170,13 @@ class LinkExtractor {
 		foreach ( $results as $result ) {
 			$url_hash = self::hash_url( $result->url );
 
+			// Check for media exclusion if enabled.
+			if ( ! empty( $settings['exclude_media'] ) ) {
+				if ( $this->is_media_url( $result->url ) ) {
+					continue;
+				}
+			}
+
 			// Initialize the group for this URL if not yet seen.
 			if ( ! isset( $grouped[ $url_hash ] ) ) {
 				$affiliate = $this->classifier->detect_affiliate( $result->url, $result->rel );
@@ -192,5 +199,68 @@ class LinkExtractor {
 		}
 
 		return $grouped;
+	}
+
+	/**
+	 * Checks if a URL points to a common media file extension.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @param string $url The URL to check.
+	 * @return bool True if media URL.
+	 */
+	private function is_media_url( string $url ): bool {
+		$parsed = wp_parse_url( $url );
+		$path   = $parsed['path'] ?? '';
+
+		if ( '' === $path ) {
+			return false;
+		}
+
+		$extension = strtolower( pathinfo( $path, PATHINFO_EXTENSION ) );
+		$media_exts = array(
+			// Images.
+			'jpg',
+			'jpeg',
+			'png',
+			'gif',
+			'webp',
+			'avif',
+			'svg',
+			'bmp',
+			'ico',
+			'tif',
+			'tiff',
+			// Documents.
+			'pdf',
+			'doc',
+			'docx',
+			'xls',
+			'xlsx',
+			'ppt',
+			'pptx',
+			'odt',
+			'ods',
+			'odp',
+			// Archives.
+			'zip',
+			'rar',
+			'7z',
+			'tar',
+			'gz',
+			// Audio/Video.
+			'mp3',
+			'mp4',
+			'm4a',
+			'wav',
+			'ogg',
+			'webm',
+			'mov',
+			'avi',
+			'mkv',
+			'flv',
+		);
+
+		return in_array( $extension, $media_exts, true );
 	}
 }

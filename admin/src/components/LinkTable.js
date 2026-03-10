@@ -34,6 +34,9 @@ const DEFAULT_VIEW = {
 	sort: { field: 'createdAt', direction: 'desc' },
 	page: 1,
 	perPage: 25,
+	layout: {
+		density: 'balanced',
+	},
 	fields: [
 		'url',
 		'httpStatus',
@@ -87,23 +90,57 @@ const LinkTable = ( { onEditLink } ) => {
 	const [ view, setView ] = useState( DEFAULT_VIEW );
 	const [ quickStatus, setQuickStatus ] = useState( '' );
 
-	const { links, total, totalPages, loading } = useSelect(
+	const { links, total, totalPages, loading, settings } = useSelect(
 		( select ) => ( {
 			links: select( STORE_NAME ).getLinks(),
 			total: select( STORE_NAME ).getTotal(),
 			totalPages: select( STORE_NAME ).getTotalPages(),
 			loading: select( STORE_NAME ).isLoading( 'links' ),
+			settings: select( STORE_NAME ).getSettings(),
 		} ),
 		[]
 	);
 
-	const { fetchLinks, deleteLink, recheckLink, bulkAction } =
+	const { fetchLinks, deleteLink, recheckLink, bulkAction, updateSettings } =
 		useDispatch( STORE_NAME );
 
 	// Fetch links whenever view or quick-filter changes.
 	useEffect( () => {
 		fetchLinks( viewToApiParams( view, quickStatus ) );
 	}, [ view, quickStatus, fetchLinks ] );
+
+	// Sync local density with server settings and persist changes.
+	useEffect( () => {
+		const serverDensity = settings?.density;
+		const localDensity = view.layout?.density;
+
+		if ( ! serverDensity || ! localDensity ) {
+			return;
+		}
+
+		// Update local state if server has a different value (initial load or external change).
+		if ( serverDensity !== localDensity ) {
+			// We only want to update local state from server if the server change 
+			// isn't a result of our own recent update.
+			// DataViews state updates are often asynchronous.
+			setView( ( prev ) => ( {
+				...prev,
+				layout: { ...prev.layout, density: serverDensity },
+			} ) );
+		}
+	}, [ settings?.density ] );
+
+	// Persist changes only when DataViews triggers it.
+	const handleViewChange = useCallback( ( newView ) => {
+		const oldDensity = view.layout?.density;
+		const newDensity = newView.layout?.density;
+
+		setView( newView );
+
+		if ( newDensity && newDensity !== oldDensity ) {
+			updateSettings( { density: newDensity } );
+		}
+	}, [ view.layout?.density, updateSettings ] );
 
 	const handleStatusChange = useCallback( ( status ) => {
 		setQuickStatus( status );
@@ -252,7 +289,7 @@ const LinkTable = ( { onEditLink } ) => {
 	} );
 
 	return (
-		<div className="flc-link-table">
+		<div className={ `flc-link-table is-density-${ view.layout?.density || 'balanced' }` }>
 			<div className="flc-link-table__toolbar">
 				<FilterBar
 					currentStatus={ quickStatus }
@@ -267,7 +304,7 @@ const LinkTable = ( { onEditLink } ) => {
 				data={ links }
 				fields={ fields }
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ handleViewChange }
 				paginationInfo={ { totalItems: total, totalPages } }
 				actions={ actions }
 				getItemId={ ( item ) => item.id }

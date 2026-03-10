@@ -22,33 +22,33 @@ import { STORE_NAME } from '../store';
 
 const SettingsPanel = () => {
 	const settings = useSelect(
-		( select ) => select( STORE_NAME ).getSettings(),
+		(select) => select(STORE_NAME).getSettings(),
 		[]
 	);
 	const loading = useSelect(
-		( select ) => select( STORE_NAME ).isLoading( 'settings' ),
+		(select) => select(STORE_NAME).isLoading('settings'),
 		[]
 	);
-	const { updateSettings } = useDispatch( STORE_NAME );
+	const { updateSettings } = useDispatch(STORE_NAME);
 
-	const [ form, setForm ] = useState( null );
+	const [form, setForm] = useState(null);
 
 	// Populate form once settings are loaded.
-	useEffect( () => {
-		if ( settings && ! form ) {
-			setForm( { ...settings } );
+	useEffect(() => {
+		if (settings && !form) {
+			setForm({ ...settings });
 		}
-	}, [ settings, form ] );
+	}, [settings, form]);
 
-	const updateField = ( key, value ) => {
-		setForm( ( prev ) => ( { ...prev, [ key ]: value } ) );
+	const updateField = (key, value) => {
+		setForm((prev) => ({ ...prev, [key]: value }));
 	};
 
 	const handleSave = () => {
-		updateSettings( form );
+		updateSettings(form);
 	};
 
-	if ( ! form ) {
+	if (!form) {
 		return <Spinner />;
 	}
 
@@ -56,45 +56,45 @@ const SettingsPanel = () => {
 		<div className="flc-settings">
 			<Panel>
 				<PanelBody
-					title={ __( 'Scanning', 'flavor-link-checker' ) }
+					title={__('Scanning', 'flavor-link-checker')}
 					initialOpen
 				>
 					<PanelRow>
 						<TextControl
-							label={ __(
+							label={__(
 								'Post types to scan',
 								'flavor-link-checker'
-							) }
-							value={ ( form.scan_post_types || [] ).join(
+							)}
+							value={(form.scan_post_types || []).join(
 								', '
-							) }
-							onChange={ ( val ) =>
+							)}
+							onChange={(val) =>
 								updateField(
 									'scan_post_types',
 									val
-										.split( ',' )
-										.map( ( s ) => s.trim() )
-										.filter( Boolean )
+										.split(',')
+										.map((s) => s.trim())
+										.filter(Boolean)
 								)
 							}
-							help={ __(
+							help={__(
 								'Comma-separated list: post, page, product…',
 								'flavor-link-checker'
-							) }
+							)}
 							__nextHasNoMarginBottom
 						/>
 					</PanelRow>
 					<PanelRow>
 						<TextControl
-							label={ __( 'Batch size', 'flavor-link-checker' ) }
+							label={__('Batch size', 'flavor-link-checker')}
 							type="number"
-							min={ 10 }
-							max={ 200 }
-							value={ form.batch_size }
-							onChange={ ( val ) =>
+							min={10}
+							max={200}
+							value={form.batch_size}
+							onChange={(val) =>
 								updateField(
 									'batch_size',
-									parseInt( val, 10 ) || 50
+									parseInt(val, 10) || 50
 								)
 							}
 							__nextHasNoMarginBottom
@@ -102,13 +102,13 @@ const SettingsPanel = () => {
 					</PanelRow>
 					<PanelRow>
 						<ToggleControl
-							label={ __(
+							label={__(
 								'Scan custom fields',
 								'flavor-link-checker'
-							) }
-							checked={ !! form.scan_custom_fields }
-							onChange={ ( val ) =>
-								updateField( 'scan_custom_fields', val )
+							)}
+							checked={!!form.scan_custom_fields}
+							onChange={(val) =>
+								updateField('scan_custom_fields', val)
 							}
 							__nextHasNoMarginBottom
 						/>
@@ -116,23 +116,23 @@ const SettingsPanel = () => {
 				</PanelBody>
 
 				<PanelBody
-					title={ __( 'HTTP Checks', 'flavor-link-checker' ) }
+					title={__('HTTP Checks', 'flavor-link-checker')}
 					initialOpen
 				>
 					<PanelRow>
 						<TextControl
-							label={ __(
+							label={__(
 								'Timeout (seconds)',
 								'flavor-link-checker'
-							) }
+							)}
 							type="number"
-							min={ 5 }
-							max={ 60 }
-							value={ form.check_timeout }
-							onChange={ ( val ) =>
+							min={5}
+							max={60}
+							value={form.check_timeout}
+							onChange={(val) =>
 								updateField(
 									'check_timeout',
-									parseInt( val, 10 ) || 15
+									parseInt(val, 10) || 15
 								)
 							}
 							__nextHasNoMarginBottom
@@ -140,18 +140,18 @@ const SettingsPanel = () => {
 					</PanelRow>
 					<PanelRow>
 						<TextControl
-							label={ __(
+							label={__(
 								'Delay between requests (ms)',
 								'flavor-link-checker'
-							) }
+							)}
 							type="number"
-							min={ 0 }
-							max={ 5000 }
-							value={ form.http_request_delay }
-							onChange={ ( val ) =>
+							min={0}
+							max={5000}
+							value={form.http_request_delay}
+							onChange={(val) =>
 								updateField(
 									'http_request_delay',
-									parseInt( val, 10 ) || 0
+									parseInt(val, 10) || 0
 								)
 							}
 							__nextHasNoMarginBottom
@@ -159,18 +159,18 @@ const SettingsPanel = () => {
 					</PanelRow>
 					<PanelRow>
 						<TextControl
-							label={ __(
+							label={__(
 								'Recheck interval (days)',
 								'flavor-link-checker'
-							) }
+							)}
 							type="number"
-							min={ 1 }
-							max={ 30 }
-							value={ form.recheck_interval }
-							onChange={ ( val ) =>
+							min={1}
+							max={30}
+							value={form.recheck_interval}
+							onChange={(val) =>
 								updateField(
 									'recheck_interval',
-									parseInt( val, 10 ) || 7
+									parseInt(val, 10) || 7
 								)
 							}
 							__nextHasNoMarginBottom
@@ -179,30 +179,47 @@ const SettingsPanel = () => {
 				</PanelBody>
 
 				<PanelBody
-					title={ __( 'Exclusions', 'flavor-link-checker' ) }
-					initialOpen={ false }
+					title={__('Exclusions', 'flavor-link-checker')}
+					initialOpen={false}
 				>
 					<PanelRow>
+						<ToggleControl
+							label={__(
+								'Exclude media files',
+								'flavor-link-checker'
+							)}
+							checked={!!form.exclude_media}
+							onChange={(val) =>
+								updateField('exclude_media', val)
+							}
+							help={__(
+								'Skip images, videos, and document files (PDF, etc.) during scanning.',
+								'flavor-link-checker'
+							)}
+							__nextHasNoMarginBottom
+						/>
+					</PanelRow>
+					<PanelRow>
 						<TextareaControl
-							label={ __(
+							label={__(
 								'Excluded URLs',
 								'flavor-link-checker'
-							) }
-							value={ ( form.excluded_urls || [] ).join( '\n' ) }
-							onChange={ ( val ) =>
+							)}
+							value={(form.excluded_urls || []).join('\n')}
+							onChange={(val) =>
 								updateField(
 									'excluded_urls',
 									val
-										.split( '\n' )
-										.map( ( s ) => s.trim() )
-										.filter( Boolean )
+										.split('\n')
+										.map((s) => s.trim())
+										.filter(Boolean)
 								)
 							}
-							help={ __(
+							help={__(
 								'One URL pattern per line.',
 								'flavor-link-checker'
-							) }
-							rows={ 4 }
+							)}
+							rows={4}
 							__nextHasNoMarginBottom
 						/>
 					</PanelRow>
@@ -212,11 +229,11 @@ const SettingsPanel = () => {
 			<div className="flc-settings__actions">
 				<Button
 					variant="primary"
-					onClick={ handleSave }
-					isBusy={ loading }
-					disabled={ loading }
+					onClick={handleSave}
+					isBusy={loading}
+					disabled={loading}
 				>
-					{ __( 'Save Settings', 'flavor-link-checker' ) }
+					{__('Save Settings', 'flavor-link-checker')}
 				</Button>
 			</div>
 		</div>
