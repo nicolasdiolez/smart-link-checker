@@ -11,7 +11,7 @@
 | Champ                  | Valeur                                              |
 |------------------------|------------------------------------------------------|
 | **Phase actuelle**     | Projet Finalisé — Prêt pour Production             |
-| **Dernière session**   | Session 13 — 2026-03-10                              |
+| **Dernière session**   | Session 14 — 2026-03-10                              |
 | **Prochaine action**   | Déploiement final                                    |
 | **Blocages connus**    | Aucun                                                |
 | **URL admin LocalWP**  | http://localhost:10008/wp-admin/?localwp_auto_login=12 |
@@ -243,6 +243,7 @@
 | 13      | `src/REST/LinksController.php`    | Modifié | i18n pass sur l'export CSV (headers et valeurs) |
 | 13      | `src/Queue/BatchOrchestrator.php` | Modifié | i18n pass sur les messages d'erreur |
 | 13      | `readme.txt`                      | Modifié | Nom du plugin uniformisé "Flavor Link Checker" |
+| 14      | `src/REST/LinksController.php`    | Modifié | Implémentation `update_post_content_silently()` via `$wpdb->update` pour préserver `post_modified` et éviter les révisions. |
 
 ---
 
@@ -620,6 +621,16 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 - **Documentation** : Mise à jour du `readme.txt` pour uniformiser le nom du plugin en "Flavor Link Checker".
 - **Vérification** : 98 tests PHP et 71 tests JS réussis (100%).
 - **État du projet** : Plugin confirmé comme totalement prêt pour la production.
+
+### Session 14 — SEO & Performance Optimization (2026-03-10)
+
+**Résumé :** Optimisation des mises à jour d'articles lors de l'édition/suppression de liens. Remplacement de `wp_update_post()` par une mise à jour SQL directe pour préserver les métadonnées SEO et améliorer les performances.
+
+**Accompli :**
+- **Silent Updates** : Création de la méthode `update_post_content_silently()` utilisant `$wpdb->update()`.
+- **Préservation SEO** : Les colonnes `post_modified` et `post_modified_gmt` ne sont plus impactées par les corrections de liens.
+- **Économie de ressources** : Suppression de la création systématique de révisions de posts lors des modifications via le plugin.
+- **Vérification** : Pass complet des 98 tests PHP et 71 tests JS (100% OK).
 
 **Prochaine étape :** Déploiement final.
 

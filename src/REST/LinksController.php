@@ -301,12 +301,7 @@ class LinksController extends \WP_REST_Controller {
 			);
 
 			if ( $updated_content !== $post->post_content ) {
-				wp_update_post(
-					array(
-						'ID'           => $post->ID,
-						'post_content' => $updated_content,
-					)
-				);
+				$this->update_post_content_silently( $post->ID, $updated_content );
 				++$updated_posts;
 			}
 		}
@@ -369,12 +364,7 @@ class LinksController extends \WP_REST_Controller {
 			$updated_content = $this->unlink_in_html( $post->post_content, $link->url );
 
 			if ( $updated_content !== $post->post_content ) {
-				wp_update_post(
-					array(
-						'ID'           => $post->ID,
-						'post_content' => $updated_content,
-					)
-				);
+				$this->update_post_content_silently( $post->ID, $updated_content );
 			}
 		}
 
@@ -407,7 +397,7 @@ class LinksController extends \WP_REST_Controller {
 		);
 
 		foreach ( $ids as $id ) {
-			$id = absint( $id );
+			$id = \absint( $id );
 
 			if ( 'recheck' === $action ) {
 				$link = $this->links_repo->find( $id );
@@ -852,6 +842,29 @@ class LinksController extends \WP_REST_Controller {
 		$output = str_replace( '<?xml encoding="utf-8">', '', $output );
 
 		return $output;
+	}
+
+	/**
+	 * Updates a post's content directly in the database to avoid updating the modified date
+	 * and creating unnecessary revisions.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int    $post_id      Post ID.
+	 * @param string $new_content  New post content.
+	 * @return void
+	 */
+	private function update_post_content_silently( int $post_id, string $new_content ): void {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->update(
+			$wpdb->posts,
+			array( 'post_content' => $new_content ),
+			array( 'ID' => $post_id )
+		);
+
+		\clean_post_cache( $post_id );
 	}
 
 	/**
