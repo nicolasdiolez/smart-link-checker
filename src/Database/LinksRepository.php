@@ -408,6 +408,10 @@ class LinksRepository {
 					SUM(CASE WHEN status_category = \'ok\' THEN 1 ELSE 0 END) as ok_count,
 					SUM(CASE WHEN status_category = \'broken\' THEN 1 ELSE 0 END) as broken_count,
 					SUM(CASE WHEN status_category = \'pending\' THEN 1 ELSE 0 END) as pending_count,
+					SUM(CASE WHEN status_category = \'error\' THEN 1 ELSE 0 END) as error_count,
+					SUM(CASE WHEN status_category = \'timeout\' THEN 1 ELSE 0 END) as timeout_count,
+					SUM(CASE WHEN status_category = \'skipped\' THEN 1 ELSE 0 END) as skipped_count,
+					SUM(redirect_count > 0) as redirect_count,
 					SUM(redirect_count = 1) as single_redirect_count,
 					SUM(redirect_count > 1) as chain_redirect_count,
 					SUM(last_error LIKE %s) as loop_count
@@ -421,7 +425,7 @@ class LinksRepository {
 
 		if ( null === $row ) {
 			return array_fill_keys(
-				array( 'total', 'external_count', 'internal_count', 'affiliate_count', 'cloaked_count', 'direct_affiliate_count', 'ok_count', 'broken_count', 'pending_count', 'single_redirect_count', 'chain_redirect_count', 'loop_count' ),
+				array( 'total', 'external_count', 'internal_count', 'affiliate_count', 'cloaked_count', 'direct_affiliate_count', 'ok_count', 'broken_count', 'pending_count', 'error_count', 'timeout_count', 'skipped_count', 'redirect_count', 'single_redirect_count', 'chain_redirect_count', 'loop_count' ),
 				0
 			);
 		}
@@ -436,6 +440,10 @@ class LinksRepository {
 			'ok_count'               => (int) $row->ok_count,
 			'broken_count'           => (int) $row->broken_count,
 			'pending_count'          => (int) $row->pending_count,
+			'error_count'            => (int) $row->error_count,
+			'timeout_count'          => (int) $row->timeout_count,
+			'skipped_count'          => (int) $row->skipped_count,
+			'redirect_count'         => (int) $row->redirect_count,
 			'single_redirect_count'  => (int) $row->single_redirect_count,
 			'chain_redirect_count'   => (int) $row->chain_redirect_count,
 			'loop_count'             => (int) $row->loop_count,

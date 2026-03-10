@@ -11,7 +11,7 @@
 | Champ                  | Valeur                                              |
 |------------------------|------------------------------------------------------|
 | **Phase actuelle**     | Maintenance & Améliorations                       |
-| **Dernière session**   | Session 20 — 2026-03-10                              |
+| **Dernière session**   | Session 21 — 2026-03-10                              |
 | **Prochaine action**   | Déploiement final                                    |
 | **Blocages connus**    | Aucun                                                |
 | **URL admin LocalWP**  | http://localhost:10008/wp-admin/?localwp_auto_login=12 |
@@ -737,7 +737,7 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 
 **Gain mesuré (estimé) :** Réduction de ~60-80% du temps total de vérification HTTP sur les gros sites.
 
-### Session 20 — Link Visibility & Dashboard Fix (2026-03-10)
+### Session 20 — Fix link visibility and metrics (Initial) (2026-03-10)
 
 **Résumé :** Correction de la visibilité des liens "OK" et fiabilisation des métriques du dashboard.
 
@@ -764,3 +764,18 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 5. Répondre ou ajouter des **QUESTIONS OUVERTES**
 6. Ajouter les **BUGS CONNUS** le cas échéant
 7. Écrire un résumé dans **NOTES DE SESSION**
+
+### Session 21 — Link Metrics & Redirect Visibility (2026-03-10)
+
+**Résumé :** Correction de l'écart entre le nombre de liens "Checked" et la somme des catégories individuelles. Amélioration de la visibilité des redirections.
+
+**Changements :**
+- **Stats Étendues** : Inclusion des erreurs, timeouts et liens ignorés dans les statistiques globales (`LinksRepository`).
+- **Définition des Redirections** : Unification du comptage des redirections (`redirect_count > 0`) sur le dashboard et dans les filtres.
+- **Filtre "Redirects"** : Mise à jour du `QueryBuilder` pour inclure tous les liens ayant eu au moins un rebond, même s'ils finissent en OK ou Broken.
+- **Dashboard UI** : Ajout d'une carte "Errors" regroupant les échecs techniques (écarts de calcul corrigés).
+- **Scan Panel** : Message de fin de scan plus complet incluant redirections et erreurs.
+
+**Résultat :** Le total "Checked" correspond désormais exactement à la somme (OK + Redirects + Broken + Errors). Les redirections vers des erreurs (ex: 503 Amazon) sont désormais visibles dans l'onglet Redirects.
+
+---

@@ -81,8 +81,12 @@ class QueryBuilder {
 		// --- Filters on flc_links ---
 
 		if ( ! empty( $args['status'] ) ) {
-			$where_clauses[] = 'l.status_category = %s';
-			$where_params[]  = $args['status'];
+			if ( 'redirect' === $args['status'] ) {
+				$where_clauses[] = 'l.redirect_count > 0';
+			} else {
+				$where_clauses[] = 'l.status_category = %s';
+				$where_params[]  = $args['status'];
+			}
 		}
 
 		if ( ! empty( $args['link_type'] ) ) {

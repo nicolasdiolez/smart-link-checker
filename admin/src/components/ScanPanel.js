@@ -160,14 +160,18 @@ const ScanPanel = () => {
 			{scanStatus?.status === 'complete' && (
 				<p className="flc-scan-panel__complete">
 					{sprintf(
-						/* translators: 1: total links, 2: ok count, 3: broken count. */
+						/* translators: 1: total links, 2: ok count, 3: broken count, 4: redirects, 5: errors. */
 						__(
-							'Scan complete — %1$d links checked, %2$d OK, %3$d broken.',
+							'Scan complete — %1$d links checked: %2$d OK, %3$d redirects, %4$d broken, %5$d errors.',
 							'flavor-link-checker'
 						),
 						scanStatus.total_links || 0,
 						scanStatus.ok_count || 0,
-						scanStatus.broken_count || 0
+						scanStatus.redirect_count || 0,
+						scanStatus.broken_count || 0,
+						( scanStatus.error_count || 0 ) +
+							( scanStatus.timeout_count || 0 ) +
+							( scanStatus.skipped_count || 0 )
 					)}
 				</p>
 			)}

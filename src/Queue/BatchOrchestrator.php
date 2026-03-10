@@ -329,10 +329,15 @@ class BatchOrchestrator {
 
 		$stats = $this->links_repo->get_category_stats();
 		return array_merge( $status, array(
-			'total_links'    => $stats['total'],
-			'ok_count'       => $stats['ok_count'],
-			'broken_count'   => $stats['broken_count'],
-			'redirect_count' => $stats['single_redirect_count'] + $stats['chain_redirect_count'],
+			'total_links'     => $stats['total'],
+			'ok_count'        => $stats['ok_count'],
+			'broken_count'    => $stats['broken_count'],
+			'redirect_count'  => $stats['redirect_count'],
+			'error_count'     => $stats['error_count'],
+			'timeout_count'   => $stats['timeout_count'],
+			'skipped_count'   => $stats['skipped_count'],
+			'pending_count'   => $stats['pending_count'],
+			'checked_links'   => $stats['total'] - $stats['pending_count'],
 		) );
 	}
 

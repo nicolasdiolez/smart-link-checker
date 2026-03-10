@@ -25,14 +25,14 @@ const Dashboard = () => {
 		{
 			key: 'total',
 			label: __( 'Total Links', 'flavor-link-checker' ),
-			value: scanStatus?.total_links ?? '—',
+			value: scanStatus?.total_links ?? stats?.byCategory?.total ?? '—',
 			className: '',
 		},
 		{
-			key: 'broken',
-			label: __( 'Broken', 'flavor-link-checker' ),
-			value: scanStatus?.broken_count ?? stats?.byCategory?.broken_count ?? '—',
-			className: 'flc-summary-card--broken',
+			key: 'ok',
+			label: __( 'OK Links', 'flavor-link-checker' ),
+			value: scanStatus?.ok_count ?? stats?.byCategory?.ok_count ?? '—',
+			className: 'flc-summary-card--ok',
 		},
 		{
 			key: 'redirects',
@@ -41,10 +41,23 @@ const Dashboard = () => {
 			className: 'flc-summary-card--redirect',
 		},
 		{
-			key: 'ok',
-			label: __( 'OK Links', 'flavor-link-checker' ),
-			value: scanStatus?.ok_count ?? stats?.byCategory?.ok_count ?? '—',
-			className: 'flc-summary-card--ok',
+			key: 'broken',
+			label: __( 'Broken', 'flavor-link-checker' ),
+			value: scanStatus?.broken_count ?? stats?.byCategory?.broken_count ?? '—',
+			className: 'flc-summary-card--broken',
+		},
+		{
+			key: 'errors',
+			label: __( 'Errors', 'flavor-link-checker' ),
+			value:
+				( scanStatus?.error_count ?? 0 ) +
+					( scanStatus?.timeout_count ?? 0 ) +
+					( scanStatus?.skipped_count ?? 0 ) ||
+				( stats?.byCategory?.error_count ?? 0 ) +
+					( stats?.byCategory?.timeout_count ?? 0 ) +
+					( stats?.byCategory?.skipped_count ?? 0 ) ||
+				0,
+			className: 'flc-summary-card--broken',
 		},
 		{
 			key: 'checked',
