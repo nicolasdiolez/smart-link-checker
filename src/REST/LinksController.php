@@ -1,0 +1,897 @@
+<?php
+/**
+ * REST controller for link endpoints.
+ *
+ * @package FlavorLinkChecker
+ * @since   1.0.0
+ */
+
+declare( strict_types=1 );
+
+namespace FlavorLinkChecker\REST;
+
+defined( 'ABSPATH' ) || exit;
+
+use FlavorLinkChecker\Database\InstancesRepository;
+use FlavorLinkChecker\Database\LinksRepository;
+use FlavorLinkChecker\Database\QueryBuilder;
+use FlavorLinkChecker\Models\Enums\LinkStatus;
+use FlavorLinkChecker\Models\Link;
+use FlavorLinkChecker\Models\LinkInstance;
+use FlavorLinkChecker\Queue\SchedulerBootstrap;
+
+/**
+ * Handles REST API endpoints for links.
+ *
+ * @since 1.0.0
+ */
+class LinksController extends \WP_REST_Controller {
+
+	/**
+	 * @since 1.0.0
+	 * @var string
+	 */
+	protected $namespace = 'flavor-link-checker/v1';
+
+	/**
+	 * @since 1.0.0
+	 * @var string
+	 */
+	protected $rest_base = 'links';
+
+	/**
+	 * @since 1.0.0
+	 *
+	 * @param QueryBuilder        $query_builder  Filtered query builder.
+	 * @param LinksRepository     $links_repo     Links CRUD repository.
+	 * @param InstancesRepository $instances_repo Instances CRUD repository.
+	 */
+	public function __construct(
+		private readonly QueryBuilder $query_builder,
+		private readonly LinksRepository $links_repo,
+		private readonly InstancesRepository $instances_repo,
+	) {}
+
+	/**
+	 * Registers REST routes.
+	 *
+	 * @since 1.0.0
+	 */
+	public function register_routes(): void {
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => $this->get_items( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+					'args'                => $this->get_collection_params(),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => $this->get_item( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+					'args'                => array(
+						'id' => array(
+							'type'              => 'integer',
+							'required'          => true,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => $this->update_item( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+					'args'                => $this->get_update_params(),
+				),
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => $this->delete_item( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+					'args'                => array(
+						'id' => array(
+							'type'              => 'integer',
+							'required'          => true,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/bulk',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => $this->bulk_action( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+					'args'                => $this->get_bulk_params(),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/recheck',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => $this->recheck_item( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+					'args'                => array(
+						'id' => array(
+							'type'              => 'integer',
+							'required'          => true,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/stats',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => $this->get_stats( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/export',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => $this->export_csv( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+					'args'                => $this->get_collection_params(),
+				),
+			)
+		);
+
+		add_filter( 'rest_pre_serve_request', $this->serve_csv_response( ... ), 10, 4 );
+	}
+
+	/**
+	 * Permission check for all endpoints.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool
+	 */
+	public function check_permissions( \WP_REST_Request $request ): bool {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Retrieves a paginated, filtered list of links.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_items( $request ): \WP_REST_Response {
+		$args = array(
+			'status'            => $request->get_param( 'status' ),
+			'link_type'         => $request->get_param( 'link_type' ),
+			'is_affiliate'      => $request->has_param( 'is_affiliate' ) ? $request->get_param( 'is_affiliate' ) : null,
+			'is_cloaked'        => $request->has_param( 'is_cloaked' ) ? $request->get_param( 'is_cloaked' ) : null,
+			'affiliate_network' => $request->get_param( 'affiliate_network' ),
+			'rel'               => $request->get_param( 'rel' ),
+			'search'            => $request->get_param( 'search' ),
+			'post_id'           => $request->get_param( 'post_id' ),
+			'orderby'           => $request->get_param( 'orderby' ),
+			'order'             => $request->get_param( 'order' ),
+			'page'              => $request->get_param( 'page' ),
+			'per_page'          => $request->get_param( 'per_page' ),
+		);
+
+		// Remove null values so QueryBuilder uses defaults.
+		$args = array_filter( $args, fn( $v ) => null !== $v );
+
+		$result      = $this->query_builder->query( $args );
+		$total       = $result['total'];
+		$per_page    = min( max( (int) ( $args['per_page'] ?? 25 ), 1 ), 100 );
+		$total_pages = (int) ceil( $total / $per_page );
+
+		$data = array_map( fn( Link $link ) => $this->prepare_link_for_response( $link ), $result['items'] );
+
+		$response = new \WP_REST_Response( $data, 200 );
+		$response->header( 'X-WP-Total', (string) $total );
+		$response->header( 'X-WP-TotalPages', (string) $total_pages );
+
+		return $response;
+	}
+
+	/**
+	 * Retrieves a single link with its instances.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_item( $request ): \WP_REST_Response|\WP_Error {
+		$link = $this->links_repo->find( (int) $request->get_param( 'id' ) );
+
+		if ( null === $link ) {
+			return new \WP_Error(
+				'flc_link_not_found',
+				__( 'Link not found.', 'flavor-link-checker' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$instances = $this->instances_repo->find_by_link( $link->id );
+
+		$data              = $this->prepare_link_for_response( $link );
+		$data['instances'] = array_map( fn( LinkInstance $inst ) => $this->prepare_instance_for_response( $inst ), $instances );
+
+		return new \WP_REST_Response( $data, 200 );
+	}
+
+	/**
+	 * Updates a link's URL and/or rel attributes in the source post content.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_item( $request ): \WP_REST_Response|\WP_Error {
+		$link = $this->links_repo->find( (int) $request->get_param( 'id' ) );
+
+		if ( null === $link ) {
+			return new \WP_Error(
+				'flc_link_not_found',
+				__( 'Link not found.', 'flavor-link-checker' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$new_url = $request->get_param( 'url' );
+		$new_rel = $request->get_param( 'rel' );
+
+		if ( null === $new_url && null === $new_rel ) {
+			return new \WP_Error(
+				'flc_nothing_to_update',
+				__( 'Provide at least url or rel to update.', 'flavor-link-checker' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$instances     = $this->instances_repo->find_by_link( $link->id );
+		$updated_posts = 0;
+
+		foreach ( $instances as $instance ) {
+			$post = get_post( $instance->post_id );
+			if ( null === $post ) {
+				continue;
+			}
+
+			$updated_content = $this->replace_link_in_html(
+				$post->post_content,
+				$link->url,
+				$new_url,
+				$new_rel
+			);
+
+			if ( $updated_content !== $post->post_content ) {
+				wp_update_post(
+					array(
+						'ID'           => $post->ID,
+						'post_content' => $updated_content,
+					)
+				);
+				++$updated_posts;
+			}
+		}
+
+		// Update the link record in DB if URL changed.
+		if ( null !== $new_url && $new_url !== $link->url ) {
+			global $wpdb;
+			$links_table = $wpdb->prefix . 'flc_links';
+			$new_hash    = hash( 'sha256', $new_url );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE %i SET url = %s, url_hash = %s, status_category = 'pending', http_status = NULL, last_checked = NULL WHERE id = %d",
+					$links_table,
+					$new_url,
+					$new_hash,
+					$link->id
+				)
+			);
+		}
+
+		// Refresh link data.
+		$updated_link          = $this->links_repo->find( $link->id );
+		$data                  = $this->prepare_link_for_response( $updated_link ?? $link );
+		$data['updated_posts'] = $updated_posts;
+
+		return new \WP_REST_Response( $data, 200 );
+	}
+
+	/**
+	 * Deletes a link and removes it from post content.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function delete_item( $request ): \WP_REST_Response|\WP_Error {
+		$id   = (int) $request->get_param( 'id' );
+		$link = $this->links_repo->find( $id );
+
+		if ( null === $link ) {
+			return new \WP_Error(
+				'flc_link_not_found',
+				__( 'Link not found.', 'flavor-link-checker' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// Remove link from post content (replace <a> with its text content).
+		$instances = $this->instances_repo->find_by_link( $link->id );
+
+		foreach ( $instances as $instance ) {
+			$post = get_post( $instance->post_id );
+			if ( null === $post ) {
+				continue;
+			}
+
+			$updated_content = $this->unlink_in_html( $post->post_content, $link->url );
+
+			if ( $updated_content !== $post->post_content ) {
+				wp_update_post(
+					array(
+						'ID'           => $post->ID,
+						'post_content' => $updated_content,
+					)
+				);
+			}
+		}
+
+		$this->links_repo->delete( $id );
+
+		return new \WP_REST_Response(
+			array(
+				'deleted' => true,
+				'id'      => $id,
+			),
+			200
+		);
+	}
+
+	/**
+	 * Performs a bulk action on multiple links.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function bulk_action( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$action = $request->get_param( 'action' );
+		$ids    = $request->get_param( 'ids' );
+
+		$results = array(
+			'success' => 0,
+			'failed'  => 0,
+		);
+
+		foreach ( $ids as $id ) {
+			$id = absint( $id );
+
+			if ( 'recheck' === $action ) {
+				$link = $this->links_repo->find( $id );
+				if ( null !== $link ) {
+					SchedulerBootstrap::enqueue_check_batch( array( $id ) );
+					++$results['success'];
+				} else {
+					++$results['failed'];
+				}
+			} elseif ( 'delete' === $action ) {
+				$deleted = $this->links_repo->delete( $id );
+				if ( $deleted ) {
+					++$results['success'];
+				} else {
+					++$results['failed'];
+				}
+			}
+		}
+
+		$results['action'] = $action;
+
+		return new \WP_REST_Response( $results, 200 );
+	}
+
+	/**
+	 * Re-checks a single link by enqueueing an HTTP verification.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function recheck_item( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$id   = (int) $request->get_param( 'id' );
+		$link = $this->links_repo->find( $id );
+
+		if ( null === $link ) {
+			return new \WP_Error(
+				'flc_link_not_found',
+				__( 'Link not found.', 'flavor-link-checker' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// Reset status to pending before enqueuing.
+		$this->links_repo->update_check_result(
+			$id,
+			0,
+			LinkStatus::Pending,
+			null,
+			0,
+			0,
+			null,
+			null
+		);
+
+		SchedulerBootstrap::enqueue_check_batch( array( $id ) );
+
+		return new \WP_REST_Response(
+			array(
+				'id'      => $id,
+				'status'  => 'pending',
+				'message' => __( 'Link queued for re-checking.', 'flavor-link-checker' ),
+			),
+			200
+		);
+	}
+
+	/**
+	 * Returns aggregated link statistics by status, category, and network.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_stats( \WP_REST_Request $request ): \WP_REST_Response {
+		$by_status   = $this->links_repo->count_by_status();
+		$by_category = $this->links_repo->get_category_stats();
+		$by_network  = $this->links_repo->count_by_network();
+
+		return new \WP_REST_Response(
+			array(
+				'byStatus'   => $by_status,
+				'byCategory' => $by_category,
+				'byNetwork'  => $by_network,
+			),
+			200
+		);
+	}
+
+	/**
+	 * Exports all matching links as CSV.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function export_csv( \WP_REST_Request $request ): \WP_REST_Response {
+		$args = array(
+			'status'            => $request->get_param( 'status' ),
+			'link_type'         => $request->get_param( 'link_type' ),
+			'is_affiliate'      => $request->has_param( 'is_affiliate' ) ? $request->get_param( 'is_affiliate' ) : null,
+			'is_cloaked'        => $request->has_param( 'is_cloaked' ) ? $request->get_param( 'is_cloaked' ) : null,
+			'affiliate_network' => $request->get_param( 'affiliate_network' ),
+			'rel'               => $request->get_param( 'rel' ),
+			'search'            => $request->get_param( 'search' ),
+			'post_id'           => $request->get_param( 'post_id' ),
+			'orderby'           => $request->get_param( 'orderby' ),
+			'order'             => $request->get_param( 'order' ),
+			'per_page'          => 100,
+		);
+
+		$args = array_filter( $args, fn( $v ) => null !== $v );
+
+		$csv = fopen( 'php://temp', 'r+' );
+		fputcsv(
+			$csv,
+			array(
+				'ID',
+				'URL',
+				'Final URL',
+				'HTTP Status',
+				'Status',
+				'Type',
+				'Affiliate',
+				'Network',
+				'Cloaked',
+				'Redirect Count',
+				'Response Time (ms)',
+				'Instances',
+				'Last Checked',
+				'Last Error',
+			)
+		);
+
+		$page = 1;
+		do {
+			$args['page'] = $page;
+			$result       = $this->query_builder->query( $args );
+			$items        = $result['items'];
+
+			if ( empty( $items ) ) {
+				break;
+			}
+
+			$link_ids        = array_map( fn( Link $link ) => $link->id, $items );
+			$instance_counts = $this->instances_repo->count_by_link_ids( $link_ids );
+
+			foreach ( $items as $link ) {
+				$is_cloaked = $link->is_affiliate && ! $link->is_external;
+				fputcsv(
+					$csv,
+					array(
+						$link->id,
+						$link->url,
+						$link->final_url ?? '',
+						$link->http_status ?? '',
+						$link->status_category->value,
+						$link->is_external ? 'external' : 'internal',
+						$link->is_affiliate ? 'yes' : 'no',
+						$link->affiliate_network ?? '',
+						$is_cloaked ? 'yes' : 'no',
+						$link->redirect_count,
+						$link->response_time ?? '',
+						$instance_counts[ $link->id ] ?? 0,
+						$link->last_checked?->format( 'Y-m-d H:i:s' ) ?? '',
+						$link->last_error ?? '',
+					)
+				);
+			}
+
+			++$page;
+		} while ( count( $items ) === 100 );
+
+		rewind( $csv );
+		$csv_data = stream_get_contents( $csv );
+		fclose( $csv );
+
+		$response = new \WP_REST_Response( $csv_data, 200 );
+		$response->header( 'X-FLC-Export', 'csv' );
+
+		return $response;
+	}
+
+	/**
+	 * Intercepts REST response for CSV export to send raw CSV instead of JSON.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param bool              $served  Whether the request has been served.
+	 * @param \WP_HTTP_Response $result  Response object.
+	 * @param \WP_REST_Request  $request Request object.
+	 * @param \WP_REST_Server   $server  REST server instance.
+	 * @return bool
+	 */
+	public function serve_csv_response( bool $served, \WP_HTTP_Response $result, \WP_REST_Request $request, \WP_REST_Server $server ): bool {
+		if ( ! str_contains( $request->get_route(), '/' . $this->rest_base . '/export' ) ) {
+			return $served;
+		}
+
+		$filename = 'links-export-' . gmdate( 'Y-m-d' ) . '.csv';
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+
+		echo $result->get_data(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Raw CSV data.
+
+		return true;
+	}
+
+	/**
+	 * Returns the query params for the collection endpoint.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function get_collection_params(): array {
+		return array(
+			'page'              => array(
+				'type'              => 'integer',
+				'default'           => 1,
+				'minimum'           => 1,
+				'sanitize_callback' => 'absint',
+			),
+			'per_page'          => array(
+				'type'              => 'integer',
+				'default'           => 25,
+				'minimum'           => 1,
+				'maximum'           => 100,
+				'sanitize_callback' => 'absint',
+			),
+			'status'            => array(
+				'type'              => 'string',
+				'enum'              => array( 'ok', 'redirect', 'broken', 'error', 'timeout', 'pending', 'skipped' ),
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'link_type'         => array(
+				'type'              => 'string',
+				'enum'              => array( 'internal', 'external' ),
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'is_affiliate'      => array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'is_cloaked'        => array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'affiliate_network' => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'rel'               => array(
+				'type'              => 'string',
+				'enum'              => array( 'nofollow', 'sponsored', 'ugc', 'dofollow' ),
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'search'            => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'post_id'           => array(
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+			),
+			'orderby'           => array(
+				'type'              => 'string',
+				'default'           => 'created_at',
+				'enum'              => array( 'url', 'http_status', 'last_checked', 'created_at' ),
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'order'             => array(
+				'type'              => 'string',
+				'default'           => 'desc',
+				'enum'              => array( 'asc', 'desc' ),
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+		);
+	}
+
+	/**
+	 * Prepares a Link DTO for the REST response.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param Link $link Link DTO.
+	 * @return array<string, mixed>
+	 */
+	private function prepare_link_for_response( Link $link ): array {
+		return array(
+			'id'               => $link->id,
+			'url'              => $link->url,
+			'urlHash'          => $link->url_hash,
+			'finalUrl'         => $link->final_url,
+			'httpStatus'       => $link->http_status,
+			'statusCategory'   => $link->status_category->value,
+			'isExternal'       => $link->is_external,
+			'isAffiliate'      => $link->is_affiliate,
+			'affiliateNetwork' => $link->affiliate_network,
+			'responseTime'     => $link->response_time,
+			'redirectCount'    => $link->redirect_count,
+			'redirectChain'    => $link->redirect_chain ? json_decode( $link->redirect_chain, true ) : null,
+			'lastChecked'      => $link->last_checked?->format( 'c' ),
+			'checkCount'       => $link->check_count,
+			'lastError'        => $link->last_error,
+			'createdAt'        => $link->created_at->format( 'c' ),
+			'updatedAt'        => $link->updated_at->format( 'c' ),
+		);
+	}
+
+	/**
+	 * Prepares a LinkInstance DTO for the REST response.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param LinkInstance $instance Instance DTO.
+	 * @return array<string, mixed>
+	 */
+	private function prepare_instance_for_response( LinkInstance $instance ): array {
+		$post_title = get_the_title( $instance->post_id );
+
+		return array(
+			'id'           => $instance->id,
+			'linkId'       => $instance->link_id,
+			'postId'       => $instance->post_id,
+			'postTitle'    => $post_title,
+			'postEditUrl'  => get_edit_post_link( $instance->post_id, 'raw' ),
+			'sourceType'   => $instance->source_type,
+			'anchorText'   => $instance->anchor_text,
+			'relNofollow'  => $instance->rel_nofollow,
+			'relSponsored' => $instance->rel_sponsored,
+			'relUgc'       => $instance->rel_ugc,
+			'isDofollow'   => $instance->is_dofollow,
+			'linkPosition' => $instance->link_position,
+			'blockName'    => $instance->block_name,
+			'createdAt'    => $instance->created_at->format( 'c' ),
+		);
+	}
+
+	/**
+	 * Replaces a link's URL and/or rel attribute in HTML content.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string      $html    HTML content.
+	 * @param string      $old_url URL to find.
+	 * @param string|null $new_url New URL (null = keep current).
+	 * @param string|null $new_rel New rel attribute value (null = keep current).
+	 * @return string Updated HTML.
+	 */
+	private function replace_link_in_html( string $html, string $old_url, ?string $new_url, ?string $new_rel ): string {
+		if ( empty( $html ) ) {
+			return $html;
+		}
+
+		$dom = new \DOMDocument();
+		libxml_use_internal_errors( true );
+		$dom->loadHTML( '<?xml encoding="utf-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		libxml_clear_errors();
+
+		$modified = false;
+
+		foreach ( $dom->getElementsByTagName( 'a' ) as $node ) {
+			if ( $node->getAttribute( 'href' ) !== $old_url ) {
+				continue;
+			}
+
+			if ( null !== $new_url ) {
+				$node->setAttribute( 'href', $new_url );
+				$modified = true;
+			}
+
+			if ( null !== $new_rel ) {
+				if ( '' === $new_rel ) {
+					$node->removeAttribute( 'rel' );
+				} else {
+					$node->setAttribute( 'rel', $new_rel );
+				}
+				$modified = true;
+			}
+		}
+
+		if ( ! $modified ) {
+			return $html;
+		}
+
+		$output = $dom->saveHTML();
+		// Remove the XML encoding declaration we added.
+		$output = str_replace( '<?xml encoding="utf-8">', '', $output );
+
+		return $output;
+	}
+
+	/**
+	 * Removes a link from HTML, replacing <a> tags with their text content.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $html HTML content.
+	 * @param string $url  URL to unlink.
+	 * @return string Updated HTML.
+	 */
+	private function unlink_in_html( string $html, string $url ): string {
+		if ( empty( $html ) ) {
+			return $html;
+		}
+
+		$dom = new \DOMDocument();
+		libxml_use_internal_errors( true );
+		$dom->loadHTML( '<?xml encoding="utf-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		libxml_clear_errors();
+
+		$modified = false;
+		$nodes    = array();
+
+		// Collect matching nodes first (can't modify DOM while iterating).
+		foreach ( $dom->getElementsByTagName( 'a' ) as $node ) {
+			if ( $node->getAttribute( 'href' ) === $url ) {
+				$nodes[] = $node;
+			}
+		}
+
+		foreach ( $nodes as $node ) {
+			$text_node = $dom->createTextNode( $node->textContent );
+			$node->parentNode->replaceChild( $text_node, $node );
+			$modified = true;
+		}
+
+		if ( ! $modified ) {
+			return $html;
+		}
+
+		$output = $dom->saveHTML();
+		$output = str_replace( '<?xml encoding="utf-8">', '', $output );
+
+		return $output;
+	}
+
+	/**
+	 * Returns args schema for update endpoint.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private function get_update_params(): array {
+		return array(
+			'id'  => array(
+				'type'              => 'integer',
+				'required'          => true,
+				'sanitize_callback' => 'absint',
+			),
+			'url' => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'esc_url_raw',
+			),
+			'rel' => array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+		);
+	}
+
+	/**
+	 * Returns args schema for bulk endpoint.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private function get_bulk_params(): array {
+		return array(
+			'action' => array(
+				'type'              => 'string',
+				'required'          => true,
+				'enum'              => array( 'recheck', 'delete' ),
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'ids'    => array(
+				'type'              => 'array',
+				'required'          => true,
+				'items'             => array( 'type' => 'integer' ),
+				'maxItems'          => 100,
+				'sanitize_callback' => static function ( array $ids ): array {
+					return array_map( 'absint', $ids );
+				},
+			),
+		);
+	}
+}

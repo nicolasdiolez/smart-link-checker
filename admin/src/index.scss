@@ -1,0 +1,243 @@
+/**
+ * LinkChecker admin styles.
+ *
+ * @package FlavorLinkChecker
+ * @since   1.0.0
+ */
+
+/* ── App layout ─────────────────────────────────────────────────── */
+
+.flc-app {
+	max-width: 1200px;
+	margin: 20px 0;
+
+	h1 {
+		margin-bottom: 16px;
+	}
+}
+
+/* ── Dashboard summary cards ────────────────────────────────────── */
+
+.flc-summary-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 16px;
+	margin-top: 20px;
+}
+
+.flc-summary-card {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 20px;
+	text-align: center;
+
+	&__value {
+		display: block;
+		font-size: 32px;
+		font-weight: 600;
+		line-height: 1.2;
+	}
+
+	&__label {
+		display: block;
+		margin-top: 4px;
+		font-size: 13px;
+		color: #646970;
+	}
+
+	&--broken .flc-summary-card__value {
+		color: #d63638;
+	}
+
+	&--redirect .flc-summary-card__value {
+		color: #dba617;
+	}
+
+	&--internal .flc-summary-card__value {
+		color: #2271b1;
+	}
+
+	&--external .flc-summary-card__value {
+		color: #8c8f94;
+	}
+
+	&--affiliate .flc-summary-card__value {
+		color: #9b59b6;
+	}
+
+	&--cloaked .flc-summary-card__value {
+		color: #e67e22;
+	}
+}
+
+.flc-dashboard__section {
+	margin-top: 24px;
+
+	h3 {
+		margin: 0 0 4px;
+		font-size: 14px;
+		font-weight: 600;
+		color: #1d2327;
+	}
+}
+
+/* ── Scan panel ─────────────────────────────────────────────────── */
+
+.flc-scan-panel {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 16px;
+
+	&__controls {
+		display: flex;
+		gap: 8px;
+	}
+
+	&__progress {
+		margin-top: 12px;
+	}
+
+	&__status {
+		display: block;
+		margin-top: 6px;
+		font-size: 13px;
+		color: #646970;
+	}
+
+	&__complete {
+		margin: 8px 0 0;
+		font-size: 13px;
+		color: #00a32a;
+	}
+}
+
+.flc-progress-bar {
+	height: 8px;
+	background: #ddd;
+	border-radius: 4px;
+	overflow: hidden;
+
+	&__fill {
+		height: 100%;
+		background: #2271b1;
+		border-radius: 4px;
+		transition: width 0.3s ease;
+	}
+}
+
+/* ── Filter bar ─────────────────────────────────────────────────── */
+
+.flc-filter-bar {
+	margin-bottom: 12px;
+}
+
+/* ── Link table ─────────────────────────────────────────────────── */
+
+.flc-link-table {
+	margin-top: 16px;
+
+	&__toolbar {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 12px;
+	}
+}
+
+.flc-link-url {
+	word-break: break-all;
+	color: #2271b1;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.flc-http-status {
+	font-weight: 600;
+
+	&--broken,
+	&--error {
+		color: #d63638;
+	}
+
+	&--redirect {
+		color: #dba617;
+	}
+
+	&--ok {
+		color: #00a32a;
+	}
+
+	&--pending,
+	&--skipped {
+		color: #757575;
+	}
+}
+
+.flc-badge {
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+/* ── Edit modal ─────────────────────────────────────────────────── */
+
+.flc-edit-modal {
+	&__instances {
+		margin-top: 16px;
+		padding-top: 16px;
+		border-top: 1px solid #ddd;
+
+		h3 {
+			font-size: 13px;
+			margin: 0 0 8px;
+		}
+
+		ul {
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		li {
+			padding: 4px 0;
+			font-size: 13px;
+		}
+	}
+
+	&__anchor {
+		color: #646970;
+		font-style: italic;
+	}
+
+	&__actions {
+		display: flex;
+		gap: 8px;
+		margin-top: 16px;
+		justify-content: flex-end;
+	}
+}
+
+/* ── Settings ───────────────────────────────────────────────────── */
+
+.flc-settings {
+	margin-top: 16px;
+
+	&__actions {
+		margin-top: 16px;
+	}
+}
+
+/* ── Snackbar ───────────────────────────────────────────────────── */
+
+.flc-snackbar-list {
+	position: fixed;
+	bottom: 40px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 100000;
+}

@@ -1,0 +1,196 @@
+<?php
+/**
+ * Link extraction orchestrator.
+ *
+ * @package FlavorLinkChecker
+ * @since   1.0.0
+ */
+
+declare( strict_types=1 );
+
+namespace FlavorLinkChecker\Scanner;
+
+defined( 'ABSPATH' ) || exit;
+
+use FlavorLinkChecker\Models\Enums\LinkType;
+use FlavorLinkChecker\Models\ScanResult;
+
+/**
+ * Orchestrates link extraction from a WordPress post by combining
+ * ContentParser, BlockParser, and LinkClassifier.
+ *
+ * @since 1.0.0
+ */
+class LinkExtractor {
+
+	/**
+	 * Constructor.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param ContentParser  $content_parser HTML link extractor.
+	 * @param BlockParser    $block_parser   Gutenberg block extractor.
+	 * @param LinkClassifier $classifier     Link type and affiliate classifier.
+	 */
+	public function __construct(
+		private readonly ContentParser $content_parser,
+		private readonly BlockParser $block_parser,
+		private readonly LinkClassifier $classifier,
+	) {}
+
+	/**
+	 * Extracts all links from a WordPress post, combining all parser outputs.
+	 *
+	 * Returns a deduplicated structure keyed by URL hash, with all instances
+	 * that reference each unique URL.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_Post             $post     The post to extract links from.
+	 * @param array<string, mixed> $settings Plugin settings from flc_settings option.
+	 * @return array<string, array{
+	 *     url: string,
+	 *     url_hash: string,
+	 *     type: LinkType,
+	 *     is_affiliate: bool,
+	 *     affiliate_network: string|null,
+	 *     instances: array<int, array{
+	 *         scan_result: ScanResult,
+	 *         rel_flags: array{rel_nofollow: bool, rel_sponsored: bool, rel_ugc: bool, is_dofollow: bool}
+	 *     }>
+	 * }> Grouped by url_hash.
+	 */
+	public function extract_from_post( \WP_Post $post, array $settings = array() ): array {
+		$all_results = array();
+
+		// Extract from Gutenberg blocks if present.
+		if ( has_blocks( $post->post_content ) ) {
+			$all_results = array_merge( $all_results, $this->block_parser->parse( $post->post_content ) );
+		}
+
+		// Always parse the raw HTML as well (classic content, shortcode output).
+		$all_results = array_merge(
+			$all_results,
+			$this->content_parser->parse( $post->post_content, 'post_content' )
+		);
+
+		// Parse excerpt if non-empty.
+		if ( ! empty( $post->post_excerpt ) ) {
+			$all_results = array_merge(
+				$all_results,
+				$this->content_parser->parse( $post->post_excerpt, 'post_excerpt' )
+			);
+		}
+
+		// Parse custom fields if enabled.
+		if ( ! empty( $settings['scan_custom_fields'] ) ) {
+			$all_results = array_merge( $all_results, $this->extract_from_custom_fields( $post->ID ) );
+		}
+
+		return $this->deduplicate_and_classify( $all_results );
+	}
+
+	/**
+	 * Generates the SHA-256 hash used for URL deduplication.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $url The URL to hash.
+	 * @return string 64-character hex SHA-256 hash.
+	 */
+	public static function hash_url( string $url ): string {
+		return hash( 'sha256', $url );
+	}
+
+	/**
+	 * Extracts links from post custom fields that contain HTML.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int $post_id The post ID.
+	 * @return ScanResult[]
+	 */
+	private function extract_from_custom_fields( int $post_id ): array {
+		$results = array();
+		$meta    = get_post_meta( $post_id );
+
+		if ( ! is_array( $meta ) ) {
+			return $results;
+		}
+
+		foreach ( $meta as $meta_key => $meta_values ) {
+			// Skip internal/private meta keys.
+			if ( str_starts_with( $meta_key, '_' ) ) {
+				continue;
+			}
+
+			foreach ( $meta_values as $value ) {
+				if ( ! is_string( $value ) || '' === trim( $value ) ) {
+					continue;
+				}
+
+				// Only parse values that look like they contain HTML links.
+				if ( ! str_contains( $value, '<a ' ) && ! str_contains( $value, 'href' ) ) {
+					continue;
+				}
+
+				$results = array_merge(
+					$results,
+					$this->content_parser->parse( $value, 'custom_field' )
+				);
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Deduplicates scan results by URL and classifies each unique URL.
+	 *
+	 * Groups all instances referencing the same URL under a single entry.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param ScanResult[] $results Raw scan results from all parsers.
+	 * @return array<string, array{
+	 *     url: string,
+	 *     url_hash: string,
+	 *     type: LinkType,
+	 *     is_affiliate: bool,
+	 *     affiliate_network: string|null,
+	 *     instances: array<int, array{
+	 *         scan_result: ScanResult,
+	 *         rel_flags: array{rel_nofollow: bool, rel_sponsored: bool, rel_ugc: bool, is_dofollow: bool}
+	 *     }>
+	 * }>
+	 */
+	private function deduplicate_and_classify( array $results ): array {
+		$grouped = array();
+
+		foreach ( $results as $result ) {
+			$url_hash = self::hash_url( $result->url );
+
+			// Initialize the group for this URL if not yet seen.
+			if ( ! isset( $grouped[ $url_hash ] ) ) {
+				$affiliate = $this->classifier->detect_affiliate( $result->url, $result->rel );
+
+				$grouped[ $url_hash ] = array(
+					'url'               => $result->url,
+					'url_hash'          => $url_hash,
+					'type'              => $this->classifier->classify_type( $result->url ),
+					'is_affiliate'      => $affiliate['is_affiliate'],
+					'affiliate_network' => $affiliate['network'],
+					'instances'         => array(),
+				);
+			}
+
+			// Add this instance.
+			$grouped[ $url_hash ]['instances'][] = array(
+				'scan_result' => $result,
+				'rel_flags'   => $this->classifier->classify_rel( $result->rel ),
+			);
+		}
+
+		return $grouped;
+	}
+}

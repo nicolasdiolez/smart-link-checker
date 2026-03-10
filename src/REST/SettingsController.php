@@ -1,0 +1,243 @@
+<?php
+/**
+ * REST controller for settings endpoints.
+ *
+ * @package FlavorLinkChecker
+ * @since   1.0.0
+ */
+
+declare( strict_types=1 );
+
+namespace FlavorLinkChecker\REST;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Handles REST API endpoints for plugin settings.
+ *
+ * @since 1.0.0
+ */
+class SettingsController extends \WP_REST_Controller {
+
+	/**
+	 * @since 1.0.0
+	 * @var string
+	 */
+	protected $namespace = 'flavor-link-checker/v1';
+
+	/**
+	 * @since 1.0.0
+	 * @var string
+	 */
+	protected $rest_base = 'settings';
+
+	/**
+	 * Default settings values.
+	 *
+	 * @since 1.0.0
+	 * @var array<string, mixed>
+	 */
+	private const DEFAULTS = array(
+		'scan_post_types'    => array( 'post', 'page' ),
+		'check_timeout'      => 15,
+		'batch_size'         => 50,
+		'recheck_interval'   => 7,
+		'excluded_urls'      => array(),
+		'scan_custom_fields' => false,
+		'http_request_delay' => 300,
+	);
+
+	/**
+	 * Registers REST routes.
+	 *
+	 * @since 1.0.0
+	 */
+	public function register_routes(): void {
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
+			array(
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => $this->get_settings( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+				),
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => $this->update_settings( ... ),
+					'permission_callback' => $this->check_permissions( ... ),
+					'args'                => $this->get_update_args(),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Permission check for all endpoints.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool
+	 */
+	public function check_permissions( \WP_REST_Request $request ): bool {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Retrieves the current settings merged with defaults.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response
+	 */
+	public function get_settings( \WP_REST_Request $request ): \WP_REST_Response {
+		$settings = $this->get_merged_settings();
+
+		return new \WP_REST_Response( $settings, 200 );
+	}
+
+	/**
+	 * Updates settings (partial update allowed).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function update_settings( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$current = $this->get_merged_settings();
+		$params  = $request->get_json_params();
+		$updated = $current;
+		$errors  = array();
+
+		if ( isset( $params['scan_post_types'] ) ) {
+			if ( ! is_array( $params['scan_post_types'] ) ) {
+				$errors[] = __( 'scan_post_types must be an array.', 'flavor-link-checker' );
+			} else {
+				$updated['scan_post_types'] = array_map( 'sanitize_text_field', $params['scan_post_types'] );
+			}
+		}
+
+		if ( isset( $params['check_timeout'] ) ) {
+			$value = (int) $params['check_timeout'];
+			if ( $value < 5 || $value > 60 ) {
+				$errors[] = __( 'check_timeout must be between 5 and 60.', 'flavor-link-checker' );
+			} else {
+				$updated['check_timeout'] = $value;
+			}
+		}
+
+		if ( isset( $params['batch_size'] ) ) {
+			$value = (int) $params['batch_size'];
+			if ( $value < 10 || $value > 200 ) {
+				$errors[] = __( 'batch_size must be between 10 and 200.', 'flavor-link-checker' );
+			} else {
+				$updated['batch_size'] = $value;
+			}
+		}
+
+		if ( isset( $params['recheck_interval'] ) ) {
+			$value = (int) $params['recheck_interval'];
+			if ( $value < 1 || $value > 30 ) {
+				$errors[] = __( 'recheck_interval must be between 1 and 30.', 'flavor-link-checker' );
+			} else {
+				$updated['recheck_interval'] = $value;
+			}
+		}
+
+		if ( isset( $params['excluded_urls'] ) ) {
+			if ( ! is_array( $params['excluded_urls'] ) ) {
+				$errors[] = __( 'excluded_urls must be an array.', 'flavor-link-checker' );
+			} else {
+				$updated['excluded_urls'] = array_map( 'esc_url_raw', $params['excluded_urls'] );
+			}
+		}
+
+		if ( isset( $params['scan_custom_fields'] ) ) {
+			$updated['scan_custom_fields'] = (bool) $params['scan_custom_fields'];
+		}
+
+		if ( isset( $params['http_request_delay'] ) ) {
+			$value = (int) $params['http_request_delay'];
+			if ( $value < 0 || $value > 5000 ) {
+				$errors[] = __( 'http_request_delay must be between 0 and 5000.', 'flavor-link-checker' );
+			} else {
+				$updated['http_request_delay'] = $value;
+			}
+		}
+
+		if ( ! empty( $errors ) ) {
+			return new \WP_Error(
+				'flc_invalid_settings',
+				implode( ' ', $errors ),
+				array( 'status' => 400 )
+			);
+		}
+
+		update_option( 'flc_settings', $updated );
+
+		return new \WP_REST_Response( $updated, 200 );
+	}
+
+	/**
+	 * Returns the current settings merged with defaults.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function get_merged_settings(): array {
+		$stored = get_option( 'flc_settings', array() );
+
+		if ( ! is_array( $stored ) ) {
+			$stored = array();
+		}
+
+		return array_merge( self::DEFAULTS, $stored );
+	}
+
+	/**
+	 * Returns args schema for the update endpoint.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private function get_update_args(): array {
+		return array(
+			'scan_post_types'    => array(
+				'type'  => 'array',
+				'items' => array( 'type' => 'string' ),
+			),
+			'check_timeout'      => array(
+				'type'    => 'integer',
+				'minimum' => 5,
+				'maximum' => 60,
+			),
+			'batch_size'         => array(
+				'type'    => 'integer',
+				'minimum' => 10,
+				'maximum' => 200,
+			),
+			'recheck_interval'   => array(
+				'type'    => 'integer',
+				'minimum' => 1,
+				'maximum' => 30,
+			),
+			'excluded_urls'      => array(
+				'type'  => 'array',
+				'items' => array( 'type' => 'string' ),
+			),
+			'scan_custom_fields' => array(
+				'type' => 'boolean',
+			),
+			'http_request_delay' => array(
+				'type'    => 'integer',
+				'minimum' => 0,
+				'maximum' => 5000,
+			),
+		);
+	}
+}

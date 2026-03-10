@@ -1,0 +1,156 @@
+import '@testing-library/jest-dom';
+import { render, screen, fireEvent } from '@testing-library/react';
+import ScanPanel from '../ScanPanel';
+
+jest.mock( '@wordpress/i18n', () => ( {
+	__: ( str ) => str,
+	sprintf: ( str, ...args ) => {
+		let i = 0;
+		return str.replace( /%[0-9]*\$?[ds%]/g, () =>
+			String( args[ i++ ] ?? '' )
+		);
+	},
+} ) );
+
+const mockStartScan = jest.fn();
+const mockCancelScan = jest.fn();
+const mockFetchScanStatus = jest.fn();
+
+let mockSelectValues = {};
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: ( mapSelect ) => {
+		const selectorObj = {};
+		for ( const key of Object.keys( mockSelectValues ) ) {
+			selectorObj[ key ] = ( ...args ) => mockSelectValues[ key ];
+		}
+		return mapSelect( () => selectorObj );
+	},
+	useDispatch: () => ( {
+		startScan: mockStartScan,
+		cancelScan: mockCancelScan,
+		fetchScanStatus: mockFetchScanStatus,
+	} ),
+} ) );
+
+jest.mock( '@wordpress/components', () => ( {
+	Button: ( {
+		children,
+		onClick,
+		variant,
+		isBusy,
+		disabled,
+		isDestructive,
+		...rest
+	} ) => (
+		<button
+			onClick={ onClick }
+			disabled={ disabled }
+			data-variant={ variant }
+			data-busy={ isBusy ? 'true' : undefined }
+			data-destructive={ isDestructive ? 'true' : undefined }
+			{ ...rest }
+		>
+			{ children }
+		</button>
+	),
+} ) );
+
+jest.mock( '../../store', () => ( { STORE_NAME: 'flavor-link-checker' } ) );
+
+describe( 'ScanPanel', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		jest.useFakeTimers();
+		mockSelectValues = {};
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'renders Full Scan and Delta Scan buttons when idle', () => {
+		mockSelectValues.getScanStatus = { status: 'idle' };
+		mockSelectValues.isLoading = false;
+
+		render( <ScanPanel /> );
+
+		expect( screen.getByText( 'Full Scan' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Delta Scan' ) ).toBeInTheDocument();
+	} );
+
+	it( 'calls startScan with full on Full Scan click', () => {
+		mockSelectValues.getScanStatus = { status: 'idle' };
+		mockSelectValues.isLoading = false;
+
+		render( <ScanPanel /> );
+
+		fireEvent.click( screen.getByText( 'Full Scan' ) );
+		expect( mockStartScan ).toHaveBeenCalledWith( 'full' );
+	} );
+
+	it( 'calls startScan with delta on Delta Scan click', () => {
+		mockSelectValues.getScanStatus = { status: 'idle' };
+		mockSelectValues.isLoading = false;
+
+		render( <ScanPanel /> );
+
+		fireEvent.click( screen.getByText( 'Delta Scan' ) );
+		expect( mockStartScan ).toHaveBeenCalledWith( 'delta' );
+	} );
+
+	it( 'shows Cancel Scan button when running', () => {
+		mockSelectValues.getScanStatus = {
+			status: 'running',
+			total_posts: 100,
+			scanned_posts: 50,
+		};
+		mockSelectValues.isLoading = false;
+
+		render( <ScanPanel /> );
+
+		expect( screen.getByText( 'Cancel Scan' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Full Scan' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'calls cancelScan on Cancel button click', () => {
+		mockSelectValues.getScanStatus = {
+			status: 'running',
+			total_posts: 100,
+			scanned_posts: 50,
+		};
+		mockSelectValues.isLoading = false;
+
+		render( <ScanPanel /> );
+
+		fireEvent.click( screen.getByText( 'Cancel Scan' ) );
+		expect( mockCancelScan ).toHaveBeenCalled();
+	} );
+
+	it( 'shows progress bar when running', () => {
+		mockSelectValues.getScanStatus = {
+			status: 'running',
+			total_posts: 200,
+			scanned_posts: 100,
+		};
+		mockSelectValues.isLoading = false;
+
+		const { container } = render( <ScanPanel /> );
+
+		const fill = container.querySelector( '.flc-progress-bar__fill' );
+		expect( fill ).toBeInTheDocument();
+		expect( fill.style.width ).toBe( '50%' );
+	} );
+
+	it( 'shows completion message when complete', () => {
+		mockSelectValues.getScanStatus = {
+			status: 'complete',
+			total_links: 500,
+			broken_count: 12,
+		};
+		mockSelectValues.isLoading = false;
+
+		render( <ScanPanel /> );
+
+		expect( screen.getByText( /Scan complete/ ) ).toBeInTheDocument();
+	} );
+} );

@@ -1,0 +1,13 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - src/
+        - flavor-link-checker.php
+        - uninstall.php
+    bootstrapFiles:
+        - vendor/autoload.php
+    scanDirectories:
+        - vendor/woocommerce/action-scheduler/

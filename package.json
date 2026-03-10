@@ -1,0 +1,21 @@
+{
+    "name": "flavor-link-checker",
+    "version": "1.0.0",
+    "private": true,
+    "description": "LinkChecker admin interface",
+    "scripts": {
+        "build": "wp-scripts build admin/src/index.js --output-path=build",
+        "start": "wp-scripts start admin/src/index.js --output-path=build",
+        "lint:js": "wp-scripts lint-js admin/src/",
+        "lint:css": "wp-scripts lint-style admin/src/",
+        "test:js": "wp-scripts test-unit-js"
+    },
+    "devDependencies": {
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
+        "@wordpress/scripts": "^30.0"
+    },
+    "dependencies": {
+        "@wordpress/dataviews": "^13.0.0"
+    }
+}
