@@ -17,7 +17,7 @@ use FlavorLinkChecker\Models\Enums\LinkStatus;
 use FlavorLinkChecker\Scanner\HttpChecker;
 
 /**
- * Processes a batch of links: verifies their HTTP status.
+ * Processes a batch of links: verifies their HTTP status in parallel.
  *
  * Called by Action Scheduler via the CHECK_BATCH_HOOK.
  *
@@ -55,71 +55,79 @@ class CheckJob {
 	) {}
 
 	/**
-	 * Processes a batch of link IDs: checks their HTTP status.
+	 * Processes a batch of link IDs: checks their HTTP status in parallel.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param int[] $link_ids Array of link IDs to check.
 	 */
 	public function process_batch( array $link_ids ): void {
-		$this->start_time = microtime( true );
+		$this->start_time = \microtime( true );
 
 		$settings            = \get_option( 'flc_settings', array() );
 		$this->request_delay = (int) ( $settings['http_request_delay'] ?? 300 );
+		$parallel_size       = 5; // Default parallel cluster size.
 
-		$count = count( $link_ids );
-		for ( $i = 0; $i < $count; $i++ ) {
-			$link = $this->links_repo->find( $link_ids[ $i ] );
-			if ( null === $link ) {
+		$count    = \count( $link_ids );
+		$chunks   = \array_chunk( $link_ids, $parallel_size );
+		$offset   = 0;
+
+		foreach ( $chunks as $chunk_ids ) {
+			// Resolve URLs for the chunk.
+			$url_map = array(); // link_id => url
+			foreach ( $chunk_ids as $id ) {
+				$link = $this->links_repo->find( $id );
+				if ( $link ) {
+					$url_map[$id] = $link->url;
+				}
+			}
+
+			if ( empty( $url_map ) ) {
+				$offset += \count( $chunk_ids );
 				continue;
 			}
 
-			$this->check_link( $link->id, $link->url );
+			// Perform parallel check.
+			$results = $this->checker->check_batch( \array_values( $url_map ) );
 
-			// Rate limiting between requests.
-			if ( $i + 1 < $count ) {
+			// Process and persist results.
+			foreach ( $url_map as $id => $url ) {
+				$result = $results[$url] ?? null;
+				if ( $result ) {
+					$this->persist_result( $id, $result );
+				}
+			}
+
+			$offset += \count( $chunk_ids );
+
+			// Rate limiting between parallel chunks.
+			if ( $offset < $count ) {
 				$this->rate_limit_pause();
 			}
 
-			if ( ! $this->has_resources() && $i + 1 < $count ) {
-				// Re-enqueue remaining links.
-				$remaining = array_slice( $link_ids, $i + 1 );
-
-				/**
-				 * Fires when a check batch is split due to low resources.
-				 *
-				 * @since 1.3.0
-				 * @param int[] $link_ids  Original batch IDs.
-				 * @param int[] $remaining Remaining IDs.
-				 */
+			// Resource check.
+			if ( ! $this->has_resources() && $offset < $count ) {
+				$remaining = \array_slice( $link_ids, $offset );
+				
 				\do_action( 'flc/check/batch_split', $link_ids, $remaining );
-
 				SchedulerBootstrap::enqueue_check_batch( $remaining );
 				return;
 			}
 		}
 
-		/**
-		 * Fires when a check batch completes.
-		 *
-		 * @since 1.3.0
-		 * @param int[] $link_ids Processed link IDs.
-		 */
 		\do_action( 'flc/check/batch_complete', $link_ids );
 	}
 
 	/**
-	 * Checks a single link and updates the database.
+	 * Persists a check result to the database and updates progress.
 	 *
-	 * @since 1.0.0
+	 * @since 1.4.0
 	 *
-	 * @param int    $link_id The link ID.
-	 * @param string $url     The URL to check.
+	 * @param int   $link_id The link ID.
+	 * @param array $result  Check result data.
 	 */
-	private function check_link( int $link_id, string $url ): void {
+	private function persist_result( int $link_id, array $result ): void {
 		try {
-			$result = $this->checker->check( $url );
-
 			$chain_json = null !== $result['redirect_chain']
 				? \wp_json_encode( $result['redirect_chain'] )
 				: null;
@@ -140,31 +148,23 @@ class CheckJob {
 				$error
 			);
 
-			/**
-			 * Fires after a link has been checked.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param int   $link_id The checked link ID.
-			 * @param array $result  The check result.
-			 */
 			\do_action( 'flc/check/link_checked', $link_id, $result );
 
 			// Update progress.
 			$status = \get_transient( 'flc_scan_status' );
-			if ( is_array( $status ) ) {
-				$status['checked_links'] = ( $status['checked_links'] ?? 0 ) + 1;
+			if ( \is_array( $status ) ) {
+				$status['checked_links']  = ( $status['checked_links'] ?? 0 ) + 1;
+				$category                 = $result['status_category'];
 
-				if ( LinkStatus::Broken === $result['status_category'] ) {
+				if ( LinkStatus::Broken === $category ) {
 					$status['broken_count'] = ( $status['broken_count'] ?? 0 ) + 1;
-				} elseif ( LinkStatus::Redirect === $result['status_category'] ) {
+				} elseif ( LinkStatus::Redirect === $category ) {
 					$status['redirect_count'] = ( $status['redirect_count'] ?? 0 ) + 1;
 				}
 
 				\set_transient( 'flc_scan_status', $status, \HOUR_IN_SECONDS );
 			}
 		} catch ( \Throwable $e ) {
-			// Isolate errors: one failing link should not stop the batch.
 			$this->links_repo->update_check_result(
 				$link_id,
 				0,
@@ -185,7 +185,7 @@ class CheckJob {
 	 */
 	private function rate_limit_pause(): void {
 		if ( $this->request_delay > 0 ) {
-			usleep( $this->request_delay * 1000 );
+			\usleep( $this->request_delay * 1000 );
 		}
 	}
 
@@ -197,9 +197,9 @@ class CheckJob {
 	 * @return bool True if processing can continue.
 	 */
 	private function has_resources(): bool {
-		$memory_limit = wp_convert_hr_to_bytes( WP_MEMORY_LIMIT );
-		$memory_usage = memory_get_usage( true );
-		$time_elapsed = microtime( true ) - $this->start_time;
+		$memory_limit = \wp_convert_hr_to_bytes( \WP_MEMORY_LIMIT );
+		$memory_usage = \memory_get_usage( true );
+		$time_elapsed = \microtime( true ) - $this->start_time;
 
 		return ( $memory_usage < $memory_limit * 0.8 ) && ( $time_elapsed < 25 );
 	}

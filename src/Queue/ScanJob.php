@@ -26,7 +26,6 @@ use FlavorLinkChecker\Scanner\LinkExtractor;
  */
 class ScanJob {
 
-
 	/**
 	 * Timestamp when processing started.
 	 *
@@ -62,15 +61,15 @@ class ScanJob {
 	 * @param string $batch_id Batch identifier referencing a transient with post IDs.
 	 */
 	public function process_batch( string $batch_id ): void {
-		$this->start_time = microtime( true );
+		$this->start_time = \microtime( true );
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( "[FlavorLinkChecker] ScanJob::process_batch() started for batch {$batch_id}." );
+		\error_log( "[FlavorLinkChecker] ScanJob::process_batch() started for batch {$batch_id}." );
 
-		$batch_data = get_transient( 'flc_scan_batch_' . $batch_id );
+		$batch_data = \get_transient( 'flc_scan_batch_' . $batch_id );
 		if ( false === $batch_data || ! \is_array( $batch_data ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( "[FlavorLinkChecker] ScanJob::process_batch() failed to load data for batch {$batch_id}." );
+			\error_log( "[FlavorLinkChecker] ScanJob::process_batch() failed to load data for batch {$batch_id}." );
 			return;
 		}
 
@@ -83,7 +82,9 @@ class ScanJob {
 		\wp_defer_term_counting( true );
 
 		try {
-			$count = count( $post_ids );
+			$count                 = \count( $post_ids );
+			$processed_in_this_job = 0;
+
 			for ( $i = $offset; $i < $count; $i++ ) {
 				$post = \get_post( $post_ids[ $i ] );
 				if ( ! $post instanceof \WP_Post ) {
@@ -91,16 +92,30 @@ class ScanJob {
 				}
 
 				$this->process_post( $post, $settings );
-				$this->update_progress();
+				$processed_in_this_job++;
 
 				// Check resources after each post.
 				if ( ! $this->has_resources() && $i + 1 < $count ) {
+					$this->update_progress( $processed_in_this_job );
+					$processed_in_this_job = 0;
+
 					// Save offset and re-enqueue for continuation.
 					$batch_data['offset'] = $i + 1;
 					\set_transient( 'flc_scan_batch_' . $batch_id, $batch_data, \HOUR_IN_SECONDS );
 					SchedulerBootstrap::enqueue_scan_batch( $batch_id );
 					return;
 				}
+
+				// Periodic progress update every 20 articles.
+				if ( $processed_in_this_job >= 20 ) {
+					$this->update_progress( $processed_in_this_job );
+					$processed_in_this_job = 0;
+				}
+			}
+
+			// Final progress update.
+			if ( $processed_in_this_job > 0 ) {
+				$this->update_progress( $processed_in_this_job );
 			}
 
 			// All posts in this batch are processed.
@@ -222,11 +237,13 @@ class ScanJob {
 	 * Updates scan progress tracking.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param int $increment Number of posts processed to add to the total.
 	 */
-	private function update_progress(): void {
+	private function update_progress( int $increment ): void {
 		$status = \get_transient( 'flc_scan_status' );
 		if ( \is_array( $status ) ) {
-			$status['scanned_posts'] = ( $status['scanned_posts'] ?? 0 ) + 1;
+			$status['scanned_posts'] = ( $status['scanned_posts'] ?? 0 ) + $increment;
 			\set_transient( 'flc_scan_status', $status, \HOUR_IN_SECONDS );
 		}
 	}

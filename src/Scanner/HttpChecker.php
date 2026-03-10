@@ -74,7 +74,7 @@ class HttpChecker {
 		string $site_url = '',
 	) {
 		$this->timeout    = $timeout;
-		$this->site_url   = '' !== $site_url ? $site_url : home_url();
+		$this->site_url   = '' !== $site_url ? $site_url : \home_url();
 		$this->user_agent = 'Mozilla/5.0 (compatible; FlavorLinkChecker/' . FLC_VERSION . '; +' . $this->site_url . ')';
 	}
 
@@ -98,35 +98,139 @@ class HttpChecker {
 	 * }
 	 */
 	public function check( string $url ): array {
-		$url        = $this->ensure_absolute_url( $url );
-		$start_time = microtime( true );
+		$results = $this->check_batch( array( $url ) );
+		return $results[$url];
+	}
 
-		// Try HEAD first.
-		$response = $this->do_head( $url );
+	/**
+	 * Checks a batch of URLs in parallel.
+	 *
+	 * @since 1.4.0
+	 *
+	 * @param string[] $urls Array of URLs to check.
+	 * @return array<string, array{
+	 *     http_status: int,
+	 *     status_category: LinkStatus,
+	 *     final_url: string|null,
+	 *     response_time: int,
+	 *     redirect_count: int,
+	 *     redirect_chain: array<int, array{url: string, status: int}>|null,
+	 *     is_redirect_loop: bool,
+	 *     error: string|null,
+	 * }> Keyed by the original URL.
+	 */
+	public function check_batch( array $urls ): array {
+		$results    = array();
+		$start_time = \microtime( true );
 
-		// Handle WP_Error from HEAD.
-		if ( is_wp_error( $response ) ) {
-			return $this->build_error_result( $response, $start_time );
+		// Prepare requests.
+		$requests = array();
+		foreach ( $urls as $url ) {
+			$abs_url = $this->ensure_absolute_url( $url );
+			$requests[$url] = array(
+				'url'     => $abs_url,
+				'options' => \array_merge( $this->get_request_args(), array( 'type' => 'HEAD' ) ),
+			);
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Perform parallel HEAD requests.
+		$responses = \WpOrg\Requests\Requests::request_multiple( $requests );
 
-		// Fallback to GET if HEAD is not supported.
-		if ( $this->needs_get_fallback( $status_code ) ) {
-			$response = $this->do_get( $url );
+		// Process first pass (HEAD).
+		$fallback_urls = array();
+		foreach ( $urls as $url ) {
+			$response = $responses[$url] ?? null;
 
-			if ( is_wp_error( $response ) ) {
-				return $this->build_error_result( $response, $start_time );
+			if ( null === $response || $response instanceof \WpOrg\Requests\Exception || $response instanceof \WP_Error ) {
+				// Convert to result.
+				if ( $response instanceof \WpOrg\Requests\Exception ) {
+					$response = new \WP_Error( 'http_check_failed', $response->getMessage() );
+				} elseif ( null === $response ) {
+					$response = new \WP_Error( 'http_check_failed', 'Empty response' );
+				}
+				$results[$url] = $this->build_error_result( $response, $start_time );
+				continue;
 			}
 
-			$status_code = wp_remote_retrieve_response_code( $response );
+			$status_code = (int) ( $response->status_code ?? 0 );
+
+			if ( $this->needs_get_fallback( $status_code ) ) {
+				$fallback_urls[] = $url;
+				continue;
+			}
+
+			$results[$url] = $this->build_success_result( $response, $url, $start_time );
 		}
 
-		$response_time  = (int) round( ( microtime( true ) - $start_time ) * 1000 );
-		$final_url      = $this->detect_final_url( $response, $url );
-		$redirect_count = $this->count_redirects( $response );
-		$chain          = $this->extract_redirect_chain( $response );
-		$is_loop        = null !== $chain && $this->detect_redirect_loop( $chain );
+		// Second pass (GET fallback).
+		if ( ! empty( $fallback_urls ) ) {
+			$fallback_requests = array();
+			foreach ( $fallback_urls as $url ) {
+				$abs_url = $this->ensure_absolute_url( $url );
+				$fallback_requests[$url] = array(
+					'url'     => $abs_url,
+					'options' => \array_merge( 
+						$this->get_request_args(), 
+						array( 
+							'type'                 => 'GET',
+							'limit_response_size' => self::MAX_RESPONSE_SIZE,
+						) 
+					),
+				);
+			}
+
+			$fallback_responses = \WpOrg\Requests\Requests::request_multiple( $fallback_requests );
+
+			foreach ( $fallback_urls as $url ) {
+				$response = $fallback_responses[$url] ?? null;
+
+				if ( null === $response || $response instanceof \WpOrg\Requests\Exception || $response instanceof \WP_Error ) {
+					if ( $response instanceof \WpOrg\Requests\Exception ) {
+						$response = new \WP_Error( 'http_request_failed', $response->getMessage() );
+					} elseif ( null === $response ) {
+						$response = new \WP_Error( 'http_request_failed', 'Empty response' );
+					}
+					$results[$url] = $this->build_error_result( $response, $start_time );
+					continue;
+				}
+
+				$results[$url] = $this->build_success_result( $response, $url, $start_time );
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Builds a success result from a Requests response.
+	 *
+	 * @since 1.4.0
+	 *
+	 * @param \WpOrg\Requests\Response $response   The response object.
+	 * @param string                   $url        Original URL.
+	 * @param float                    $start_time Start time.
+	 * @return array
+	 */
+	private function build_success_result( $response, string $url, float $start_time ): array {
+		$status_code    = (int) ( $response->status_code ?? 0 );
+		$response_time  = (int) \round( ( \microtime( true ) - $start_time ) * 1000 );
+		
+		// In Requests library, final URL is available directly if was handled.
+		$final_url      = $response->url ?? $url;
+		
+		// Redirect history.
+		$history        = $response->history ?? array();
+		$redirect_count = \count( $history );
+		
+		$chainAttrs = array();
+		foreach ( $history as $entry ) {
+			$chainAttrs[] = array(
+				'url'    => $entry->url ?? '',
+				'status' => (int) ( $entry->status_code ?? 0 ),
+			);
+		}
+		$chain   = ! empty( $chainAttrs ) ? $chainAttrs : null;
+		$is_loop = null !== $chain && $this->detect_redirect_loop( $chain );
 
 		return array(
 			'http_status'      => $status_code,
@@ -141,33 +245,6 @@ class HttpChecker {
 	}
 
 	/**
-	 * Performs a HEAD request.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $url The URL to check.
-	 * @return array|\WP_Error Response array or WP_Error on failure.
-	 */
-	private function do_head( string $url ): array|\WP_Error {
-		return wp_remote_head( $url, $this->get_request_args() );
-	}
-
-	/**
-	 * Performs a GET request (fallback).
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $url The URL to check.
-	 * @return array|\WP_Error Response array or WP_Error on failure.
-	 */
-	private function do_get( string $url ): array|\WP_Error {
-		$args                        = $this->get_request_args();
-		$args['limit_response_size'] = self::MAX_RESPONSE_SIZE;
-
-		return wp_remote_get( $url, $args );
-	}
-
-	/**
 	 * Determines if the HEAD response warrants a GET fallback.
 	 *
 	 * @since 1.0.0
@@ -176,7 +253,7 @@ class HttpChecker {
 	 * @return bool
 	 */
 	private function needs_get_fallback( int $status_code ): bool {
-		return in_array( $status_code, self::GET_FALLBACK_CODES, true );
+		return \in_array( $status_code, self::GET_FALLBACK_CODES, true );
 	}
 
 	/**
@@ -189,15 +266,15 @@ class HttpChecker {
 	 */
 	private function ensure_absolute_url( string $url ): string {
 		// Protocol-relative URLs.
-		if ( str_starts_with( $url, '//' ) ) {
-			$parsed = wp_parse_url( $this->site_url );
+		if ( \str_starts_with( $url, '//' ) ) {
+			$parsed = \wp_parse_url( $this->site_url );
 			$scheme = $parsed['scheme'] ?? 'https';
 			return $scheme . ':' . $url;
 		}
 
 		// Relative URLs.
-		if ( str_starts_with( $url, '/' ) ) {
-			return rtrim( $this->site_url, '/' ) . $url;
+		if ( \str_starts_with( $url, '/' ) ) {
+			return \rtrim( $this->site_url, '/' ) . $url;
 		}
 
 		return $url;
@@ -230,18 +307,18 @@ class HttpChecker {
 	 * @return array{http_status: int, status_category: LinkStatus, final_url: null, response_time: int, redirect_count: int, redirect_chain: null, is_redirect_loop: bool, error: string}
 	 */
 	private function build_error_result( \WP_Error $error, float $start_time ): array {
-		$response_time = (int) round( ( microtime( true ) - $start_time ) * 1000 );
+		$response_time = (int) \round( ( \microtime( true ) - $start_time ) * 1000 );
 		$error_message = $error->get_error_message();
-		$error_lower   = strtolower( $error_message );
+		$error_lower   = \strtolower( $error_message );
 
-		// Detect redirect loop errors (check before timeout since both may match).
-		$is_loop = str_contains( $error_lower, 'too many redirects' )
-			|| str_contains( $error_lower, 'redirect loop' );
+		// Detect redirect loop errors.
+		$is_loop = \str_contains( $error_lower, 'too many redirects' )
+			|| \str_contains( $error_lower, 'redirect loop' );
 
 		// Detect timeout errors.
 		$is_timeout = ! $is_loop
-			&& ( str_contains( $error_lower, 'timed out' )
-				|| str_contains( $error_lower, 'timeout' )
+			&& ( \str_contains( $error_lower, 'timed out' )
+				|| \str_contains( $error_lower, 'timeout' )
 				|| 'http_request_failed' === $error->get_error_code() );
 
 		$final_error = $is_loop ? 'redirect_loop: ' . $error_message : $error_message;
@@ -264,32 +341,6 @@ class HttpChecker {
 	}
 
 	/**
-	 * Extracts the full redirect chain from the response history.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @param array $response The HTTP response array.
-	 * @return array<int, array{url: string, status: int}>|null Null if no redirects.
-	 */
-	private function extract_redirect_chain( array $response ): ?array {
-		$history = $response['http_response']?->get_response_object()->history ?? array();
-
-		if ( ! is_countable( $history ) || 0 === count( $history ) ) {
-			return null;
-		}
-
-		$chain = array();
-		foreach ( $history as $entry ) {
-			$chain[] = array(
-				'url'    => $entry->url ?? '',
-				'status' => (int) ( $entry->status_code ?? 0 ),
-			);
-		}
-
-		return $chain;
-	}
-
-	/**
 	 * Detects whether a redirect chain contains a loop (repeated URL).
 	 *
 	 * @since 1.1.0
@@ -298,39 +349,7 @@ class HttpChecker {
 	 * @return bool True if a loop is detected.
 	 */
 	private function detect_redirect_loop( array $chain ): bool {
-		$urls = array_column( $chain, 'url' );
-		return count( $urls ) !== count( array_unique( $urls ) );
-	}
-
-	/**
-	 * Detects the final URL after redirects.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array  $response The HTTP response array.
-	 * @param string $original The original requested URL.
-	 * @return string The final URL.
-	 */
-	private function detect_final_url( array $response, string $original ): string {
-		// Check for redirect history in the response.
-		$redirects = $response['http_response']?->get_response_object()->url ?? null;
-		if ( null !== $redirects && $redirects !== $original ) {
-			return $redirects;
-		}
-
-		return $original;
-	}
-
-	/**
-	 * Counts the number of redirect hops.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array $response The HTTP response array.
-	 * @return int Number of redirects.
-	 */
-	private function count_redirects( array $response ): int {
-		$history = $response['http_response']?->get_response_object()->history ?? array();
-		return is_countable( $history ) ? count( $history ) : 0;
+		$urls = \array_column( $chain, 'url' );
+		return \count( $urls ) !== \count( \array_unique( $urls ) );
 	}
 }

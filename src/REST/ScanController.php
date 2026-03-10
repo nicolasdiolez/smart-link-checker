@@ -55,10 +55,10 @@ class ScanController extends \WP_REST_Controller {
 	 * @since 1.0.0
 	 */
 	public function register_routes(): void {
-		register_rest_route(
+		\register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/start',
-			array(
+array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => $this->start_scan( ... ),
@@ -75,10 +75,10 @@ class ScanController extends \WP_REST_Controller {
 			)
 		);
 
-		register_rest_route(
+		\register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/status',
-			array(
+array(
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => $this->get_status( ... ),
@@ -87,10 +87,10 @@ class ScanController extends \WP_REST_Controller {
 			)
 		);
 
-		register_rest_route(
+		\register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/cancel',
-			array(
+array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => $this->cancel_scan( ... ),
@@ -99,10 +99,10 @@ class ScanController extends \WP_REST_Controller {
 			)
 		);
 
-		register_rest_route(
+		\register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/debug',
-			array(
+array(
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => $this->get_debug_info( ... ),
@@ -111,10 +111,10 @@ class ScanController extends \WP_REST_Controller {
 			)
 		);
 
-		register_rest_route(
+		\register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/resume',
-			array(
+array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => $this->resume_scan( ... ),
@@ -123,10 +123,10 @@ class ScanController extends \WP_REST_Controller {
 			)
 		);
 
-		register_rest_route(
+		\register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/reset',
-			array(
+array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => $this->reset_scan( ... ),
@@ -145,7 +145,7 @@ class ScanController extends \WP_REST_Controller {
 	 * @return bool
 	 */
 	public function check_permissions( \WP_REST_Request $request ): bool {
-		return current_user_can( 'manage_options' );
+		return \current_user_can( 'manage_options' );
 	}
 
 	/**
@@ -164,7 +164,7 @@ class ScanController extends \WP_REST_Controller {
 		if ( 'running' === $current_status['status'] ) {
 			return new \WP_Error(
 				'flc_scan_already_running',
-				__( 'A scan is already in progress.', 'flavor-link-checker' ),
+				\__( 'A scan is already in progress.', 'flavor-link-checker' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -225,7 +225,7 @@ class ScanController extends \WP_REST_Controller {
 		if ( ! $resumed ) {
 			return new \WP_Error(
 				'flc_scan_cannot_resume',
-				__( 'Scan cannot be resumed. It may have already finished or was never started.', 'flavor-link-checker' ),
+				\__( 'Scan cannot be resumed. It may have already finished or was never started.', 'flavor-link-checker' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -260,10 +260,10 @@ class ScanController extends \WP_REST_Controller {
 			array(
 				'scan_status'  => $this->orchestrator->get_status(),
 				'diagnostics'  => SchedulerBootstrap::get_diagnostics(),
-				'php_version'  => PHP_VERSION,
-				'wp_version'   => get_bloginfo( 'version' ),
-				'memory_limit' => defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : ini_get( 'memory_limit' ),
-				'timestamp'    => gmdate( 'c' ),
+				'php_version'  => \PHP_VERSION,
+				'wp_version'   => \get_bloginfo( 'version' ),
+				'memory_limit' => \defined( 'WP_MEMORY_LIMIT' ) ? \WP_MEMORY_LIMIT : \ini_get( 'memory_limit' ),
+				'timestamp'    => \gmdate( 'c' ),
 			),
 			200
 		);

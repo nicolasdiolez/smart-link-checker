@@ -61,33 +61,43 @@ class LinkExtractor {
 	 * }> Grouped by url_hash.
 	 */
 	public function extract_from_post( \WP_Post $post, array $settings = array() ): array {
-		$all_results = array();
+		$results = array();
 
-		// Extract from Gutenberg blocks if present.
-		if ( has_blocks( $post->post_content ) ) {
-			$all_results = array_merge( $all_results, $this->block_parser->parse( $post->post_content ) );
+		// Priority 1: Extract from Gutenberg blocks if supported and present.
+		$has_blocks = \has_blocks( $post->post_content );
+		if ( $has_blocks ) {
+			$results = $this->block_parser->parse( $post->post_content );
 		}
 
-		// Always parse the raw HTML as well (classic content, shortcode output).
-		$all_results = array_merge(
-			$all_results,
-			$this->content_parser->parse( $post->post_content, 'post_content' )
-		);
+		// Priority 2: Extract from raw content (only if not already fully covered by blocks or if fallback is needed).
+		if ( ! $has_blocks ) {
+			$raw_results = $this->content_parser->parse( $post->post_content, 'post_content' );
+			$results     = array_merge( $results, $raw_results );
+		}
 
-		// Parse excerpt if non-empty.
+		// Priority 3: Extract from excerpt and custom fields.
 		if ( ! empty( $post->post_excerpt ) ) {
-			$all_results = array_merge(
-				$all_results,
-				$this->content_parser->parse( $post->post_excerpt, 'post_excerpt' )
-			);
+			$excerpt_results = $this->content_parser->parse( $post->post_excerpt, 'post_excerpt' );
+			$results         = array_merge( $results, $excerpt_results );
 		}
 
 		// Parse custom fields if enabled.
-		if ( ! empty( $settings['scan_custom_fields'] ) ) {
-			$all_results = array_merge( $all_results, $this->extract_from_custom_fields( $post->ID ) );
+		$custom_fields = $settings['scan_custom_fields'] ?? array();
+		if ( ! empty( $custom_fields ) ) {
+			foreach ( $custom_fields as $field ) {
+				$value = \get_post_meta( $post->ID, $field, true );
+				if ( ! empty( $value ) && \is_string( $value ) ) {
+					$field_results = $this->content_parser->parse( $value, 'custom_field' );
+					$results       = \array_merge( $results, $field_results );
+				}
+			}
 		}
 
-		return $this->deduplicate_and_classify( $all_results );
+		if ( empty( $results ) ) {
+			return array();
+		}
+
+		return $this->deduplicate_and_classify( $results, $settings );
 	}
 
 	/**
@@ -99,7 +109,7 @@ class LinkExtractor {
 	 * @return string 64-character hex SHA-256 hash.
 	 */
 	public static function hash_url( string $url ): string {
-		return hash( 'sha256', $url );
+		return \hash( 'sha256', $url );
 	}
 
 	/**
@@ -112,29 +122,29 @@ class LinkExtractor {
 	 */
 	private function extract_from_custom_fields( int $post_id ): array {
 		$results = array();
-		$meta    = get_post_meta( $post_id );
+		$meta    = \get_post_meta( $post_id );
 
-		if ( ! is_array( $meta ) ) {
+		if ( ! \is_array( $meta ) ) {
 			return $results;
 		}
 
 		foreach ( $meta as $meta_key => $meta_values ) {
 			// Skip internal/private meta keys.
-			if ( str_starts_with( $meta_key, '_' ) ) {
+			if ( \str_starts_with( $meta_key, '_' ) ) {
 				continue;
 			}
 
 			foreach ( $meta_values as $value ) {
-				if ( ! is_string( $value ) || '' === trim( $value ) ) {
+				if ( ! \is_string( $value ) || '' === \trim( $value ) ) {
 					continue;
 				}
 
 				// Only parse values that look like they contain HTML links.
-				if ( ! str_contains( $value, '<a ' ) && ! str_contains( $value, 'href' ) ) {
+				if ( ! \str_contains( $value, '<a ' ) && ! \str_contains( $value, 'href' ) ) {
 					continue;
 				}
 
-				$results = array_merge(
+				$results = \array_merge(
 					$results,
 					$this->content_parser->parse( $value, 'custom_field' )
 				);
@@ -151,7 +161,8 @@ class LinkExtractor {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param ScanResult[] $results Raw scan results from all parsers.
+	 * @param ScanResult[]         $results  Raw scan results from all parsers.
+	 * @param array<string, mixed> $settings Plugin settings.
 	 * @return array<string, array{
 	 *     url: string,
 	 *     url_hash: string,
@@ -164,7 +175,7 @@ class LinkExtractor {
 	 *     }>
 	 * }>
 	 */
-	private function deduplicate_and_classify( array $results ): array {
+	private function deduplicate_and_classify( array $results, array $settings = array() ): array {
 		$grouped = array();
 
 		foreach ( $results as $result ) {
@@ -210,14 +221,14 @@ class LinkExtractor {
 	 * @return bool True if media URL.
 	 */
 	private function is_media_url( string $url ): bool {
-		$parsed = wp_parse_url( $url );
-		$path   = $parsed['path'] ?? '';
+		$parsed     = \wp_parse_url( $url );
+		$path       = $parsed['path'] ?? '';
 
 		if ( '' === $path ) {
 			return false;
 		}
 
-		$extension = strtolower( pathinfo( $path, PATHINFO_EXTENSION ) );
+		$extension  = \strtolower( \pathinfo( $path, PATHINFO_EXTENSION ) );
 		$media_exts = array(
 			// Images.
 			'jpg',
@@ -261,6 +272,6 @@ class LinkExtractor {
 			'flv',
 		);
 
-		return in_array( $extension, $media_exts, true );
+		return \in_array( $extension, $media_exts, true );
 	}
 }
