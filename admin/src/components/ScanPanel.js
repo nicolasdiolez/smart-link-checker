@@ -22,7 +22,7 @@ const ScanPanel = () => {
 		(select) => select(STORE_NAME).isLoading('scan'),
 		[]
 	);
-	const { startScan, cancelScan, resumeScan, resetScan, fetchScanStatus } =
+	const { startScan, cancelScan, resumeScan, resetScan, fetchScanStatus, refreshData } =
 		useDispatch(STORE_NAME);
 
 	const isRunning = scanStatus?.status === 'running';
@@ -35,6 +35,13 @@ const ScanPanel = () => {
 		const id = setTimeout(() => fetchScanStatus(), POLL_INTERVAL);
 		return () => clearTimeout(id);
 	}, [isRunning, scanStatus, fetchScanStatus]);
+ 
+	// Refresh everything when scan completes.
+	useEffect(() => {
+		if (scanStatus?.status === 'complete') {
+			refreshData();
+		}
+	}, [scanStatus?.status, refreshData]);
 
 	const handleStart = useCallback(
 		(type) => () => startScan(type),
@@ -153,12 +160,13 @@ const ScanPanel = () => {
 			{scanStatus?.status === 'complete' && (
 				<p className="flc-scan-panel__complete">
 					{sprintf(
-						/* translators: 1: total links, 2: broken count. */
+						/* translators: 1: total links, 2: ok count, 3: broken count. */
 						__(
-							'Scan complete — %1$d links found, %2$d broken.',
+							'Scan complete — %1$d links checked, %2$d OK, %3$d broken.',
 							'flavor-link-checker'
 						),
 						scanStatus.total_links || 0,
+						scanStatus.ok_count || 0,
 						scanStatus.broken_count || 0
 					)}
 				</p>

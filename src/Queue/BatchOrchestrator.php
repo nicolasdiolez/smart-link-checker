@@ -282,7 +282,13 @@ class BatchOrchestrator {
 		}
 
 		if ( 'running' !== $status['status'] ) {
-			return $status;
+			$stats = $this->links_repo->get_category_stats();
+			return array_merge( $status, array(
+				'total_links'    => $stats['total'],
+				'ok_count'       => $stats['ok_count'],
+				'broken_count'   => $stats['broken_count'],
+				'redirect_count' => $stats['single_redirect_count'] + $stats['chain_redirect_count'],
+			) );
 		}
 
 		// Nudge the AS queue runner on every status poll.
@@ -321,7 +327,13 @@ class BatchOrchestrator {
 			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
 		}
 
-		return $status;
+		$stats = $this->links_repo->get_category_stats();
+		return array_merge( $status, array(
+			'total_links'    => $stats['total'],
+			'ok_count'       => $stats['ok_count'],
+			'broken_count'   => $stats['broken_count'],
+			'redirect_count' => $stats['single_redirect_count'] + $stats['chain_redirect_count'],
+		) );
 	}
 
 	/**
@@ -332,15 +344,17 @@ class BatchOrchestrator {
 	 * @return array<string, mixed>
 	 */
 	private function get_idle_status(): array {
+		$stats = $this->links_repo->get_category_stats();
 		return array(
 			'status'         => 'idle',
 			'phase'          => null,
 			'total_posts'    => 0,
 			'scanned_posts'  => 0,
-			'total_links'    => 0,
-			'checked_links'  => 0,
-			'broken_count'   => 0,
-			'redirect_count' => 0,
+			'total_links'    => $stats['total'],
+			'checked_links'  => $stats['total'] - $stats['pending_count'],
+			'ok_count'       => $stats['ok_count'],
+			'broken_count'   => $stats['broken_count'],
+			'redirect_count' => $stats['single_redirect_count'] + $stats['chain_redirect_count'],
 			'started_at'     => null,
 			'error_message'  => null,
 		);

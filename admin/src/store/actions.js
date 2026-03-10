@@ -336,3 +336,10 @@ export function bulkAction(action, ids) {
 		}
 	};
 }
+
+export function refreshData() {
+	return async ({ dispatch }) => {
+		dispatch(fetchStats());
+		dispatch(fetchScanStatus());
+	};
+}

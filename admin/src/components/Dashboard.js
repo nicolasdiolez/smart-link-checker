@@ -31,19 +31,25 @@ const Dashboard = () => {
 		{
 			key: 'broken',
 			label: __( 'Broken', 'flavor-link-checker' ),
-			value: scanStatus?.broken_count ?? '—',
+			value: scanStatus?.broken_count ?? stats?.byCategory?.broken_count ?? '—',
 			className: 'flc-summary-card--broken',
 		},
 		{
 			key: 'redirects',
 			label: __( 'Redirects', 'flavor-link-checker' ),
-			value: scanStatus?.redirect_count ?? '—',
+			value: scanStatus?.redirect_count ?? stats?.byCategory?.redirect_count ?? '—',
 			className: 'flc-summary-card--redirect',
+		},
+		{
+			key: 'ok',
+			label: __( 'OK Links', 'flavor-link-checker' ),
+			value: scanStatus?.ok_count ?? stats?.byCategory?.ok_count ?? '—',
+			className: 'flc-summary-card--ok',
 		},
 		{
 			key: 'checked',
 			label: __( 'Checked', 'flavor-link-checker' ),
-			value: scanStatus?.checked_links ?? '—',
+			value: scanStatus?.checked_links ?? (stats?.byCategory ? (stats.byCategory.total - stats.byCategory.pending_count) : '—'),
 			className: '',
 		},
 	];

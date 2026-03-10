@@ -405,6 +405,9 @@ class LinksRepository {
 					SUM(is_affiliate = 1) as affiliate_count,
 					SUM(is_affiliate = 1 AND is_external = 0) as cloaked_count,
 					SUM(is_affiliate = 1 AND is_external = 1) as direct_affiliate_count,
+					SUM(CASE WHEN status_category = \'ok\' THEN 1 ELSE 0 END) as ok_count,
+					SUM(CASE WHEN status_category = \'broken\' THEN 1 ELSE 0 END) as broken_count,
+					SUM(CASE WHEN status_category = \'pending\' THEN 1 ELSE 0 END) as pending_count,
 					SUM(redirect_count = 1) as single_redirect_count,
 					SUM(redirect_count > 1) as chain_redirect_count,
 					SUM(last_error LIKE %s) as loop_count
@@ -418,7 +421,7 @@ class LinksRepository {
 
 		if ( null === $row ) {
 			return array_fill_keys(
-				array( 'total', 'external_count', 'internal_count', 'affiliate_count', 'cloaked_count', 'direct_affiliate_count', 'single_redirect_count', 'chain_redirect_count', 'loop_count' ),
+				array( 'total', 'external_count', 'internal_count', 'affiliate_count', 'cloaked_count', 'direct_affiliate_count', 'ok_count', 'broken_count', 'pending_count', 'single_redirect_count', 'chain_redirect_count', 'loop_count' ),
 				0
 			);
 		}
@@ -430,6 +433,9 @@ class LinksRepository {
 			'affiliate_count'        => (int) $row->affiliate_count,
 			'cloaked_count'          => (int) $row->cloaked_count,
 			'direct_affiliate_count' => (int) $row->direct_affiliate_count,
+			'ok_count'               => (int) $row->ok_count,
+			'broken_count'           => (int) $row->broken_count,
+			'pending_count'          => (int) $row->pending_count,
 			'single_redirect_count'  => (int) $row->single_redirect_count,
 			'chain_redirect_count'   => (int) $row->chain_redirect_count,
 			'loop_count'             => (int) $row->loop_count,

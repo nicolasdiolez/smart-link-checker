@@ -259,7 +259,7 @@ array(
 		return new \WP_REST_Response(
 			array(
 				'scan_status'  => $this->orchestrator->get_status(),
-				'diagnostics'  => SchedulerBootstrap::get_diagnostics(),
+				'diagnostics'  => \FlavorLinkChecker\Queue\SchedulerBootstrap::get_diagnostics(),
 				'php_version'  => \PHP_VERSION,
 				'wp_version'   => \get_bloginfo( 'version' ),
 				'memory_limit' => \defined( 'WP_MEMORY_LIMIT' ) ? \WP_MEMORY_LIMIT : \ini_get( 'memory_limit' ),

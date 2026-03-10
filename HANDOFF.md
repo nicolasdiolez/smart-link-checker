@@ -11,7 +11,7 @@
 | Champ                  | Valeur                                              |
 |------------------------|------------------------------------------------------|
 | **Phase actuelle**     | Maintenance & Améliorations                       |
-| **Dernière session**   | Session 19 — 2026-03-10                              |
+| **Dernière session**   | Session 20 — 2026-03-10                              |
 | **Prochaine action**   | Déploiement final                                    |
 | **Blocages connus**    | Aucun                                                |
 | **URL admin LocalWP**  | http://localhost:10008/wp-admin/?localwp_auto_login=12 |
@@ -276,6 +276,12 @@
 | 19      | `src/Scanner/LinkExtractor.php`   | Modifié | Prioritisation blocs Gutenberg : skip HTML pur si blocs présents. |
 | 19      | `src/REST/ScanController.php`     | Modifié | i18n pass et fix backslashes sur fonctions globales. |
 | 19      | `tests/php/stubs.php`             | Modifié | Ajout stubs pour `WpOrg\Requests` (Exception, Response, Requests). |
+| 20      | `src/Database/LinksRepository.php`| Modifié | Ajout `ok_count`, `broken_count` et `pending_count` dans `get_category_stats()`. |
+| 20      | `src/Queue/BatchOrchestrator.php` | Modifié | Fusion des stats globales dans `get_status()` et `get_idle_status()`. |
+| 20      | `admin/src/store/actions.js`      | Modifié | Ajout de l'action `refreshData()`. |
+| 20      | `admin/src/components/Dashboard.js` | Modifié | Ajout de la carte "OK Links" et fallbacks globaux. |
+| 20      | `admin/src/components/ScanPanel.js` | Modifié | Amélioration message de complétion + trigger `refreshData()`. |
+| 20      | `admin/src/index.scss`            | Modifié | Ajout du style pour la carte summary `--ok`. |
 
 ---
 
@@ -330,6 +336,8 @@
 | 44 | Session 19 | Parallélisme HTTP via `Requests::request_multiple()` | Multiplie la vitesse de vérification par 5 (par défaut) en envoyant des grappes de requêtes HEAD/GET simultanées sans bloquer le thread PHP. |
 | 45 | Session 19 | Priorité Gutenberg dans `LinkExtractor` | Si `has_blocks()` est vrai, on parse les blocs d'abord. On ne parse le content HTML brut QUE si zéro bloc trouvé, évitant un double parsing coûteux sur 90% des sites modernes. |
 | 46 | Session 19 | `update_progress` par batch de 20 | Réduit de 95% les écritures dans la table `options` (via transient) pendant les gros scans d'articles, préservant l'I/O disque du serveur. |
+| 47 | Session 20 | Fusion des stats globales dans le Status | Garantit que le dashboard affiche toujours le nombre réel de liens OK/Broken/Redirect en DB, même hors scan ou si le polling est décalé. |
+| 48 | Session 20 | Auto-refresh via Redux thunk | Centralise la synchronisation post-scan dans une action `refreshData()` appelée par un `useEffect` dans `ScanPanel`. |
 
 ---
 
@@ -728,6 +736,20 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 - **Tests** : Mise à jour des stubs de test pour supporter `WpOrg\Requests`. Les 98 tests unitaires passent avec la nouvelle architecture parallèle.
 
 **Gain mesuré (estimé) :** Réduction de ~60-80% du temps total de vérification HTTP sur les gros sites.
+
+### Session 20 — Link Visibility & Dashboard Fix (2026-03-10)
+
+**Résumé :** Correction de la visibilité des liens "OK" et fiabilisation des métriques du dashboard.
+
+**Accompli :**
+- **Backend Stats** : `LinksRepository` renvoie désormais `ok_count`, `broken_count` et `pending_count` dans une seule requête optimisée.
+- **Global Status Merge** : `BatchOrchestrator` fusionne ces stats réelles dans l'objet de status renvoyé au frontend.
+- **Dashboard UI** : Ajout d'une carte "OK Links" (verte) et mise à jour des cartes Broken/Redirect pour utiliser les stats globales en fallback.
+- **Auto-Refresh** : Le dashboard se rafraîchit automatiquement à 100% de complétion du scan via une nouvelle action Redux `refreshData`.
+- **Completion Message** : Message clair incluant le nombre de liens OK vérifiés.
+- **Nettoyage** : Suppression des scripts de debug et endpoints temporaires.
+
+**Build & Verify** : `npm run build` exécuté avec succès. Les liens OK sont maintenant visibles et comptabilisés correctement.
 
 **Prochaine étape :** Déploiement final.
 
