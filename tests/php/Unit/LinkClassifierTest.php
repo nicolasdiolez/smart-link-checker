@@ -11,17 +11,19 @@ namespace FlavorLinkChecker\Tests\Unit;
 
 use FlavorLinkChecker\Models\Enums\LinkType;
 use FlavorLinkChecker\Scanner\LinkClassifier;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
- * @covers \FlavorLinkChecker\Scanner\LinkClassifier
+ * Unit tests for LinkClassifier.
  */
+#[CoversClass(LinkClassifier::class)]
 class LinkClassifierTest extends TestCase {
 
 	private LinkClassifier $classifier;
 
-	protected function set_up(): void {
-		parent::set_up();
+	protected function setUp(): void {
+		parent::setUp();
 		$this->classifier = new LinkClassifier( 'https://example.com' );
 	}
 

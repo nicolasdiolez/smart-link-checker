@@ -42,6 +42,8 @@ class CheckJob {
 	private int $request_delay;
 
 	/**
+	 * Constructor.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param HttpChecker     $checker    HTTP verification engine.
@@ -62,7 +64,7 @@ class CheckJob {
 	public function process_batch( array $link_ids ): void {
 		$this->start_time = microtime( true );
 
-		$settings            = get_option( 'flc_settings', array() );
+		$settings            = \get_option( 'flc_settings', array() );
 		$this->request_delay = (int) ( $settings['http_request_delay'] ?? 300 );
 
 		$count = count( $link_ids );
@@ -102,7 +104,7 @@ class CheckJob {
 			$result = $this->checker->check( $url );
 
 			$chain_json = null !== $result['redirect_chain']
-				? wp_json_encode( $result['redirect_chain'] )
+				? \wp_json_encode( $result['redirect_chain'] )
 				: null;
 
 			$error = $result['error'];
@@ -129,10 +131,10 @@ class CheckJob {
 			 * @param int   $link_id The checked link ID.
 			 * @param array $result  The check result.
 			 */
-			do_action( 'flc/check/link_checked', $link_id, $result );
+			\do_action( 'flc/check/link_checked', $link_id, $result );
 
 			// Update progress.
-			$status = get_transient( 'flc_scan_status' );
+			$status = \get_transient( 'flc_scan_status' );
 			if ( is_array( $status ) ) {
 				$status['checked_links'] = ( $status['checked_links'] ?? 0 ) + 1;
 
@@ -142,7 +144,7 @@ class CheckJob {
 					$status['redirect_count'] = ( $status['redirect_count'] ?? 0 ) + 1;
 				}
 
-				set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
+				\set_transient( 'flc_scan_status', $status, \HOUR_IN_SECONDS );
 			}
 		} catch ( \Throwable $e ) {
 			// Isolate errors: one failing link should not stop the batch.

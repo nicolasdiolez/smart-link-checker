@@ -20,12 +20,16 @@ defined( 'ABSPATH' ) || exit;
 class SettingsController extends \WP_REST_Controller {
 
 	/**
+	 * REST namespace.
+	 *
 	 * @since 1.0.0
 	 * @var string
 	 */
 	protected $namespace = 'flavor-link-checker/v1';
 
 	/**
+	 * REST base route.
+	 *
 	 * @since 1.0.0
 	 * @var string
 	 */

@@ -10,18 +10,20 @@ declare( strict_types=1 );
 namespace FlavorLinkChecker\Tests\Unit;
 
 use FlavorLinkChecker\Database\QueryBuilder;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
- * @covers \FlavorLinkChecker\Database\QueryBuilder
+ * Unit tests for QueryBuilder.
  */
+#[CoversClass(QueryBuilder::class)]
 class QueryBuilderTest extends TestCase {
 
 	private QueryBuilder $builder;
 	private WpdbStub $wpdb;
 
-	protected function set_up(): void {
-		parent::set_up();
+	protected function setUp(): void {
+		parent::setUp();
 		$this->wpdb    = new WpdbStub();
 		$this->builder = new QueryBuilder( $this->wpdb );
 	}
@@ -291,9 +293,13 @@ class WpdbStub extends \wpdb {
 	 * @param mixed  ...$args Values to substitute.
 	 * @return string
 	 */
-	public function prepare( string $query, mixed ...$args ): string {
-		$result = $query;
-		foreach ( $args as $arg ) {
+	public function prepare( $query, ...$args ): string {
+		$result = (string) $query;
+		$params = $args;
+		if ( isset( $args[0] ) && is_array( $args[0] ) && 1 === count( $args ) ) {
+			$params = $args[0];
+		}
+		foreach ( $params as $arg ) {
 			if ( is_int( $arg ) ) {
 				$result = preg_replace( '/%[dis]/', (string) $arg, $result, 1 );
 			} elseif ( is_string( $arg ) ) {
@@ -310,8 +316,10 @@ class WpdbStub extends \wpdb {
 	 * @param string $query SQL query.
 	 * @return int|string|null
 	 */
-	public function get_var( string $query ): int|string|null {
-		$this->last_query = $query;
+	public function get_var( $query = null, $x = 0, $y = 0 ): int|string|null {
+		if ( $query ) {
+			$this->last_query = (string) $query;
+		}
 		return $this->var_result;
 	}
 
@@ -321,8 +329,10 @@ class WpdbStub extends \wpdb {
 	 * @param string $query SQL query.
 	 * @return array
 	 */
-	public function get_results( string $query ): array {
-		$this->last_query = $query;
+	public function get_results( $query = null, $output = \OBJECT ): array {
+		if ( $query ) {
+			$this->last_query = (string) $query;
+		}
 		return $this->results_result;
 	}
 
@@ -332,7 +342,7 @@ class WpdbStub extends \wpdb {
 	 * @param string $text Text to escape.
 	 * @return string
 	 */
-	public function esc_like( string $text ): string {
-		return addcslashes( $text, '_%\\' );
+	public function esc_like( $text ): string {
+		return addcslashes( (string) $text, '_%\\' );
 	}
 }

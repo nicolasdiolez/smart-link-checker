@@ -16,7 +16,7 @@ jest.mock( '@wordpress/data', () => ( {
 	useSelect: ( mapSelect ) => {
 		const selectorObj = {};
 		for ( const key of Object.keys( mockSelectReturn ) ) {
-			selectorObj[ key ] = ( ...args ) => mockSelectReturn[ key ];
+			selectorObj[ key ] = () => mockSelectReturn[ key ];
 		}
 		return mapSelect( () => selectorObj );
 	},

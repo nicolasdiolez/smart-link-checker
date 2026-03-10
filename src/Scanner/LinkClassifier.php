@@ -88,6 +88,8 @@ class LinkClassifier {
 	private string $site_host;
 
 	/**
+	 * Constructor.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $site_url Optional site URL for testability. Defaults to home_url().

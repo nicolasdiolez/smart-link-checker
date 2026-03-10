@@ -250,6 +250,13 @@ class SchedulerBootstrap {
 		\ActionScheduler_QueueRunner::instance()->run( 'FLC Status Poll' );
 	}
 
+	/**
+	 * Returns the number of pending actions for this plugin.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int Number of pending actions.
+	 */
 	public static function get_pending_count(): int {
 		if ( ! self::is_available() || ! function_exists( 'as_get_scheduled_actions' ) ) {
 			return 0;

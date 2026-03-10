@@ -13,7 +13,7 @@ import { API_NAMESPACE } from './constants';
  * Fetches paginated links with filters.
  *
  * @param {Object} params Query parameters (camelCase, converted to snake_case).
- * @return {Promise<{items: Array, total: number, totalPages: number}>}
+ * @return {Promise<{items: Array, total: number, totalPages: number}>} Fetch results.
  */
 export async function fetchLinksFromApi( params = {} ) {
 	const query = {};

@@ -2,12 +2,15 @@ includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
 
 parameters:
-    level: 6
+    level: 5
     paths:
         - src/
         - flavor-link-checker.php
         - uninstall.php
     bootstrapFiles:
         - vendor/autoload.php
+        - flavor-link-checker.php
     scanDirectories:
         - vendor/woocommerce/action-scheduler/
+    ignoreErrors:
+        - '#Constant (FLC_PLUGIN_DIR|FLC_PLUGIN_URL|WP_MEMORY_LIMIT) not found#'

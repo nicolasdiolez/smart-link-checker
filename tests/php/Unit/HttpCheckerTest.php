@@ -11,25 +11,27 @@ namespace FlavorLinkChecker\Tests\Unit;
 
 use FlavorLinkChecker\Models\Enums\LinkStatus;
 use FlavorLinkChecker\Scanner\HttpChecker;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 use WpHttpStub;
 
 /**
- * @covers \FlavorLinkChecker\Scanner\HttpChecker
+ * Unit tests for HttpChecker.
  */
+#[CoversClass(HttpChecker::class)]
 class HttpCheckerTest extends TestCase {
 
 	private HttpChecker $checker;
 
-	protected function set_up(): void {
-		parent::set_up();
+	protected function setUp(): void {
+		parent::setUp();
 		WpHttpStub::reset();
 		$this->checker = new HttpChecker( timeout: 5, site_url: 'https://example.com' );
 	}
 
-	protected function tear_down(): void {
+	protected function tearDown(): void {
 		WpHttpStub::reset();
-		parent::tear_down();
+		parent::tearDown();
 	}
 
 	public function test_check_returns_ok_for_200(): void {

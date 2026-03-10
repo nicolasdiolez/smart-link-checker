@@ -5,7 +5,7 @@
  * @since   1.0.0
  */
 
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	fetchLinksFromApi,
 	fetchLinkFromApi,
@@ -259,10 +259,10 @@ export function bulkAction( action, ids ) {
 		try {
 			const result = await bulkActionApi( action, ids );
 			registry.dispatch( 'core/notices' ).createSuccessNotice(
-				/* translators: %d: number of links processed. */
-				__(
-					`${ result.success } link(s) processed.`,
-					'flavor-link-checker'
+				sprintf(
+					/* translators: %d: number of links processed. */
+					__( '%d link(s) processed.', 'flavor-link-checker' ),
+					result.success
 				),
 				{ type: 'snackbar' }
 			);

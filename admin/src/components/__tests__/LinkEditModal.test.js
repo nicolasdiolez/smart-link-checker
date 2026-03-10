@@ -16,7 +16,7 @@ jest.mock( '@wordpress/data', () => ( {
 	useSelect: ( mapSelect ) => {
 		const selectorObj = {};
 		for ( const key of Object.keys( mockSelectValues ) ) {
-			selectorObj[ key ] = ( ...args ) => mockSelectValues[ key ];
+			selectorObj[ key ] = () => mockSelectValues[ key ];
 		}
 		return mapSelect( () => selectorObj );
 	},
@@ -28,7 +28,7 @@ jest.mock( '@wordpress/data', () => ( {
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
-	Modal: ( { title, onRequestClose, children, ...rest } ) => (
+	Modal: ( { title, onRequestClose, children } ) => (
 		<div data-testid="modal" role="dialog" aria-label={ title }>
 			<h2>{ title }</h2>
 			<button onClick={ onRequestClose } data-testid="close-modal">
@@ -37,7 +37,7 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</div>
 	),
-	Button: ( { children, onClick, isBusy, disabled, variant, ...rest } ) => (
+	Button: ( { children, onClick, disabled, variant } ) => (
 		<button
 			onClick={ onClick }
 			disabled={ disabled }
@@ -47,15 +47,15 @@ jest.mock( '@wordpress/components', () => ( {
 		</button>
 	),
 	TextControl: ( { label, value, onChange, help } ) => (
-		<label>
-			{ label }
+		<div>
+			<label htmlFor={ `mock-${ label }` }>{ label }</label>
 			<input
+				id={ `mock-${ label }` }
 				value={ value }
 				onChange={ ( e ) => onChange( e.target.value ) }
-				aria-label={ label }
 			/>
 			{ help && <span>{ help }</span> }
-		</label>
+		</div>
 	),
 	Spinner: () => <div data-testid="spinner" />,
 } ) );

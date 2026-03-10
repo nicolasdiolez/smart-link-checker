@@ -23,18 +23,24 @@ use FlavorLinkChecker\Queue\SchedulerBootstrap;
 class ScanController extends \WP_REST_Controller {
 
 	/**
+	 * REST namespace.
+	 *
 	 * @since 1.0.0
 	 * @var string
 	 */
 	protected $namespace = 'flavor-link-checker/v1';
 
 	/**
+	 * REST base route.
+	 *
 	 * @since 1.0.0
 	 * @var string
 	 */
 	protected $rest_base = 'scan';
 
 	/**
+	 * Constructor.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param BatchOrchestrator $orchestrator Batch orchestrator.
@@ -196,7 +202,7 @@ class ScanController extends \WP_REST_Controller {
 				'diagnostics'  => SchedulerBootstrap::get_diagnostics(),
 				'php_version'  => PHP_VERSION,
 				'wp_version'   => get_bloginfo( 'version' ),
-				'memory_limit' => WP_MEMORY_LIMIT,
+				'memory_limit' => defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : ini_get( 'memory_limit' ),
 				'timestamp'    => gmdate( 'c' ),
 			),
 			200

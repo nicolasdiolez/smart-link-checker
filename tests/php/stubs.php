@@ -139,6 +139,14 @@ if ( ! function_exists( 'is_wp_error' ) ) {
 	}
 }
 
+// Database constants.
+if ( ! defined( 'OBJECT' ) ) {
+	define( 'OBJECT', 'OBJECT' );
+}
+if ( ! defined( 'ARRAY_A' ) ) {
+	define( 'ARRAY_A', 'ARRAY_A' );
+}
+
 // wpdb stub class.
 if ( ! class_exists( 'wpdb' ) ) {
 	/**
@@ -151,28 +159,28 @@ if ( ! class_exists( 'wpdb' ) ) {
 		/** @var int */
 		public int $insert_id = 0;
 
-		public function prepare( string $query, mixed ...$args ): string {
-			return $query;
+		public function prepare( $query, ...$args ): string {
+			return (string) $query;
 		}
 
-		public function get_var( string $query ): mixed {
+		public function get_var( $query = null, $x = 0, $y = 0 ): mixed {
 			return null;
 		}
 
-		public function get_row( string $query ): ?object {
+		public function get_row( $query = null, $output = OBJECT, $y = 0 ): ?object {
 			return null;
 		}
 
-		public function get_results( string $query ): array {
+		public function get_results( $query = null, $output = OBJECT ): array {
 			return [];
 		}
 
-		public function query( string $query ): int|bool {
+		public function query( $query ): int|bool {
 			return 0;
 		}
 
-		public function esc_like( string $text ): string {
-			return addcslashes( $text, '_%\\' );
+		public function esc_like( $text ): string {
+			return addcslashes( (string) $text, '_%\\' );
 		}
 	}
 }

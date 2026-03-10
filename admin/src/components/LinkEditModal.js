@@ -83,9 +83,8 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 			onRequestClose={ () => onClose( false ) }
 			className="flc-edit-modal"
 		>
-			{ loading ? (
-				<Spinner />
-			) : currentLink ? (
+			{ loading && <Spinner /> }
+			{ ! loading && currentLink && (
 				<>
 					<TextControl
 						label={ __( 'URL', 'flavor-link-checker' ) }
@@ -149,7 +148,7 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 						</Button>
 					</div>
 				</>
-			) : null }
+			) }
 		</Modal>
 	);
 };

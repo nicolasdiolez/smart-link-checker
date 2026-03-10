@@ -28,18 +28,24 @@ use FlavorLinkChecker\Queue\SchedulerBootstrap;
 class LinksController extends \WP_REST_Controller {
 
 	/**
+	 * REST namespace.
+	 *
 	 * @since 1.0.0
 	 * @var string
 	 */
 	protected $namespace = 'flavor-link-checker/v1';
 
 	/**
+	 * REST base route.
+	 *
 	 * @since 1.0.0
 	 * @var string
 	 */
 	protected $rest_base = 'links';
 
 	/**
+	 * Constructor.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param QueryBuilder        $query_builder  Filtered query builder.
@@ -518,24 +524,25 @@ class LinksController extends \WP_REST_Controller {
 
 		$args = array_filter( $args, fn( $v ) => null !== $v );
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		$csv = fopen( 'php://temp', 'r+' );
 		fputcsv(
 			$csv,
 			array(
-				'ID',
-				'URL',
-				'Final URL',
-				'HTTP Status',
-				'Status',
-				'Type',
-				'Affiliate',
-				'Network',
-				'Cloaked',
-				'Redirect Count',
-				'Response Time (ms)',
-				'Instances',
-				'Last Checked',
-				'Last Error',
+				__( 'ID', 'flavor-link-checker' ),
+				__( 'URL', 'flavor-link-checker' ),
+				__( 'Final URL', 'flavor-link-checker' ),
+				__( 'HTTP Status', 'flavor-link-checker' ),
+				__( 'Status', 'flavor-link-checker' ),
+				__( 'Type', 'flavor-link-checker' ),
+				__( 'Affiliate', 'flavor-link-checker' ),
+				__( 'Network', 'flavor-link-checker' ),
+				__( 'Cloaked', 'flavor-link-checker' ),
+				__( 'Redirect Count', 'flavor-link-checker' ),
+				__( 'Response Time (ms)', 'flavor-link-checker' ),
+				__( 'Instances', 'flavor-link-checker' ),
+				__( 'Last Checked', 'flavor-link-checker' ),
+				__( 'Last Error', 'flavor-link-checker' ),
 			)
 		);
 
@@ -562,10 +569,10 @@ class LinksController extends \WP_REST_Controller {
 						$link->final_url ?? '',
 						$link->http_status ?? '',
 						$link->status_category->value,
-						$link->is_external ? 'external' : 'internal',
-						$link->is_affiliate ? 'yes' : 'no',
+						$link->is_external ? __( 'external', 'flavor-link-checker' ) : __( 'internal', 'flavor-link-checker' ),
+						$link->is_affiliate ? __( 'yes', 'flavor-link-checker' ) : __( 'no', 'flavor-link-checker' ),
 						$link->affiliate_network ?? '',
-						$is_cloaked ? 'yes' : 'no',
+						$is_cloaked ? __( 'yes', 'flavor-link-checker' ) : __( 'no', 'flavor-link-checker' ),
 						$link->redirect_count,
 						$link->response_time ?? '',
 						$instance_counts[ $link->id ] ?? 0,
@@ -575,11 +582,13 @@ class LinksController extends \WP_REST_Controller {
 				);
 			}
 
+			$item_count = count( $items );
 			++$page;
-		} while ( count( $items ) === 100 );
+		} while ( 100 === $item_count );
 
 		rewind( $csv );
 		$csv_data = stream_get_contents( $csv );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		fclose( $csv );
 
 		$response = new \WP_REST_Response( $csv_data, 200 );
@@ -768,6 +777,7 @@ class LinksController extends \WP_REST_Controller {
 		$modified = false;
 
 		foreach ( $dom->getElementsByTagName( 'a' ) as $node ) {
+			/** @var \DOMElement $node */
 			if ( $node->getAttribute( 'href' ) !== $old_url ) {
 				continue;
 			}
@@ -822,6 +832,7 @@ class LinksController extends \WP_REST_Controller {
 
 		// Collect matching nodes first (can't modify DOM while iterating).
 		foreach ( $dom->getElementsByTagName( 'a' ) as $node ) {
+			/** @var \DOMElement $node */
 			if ( $node->getAttribute( 'href' ) === $url ) {
 				$nodes[] = $node;
 			}

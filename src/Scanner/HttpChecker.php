@@ -62,6 +62,8 @@ class HttpChecker {
 	private readonly string $site_url;
 
 	/**
+	 * Constructor.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param int    $timeout  Request timeout in seconds.
@@ -270,7 +272,7 @@ class HttpChecker {
 	 * @return array<int, array{url: string, status: int}>|null Null if no redirects.
 	 */
 	private function extract_redirect_chain( array $response ): ?array {
-		$history = $response['http_response']?->get_response_object()?->history ?? array();
+		$history = $response['http_response']?->get_response_object()->history ?? array();
 
 		if ( ! is_countable( $history ) || 0 === count( $history ) ) {
 			return null;
@@ -311,7 +313,7 @@ class HttpChecker {
 	 */
 	private function detect_final_url( array $response, string $original ): string {
 		// Check for redirect history in the response.
-		$redirects = $response['http_response']?->get_response_object()?->url ?? null;
+		$redirects = $response['http_response']?->get_response_object()->url ?? null;
 		if ( null !== $redirects && $redirects !== $original ) {
 			return $redirects;
 		}
@@ -328,7 +330,7 @@ class HttpChecker {
 	 * @return int Number of redirects.
 	 */
 	private function count_redirects( array $response ): int {
-		$history = $response['http_response']?->get_response_object()?->history ?? array();
+		$history = $response['http_response']?->get_response_object()->history ?? array();
 		return is_countable( $history ) ? count( $history ) : 0;
 	}
 }

@@ -10,17 +10,19 @@ declare( strict_types=1 );
 namespace FlavorLinkChecker\Tests\Unit;
 
 use FlavorLinkChecker\Scanner\ContentParser;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
- * @covers \FlavorLinkChecker\Scanner\ContentParser
+ * Unit tests for ContentParser.
  */
+#[CoversClass(ContentParser::class)]
 class ContentParserTest extends TestCase {
 
 	private ContentParser $parser;
 
-	protected function set_up(): void {
-		parent::set_up();
+	protected function setUp(): void {
+		parent::setUp();
 		$this->parser = new ContentParser();
 	}
 

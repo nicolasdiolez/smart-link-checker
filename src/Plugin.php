@@ -150,7 +150,12 @@ class Plugin {
 		add_action( SchedulerBootstrap::RECHECK_DAILY_HOOK, array( $orchestrator, 'recheck_stale_links' ) );
 
 		// Orphan cleanup.
-		add_action( SchedulerBootstrap::CLEANUP_HOOK, array( $links_repo, 'cleanup_orphans' ) );
+		add_action(
+			SchedulerBootstrap::CLEANUP_HOOK,
+			static function () use ( $links_repo ): void {
+				$links_repo->cleanup_orphans();
+			}
+		);
 	}
 
 	/**

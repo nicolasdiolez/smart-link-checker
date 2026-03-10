@@ -13,7 +13,7 @@ jest.mock( '@wordpress/data', () => ( {
 	useSelect: ( mapSelect ) => {
 		const selectorObj = {};
 		for ( const key of Object.keys( mockSelectValues ) ) {
-			selectorObj[ key ] = ( ...args ) => mockSelectValues[ key ];
+			selectorObj[ key ] = () => mockSelectValues[ key ];
 		}
 		return mapSelect( () => selectorObj );
 	},
@@ -23,42 +23,42 @@ jest.mock( '@wordpress/data', () => ( {
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
-	Button: ( { children, onClick, isBusy, disabled, ...rest } ) => (
-		<button onClick={ onClick } disabled={ disabled } { ...rest }>
+	Button: ( { children, onClick, disabled } ) => (
+		<button onClick={ onClick } disabled={ disabled }>
 			{ children }
 		</button>
 	),
-	TextControl: ( { label, value, onChange, help, ...rest } ) => (
-		<label>
-			{ label }
+	TextControl: ( { label, value, onChange, help } ) => (
+		<div>
+			<label htmlFor={ `mock-${ label }` }>{ label }</label>
 			<input
+				id={ `mock-${ label }` }
 				value={ value }
 				onChange={ ( e ) => onChange( e.target.value ) }
-				aria-label={ label }
 			/>
 			{ help && <span>{ help }</span> }
-		</label>
+		</div>
 	),
-	TextareaControl: ( { label, value, onChange, help, ...rest } ) => (
-		<label>
-			{ label }
+	TextareaControl: ( { label, value, onChange } ) => (
+		<div>
+			<label htmlFor={ `mock-${ label }` }>{ label }</label>
 			<textarea
+				id={ `mock-${ label }` }
 				value={ value }
 				onChange={ ( e ) => onChange( e.target.value ) }
-				aria-label={ label }
 			/>
-		</label>
+		</div>
 	),
-	ToggleControl: ( { label, checked, onChange, ...rest } ) => (
-		<label>
-			{ label }
+	ToggleControl: ( { label, checked, onChange } ) => (
+		<div>
+			<label htmlFor={ `mock-${ label }` }>{ label }</label>
 			<input
+				id={ `mock-${ label }` }
 				type="checkbox"
 				checked={ checked }
 				onChange={ ( e ) => onChange( e.target.checked ) }
-				aria-label={ label }
 			/>
-		</label>
+		</div>
 	),
 	Spinner: () => <div data-testid="spinner" />,
 	Panel: ( { children } ) => <div>{ children }</div>,

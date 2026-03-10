@@ -55,8 +55,8 @@ class ContentParser {
 		$results  = array();
 		$position = 0;
 
-		/** @var \DOMElement $node */
 		foreach ( $dom->getElementsByTagName( 'a' ) as $node ) {
+			/** @var \DOMElement $node */
 			$href = $node->getAttribute( 'href' );
 
 			if ( $this->should_skip_url( $href ) ) {

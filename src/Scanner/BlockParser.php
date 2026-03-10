@@ -25,6 +25,8 @@ use FlavorLinkChecker\Models\ScanResult;
 class BlockParser {
 
 	/**
+	 * Constructor.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param ContentParser $content_parser HTML parser for block innerHTML.

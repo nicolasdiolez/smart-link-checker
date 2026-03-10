@@ -27,7 +27,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Plugin version.
  *
  * @since 1.0.0
- * @var string
  */
 define( 'FLC_VERSION', '1.0.0' );
 
@@ -35,7 +34,6 @@ define( 'FLC_VERSION', '1.0.0' );
  * Path to the main plugin file.
  *
  * @since 1.0.0
- * @var string
  */
 define( 'FLC_PLUGIN_FILE', __FILE__ );
 
@@ -43,7 +41,6 @@ define( 'FLC_PLUGIN_FILE', __FILE__ );
  * Plugin directory path with trailing slash.
  *
  * @since 1.0.0
- * @var string
  */
 define( 'FLC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -51,7 +48,6 @@ define( 'FLC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
  * Plugin directory URL with trailing slash.
  *
  * @since 1.0.0
- * @var string
  */
 define( 'FLC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 

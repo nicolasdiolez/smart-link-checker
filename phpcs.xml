@@ -17,6 +17,12 @@
         <!-- PSR-4 requires PascalCase filenames, not hyphenated-lowercase. -->
         <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
         <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+
+        <!-- Deliberate choice: use slashes in hook names (like flc/scan/start) to group by feature. -->
+        <exclude name="WordPress.NamingConventions.ValidHookName.UseUnderscores"/>
+
+        <!-- DOMDocument properties like textContent and parentNode are camelCase in PHP. -->
+        <exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
     </rule>
 
     <rule ref="WordPress.WP.I18n">

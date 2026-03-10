@@ -35,6 +35,8 @@ class BatchOrchestrator {
 	private const MAX_CHECK_BATCH_SIZE = 20;
 
 	/**
+	 * Constructor.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param LinksRepository $links_repo Links CRUD repository.
@@ -314,7 +316,7 @@ class BatchOrchestrator {
 			$status = get_transient( 'flc_scan_status' );
 			if ( is_array( $status ) ) {
 				$status['status']        = 'error';
-				$status['error_message'] = 'Action Scheduler failed to enqueue scan batches. Check server error logs.';
+				$status['error_message'] = __( 'Action Scheduler failed to enqueue scan batches. Check server error logs.', 'flavor-link-checker' );
 				set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
 			}
 		}

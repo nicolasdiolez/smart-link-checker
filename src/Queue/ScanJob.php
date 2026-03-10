@@ -6,7 +6,7 @@
  * @since   1.0.0
  */
 
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace FlavorLinkChecker\Queue;
 
@@ -26,6 +26,7 @@ use FlavorLinkChecker\Scanner\LinkExtractor;
  */
 class ScanJob {
 
+
 	/**
 	 * Timestamp when processing started.
 	 *
@@ -35,6 +36,8 @@ class ScanJob {
 	private float $start_time;
 
 	/**
+	 * Constructor.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param LinkExtractor       $extractor      Link extraction orchestrator.
@@ -65,36 +68,36 @@ class ScanJob {
 		error_log( "[FlavorLinkChecker] ScanJob::process_batch() started for batch {$batch_id}." );
 
 		$batch_data = get_transient( 'flc_scan_batch_' . $batch_id );
-		if ( false === $batch_data || ! is_array( $batch_data ) ) {
+		if ( false === $batch_data || ! \is_array( $batch_data ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( "[FlavorLinkChecker] ScanJob batch {$batch_id}: transient not found." );
+			error_log( "[FlavorLinkChecker] ScanJob::process_batch() failed to load data for batch {$batch_id}." );
 			return;
 		}
 
 		$post_ids = $batch_data['post_ids'] ?? array();
 		$offset   = $batch_data['offset'] ?? 0;
-		$settings = get_option( 'flc_settings', array() );
+		$settings = \get_option( 'flc_settings', array() );
 
 		// Shared-hosting optimizations.
-		wp_suspend_cache_addition( true );
-		wp_defer_term_counting( true );
+		\wp_suspend_cache_addition( true );
+		\wp_defer_term_counting( true );
 
 		try {
 			$count = count( $post_ids );
 			for ( $i = $offset; $i < $count; $i++ ) {
-				$post = get_post( $post_ids[ $i ] );
+				$post = \get_post( $post_ids[ $i ] );
 				if ( ! $post instanceof \WP_Post ) {
 					continue;
 				}
 
 				$this->process_post( $post, $settings );
-				$this->update_progress( $batch_id, $i + 1 );
+				$this->update_progress();
 
 				// Check resources after each post.
 				if ( ! $this->has_resources() && $i + 1 < $count ) {
 					// Save offset and re-enqueue for continuation.
 					$batch_data['offset'] = $i + 1;
-					set_transient( 'flc_scan_batch_' . $batch_id, $batch_data, HOUR_IN_SECONDS );
+					\set_transient( 'flc_scan_batch_' . $batch_id, $batch_data, \HOUR_IN_SECONDS );
 					SchedulerBootstrap::enqueue_scan_batch( $batch_id );
 					return;
 				}
@@ -102,23 +105,23 @@ class ScanJob {
 
 			// All posts in this batch are processed.
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( "[FlavorLinkChecker] ScanJob batch {$batch_id}: completed, processed {$count} posts." );
-			delete_transient( 'flc_scan_batch_' . $batch_id );
+			\error_log( "[FlavorLinkChecker] ScanJob batch {$batch_id}: completed, processed {$count} posts." );
+			\delete_transient( 'flc_scan_batch_' . $batch_id );
 
 			/**
 			 * Fires when a scan batch completes.
 			 *
 			 * @since 1.0.0
 			 *
-			 * @param int $batch_id The completed batch identifier.
+			 * @param string $batch_id The completed batch identifier.
 			 */
-			do_action( 'flc/scan/batch_complete', $batch_id );
+			\do_action( 'flc/scan/batch_complete', $batch_id );
 		} catch ( \Throwable $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( '[FlavorLinkChecker] ScanJob error in batch ' . $batch_id . ': ' . $e->getMessage() );
+			\error_log( '[FlavorLinkChecker] ScanJob error in batch ' . $batch_id . ': ' . $e->getMessage() );
 		} finally {
-			wp_suspend_cache_addition( false );
-			wp_defer_term_counting( false );
+			\wp_suspend_cache_addition( false );
+			\wp_defer_term_counting( false );
 		}
 	}
 
@@ -185,7 +188,7 @@ class ScanJob {
 		 *
 		 * @param int $post_id The processed post ID.
 		 */
-		do_action( 'flc/scan/post_processed', $post->ID );
+		\do_action( 'flc/scan/post_processed', $post->ID );
 	}
 
 	/**
@@ -196,26 +199,35 @@ class ScanJob {
 	 * @return bool True if processing can continue.
 	 */
 	private function has_resources(): bool {
-		$memory_limit = wp_convert_hr_to_bytes( WP_MEMORY_LIMIT );
-		$memory_usage = memory_get_usage( true );
-		$time_elapsed = microtime( true ) - $this->start_time;
+		$limit_bytes   = \wp_convert_hr_to_bytes( \WP_MEMORY_LIMIT );
+		$memory_usage  = \memory_get_usage( true );
+		$time_elapsed  = \microtime( true ) - $this->start_time;
 
-		return ( $memory_usage < $memory_limit * 0.8 ) && ( $time_elapsed < 25 );
+		$has_resources = ( $memory_usage < $limit_bytes * 0.8 ) && ( $time_elapsed < 25 );
+
+		if ( ! $has_resources ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			\error_log( \sprintf(
+				'[FlavorLinkChecker] Low resources detected! Memory: %.2f MB / %.2f MB, Time: %.2f s. Pausing batch.',
+				$memory_usage / 1024 / 1024,
+				$limit_bytes / 1024 / 1024,
+				$time_elapsed
+			) );
+		}
+
+		return $has_resources;
 	}
 
 	/**
 	 * Updates scan progress tracking.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @param string $batch_id        Batch identifier.
-	 * @param int    $processed_count Number of posts processed so far.
 	 */
-	private function update_progress( string $batch_id, int $processed_count ): void {
-		$status = get_transient( 'flc_scan_status' );
-		if ( is_array( $status ) ) {
+	private function update_progress(): void {
+		$status = \get_transient( 'flc_scan_status' );
+		if ( \is_array( $status ) ) {
 			$status['scanned_posts'] = ( $status['scanned_posts'] ?? 0 ) + 1;
-			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
+			\set_transient( 'flc_scan_status', $status, \HOUR_IN_SECONDS );
 		}
 	}
 }

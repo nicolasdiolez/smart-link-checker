@@ -226,10 +226,13 @@ const LinkTable = ( { onEditLink } ) => {
 				},
 			],
 			filterBy: { operators: [ 'is' ] },
-			render: ( { item } ) =>
-				item.isExternal
-					? __( 'External', 'flavor-link-checker' )
-					: __( 'Internal', 'flavor-link-checker' ),
+			render: ( { item } ) => (
+				<span className="flc-link-type">
+					{ item.isExternal
+						? __( 'External', 'flavor-link-checker' )
+						: __( 'Internal', 'flavor-link-checker' ) }
+				</span>
+			),
 		},
 		{
 			id: 'lastChecked',
