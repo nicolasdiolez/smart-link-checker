@@ -352,23 +352,7 @@ class LinksController extends \WP_REST_Controller {
 			);
 		}
 
-		// Remove link from post content (replace <a> with its text content).
-		$instances = $this->instances_repo->find_by_link( $link->id );
-
-		foreach ( $instances as $instance ) {
-			$post = get_post( $instance->post_id );
-			if ( null === $post ) {
-				continue;
-			}
-
-			$updated_content = $this->unlink_in_html( $post->post_content, $link->url );
-
-			if ( $updated_content !== $post->post_content ) {
-				$this->update_post_content_silently( $post->ID, $updated_content );
-			}
-		}
-
-		$this->links_repo->delete( $id );
+		$this->perform_link_deletion( $link );
 
 		return new \WP_REST_Response(
 			array(
@@ -408,8 +392,9 @@ class LinksController extends \WP_REST_Controller {
 					++$results['failed'];
 				}
 			} elseif ( 'delete' === $action ) {
-				$deleted = $this->links_repo->delete( $id );
-				if ( $deleted ) {
+				$link = $this->links_repo->find( $id );
+				if ( null !== $link ) {
+					$this->perform_link_deletion( $link );
 					++$results['success'];
 				} else {
 					++$results['failed'];
@@ -842,6 +827,34 @@ class LinksController extends \WP_REST_Controller {
 		$output = str_replace( '<?xml encoding="utf-8">', '', $output );
 
 		return $output;
+	}
+
+	/**
+	 * Deletes a link from the database and removes all its instances from post content.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \FlavorLinkChecker\Models\Link $link Link DTO.
+	 * @return void
+	 */
+	private function perform_link_deletion( \FlavorLinkChecker\Models\Link $link ): void {
+		// Remove link from post content (replace <a> with its text content).
+		$instances = $this->instances_repo->find_by_link( $link->id );
+
+		foreach ( $instances as $instance ) {
+			$post = \get_post( $instance->post_id );
+			if ( null === $post ) {
+				continue;
+			}
+
+			$updated_content = $this->unlink_in_html( $post->post_content, $link->url );
+
+			if ( $updated_content !== $post->post_content ) {
+				$this->update_post_content_silently( $post->ID, $updated_content );
+			}
+		}
+
+		$this->links_repo->delete( $link->id );
 	}
 
 	/**

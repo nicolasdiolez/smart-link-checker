@@ -11,7 +11,7 @@
 | Champ                  | Valeur                                              |
 |------------------------|------------------------------------------------------|
 | **Phase actuelle**     | Projet Finalisé — Prêt pour Production             |
-| **Dernière session**   | Session 14 — 2026-03-10                              |
+| **Dernière session**   | Session 15 — 2026-03-10                              |
 | **Prochaine action**   | Déploiement final                                    |
 | **Blocages connus**    | Aucun                                                |
 | **URL admin LocalWP**  | http://localhost:10008/wp-admin/?localwp_auto_login=12 |
@@ -244,6 +244,7 @@
 | 13      | `src/Queue/BatchOrchestrator.php` | Modifié | i18n pass sur les messages d'erreur |
 | 13      | `readme.txt`                      | Modifié | Nom du plugin uniformisé "Flavor Link Checker" |
 | 14      | `src/REST/LinksController.php`    | Modifié | Implémentation `update_post_content_silently()` via `$wpdb->update` pour préserver `post_modified` et éviter les révisions. |
+| 15      | `src/REST/LinksController.php`    | Modifié | Refactorisation `perform_link_deletion()` pour corriger le bug de batch delete (unlinking content). |
 
 ---
 
@@ -630,6 +631,15 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 - **Silent Updates** : Création de la méthode `update_post_content_silently()` utilisant `$wpdb->update()`.
 - **Préservation SEO** : Les colonnes `post_modified` et `post_modified_gmt` ne sont plus impactées par les corrections de liens.
 - **Économie de ressources** : Suppression de la création systématique de révisions de posts lors des modifications via le plugin.
+- **Vérification** : Pass complet des 98 tests PHP et 71 tests JS (100% OK).
+
+### Session 15 — Batch Delete Fix (2026-03-10)
+
+**Résumé :** Correction du bug de suppression en lot. Auparavant, la suppression en lot via le dashboard ne retirait pas les liens du contenu des articles, contrairement à la suppression individuelle.
+
+**Accompli :**
+- **Refactorisation** : Création de la méthode partagée `perform_link_deletion()` pour centraliser la logique de suppression (DB + Content).
+- **Correction Bug** : Mise à jour de `bulk_action()` pour utiliser la nouvelle méthode, assurant que le batch delete nettoie maintenant correctement le contenu HTML.
 - **Vérification** : Pass complet des 98 tests PHP et 71 tests JS (100% OK).
 
 **Prochaine étape :** Déploiement final.
