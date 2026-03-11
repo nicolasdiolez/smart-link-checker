@@ -937,3 +937,34 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 **Prochaine étape :** Créer les captures d'écran et la bannière (assets), puis tester l'archive d'installation sur un WP vierge indépendant avant soumission SVN.
 
 ---
+
+### Session 27 — Optimisations performance & sécurité (2026-03-11)
+
+**Résumé :** Implémentation de 3 optimisations majeures issues de l'audit du `implementation_plan.md` : Quick Check DOMDocument, bypass HTTP pour les liens internes (anti self-DDoS), et prévention SSRF.
+
+**Accompli :**
+- **Quick Check DOMDocument** : Ajout d'un early-return dans `ContentParser::parse()` avant l'instanciation de `DOMDocument` — évite ~40% d'allocations inutiles.
+- **Bypass HTTP interne** : Nouvelle classe `InternalLinkChecker` qui vérifie les liens internes via `url_to_postid()` et `file_exists()` au lieu de requêtes HTTP. Élimine le risque de self-DDoS sur mutualisé. `CheckJob` modifié pour séparer liens internes/externes.
+- **Prévention SSRF** : Ajout de `is_unsafe_url()` dans `HttpChecker`. Bloque les IP privées (`127.x`, `10.x`, `172.16-31.x`, `192.168.x`), loopback IPv6, link-local (`169.254.x`), et metadata cloud (`169.254.169.254`, `metadata.google.internal`). URLs dangereuses marquées `LinkStatus::Skipped` avec erreur `ssrf_blocked`.
+
+**Fichiers créés :**
+| Fichier | Description |
+|---------|-------------|
+| `src/Scanner/InternalLinkChecker.php` | Vérification liens internes sans HTTP |
+| `tests/php/Unit/InternalLinkCheckerTest.php` | 8 tests unitaires |
+
+**Fichiers modifiés :**
+| Fichier | Action |
+|---------|--------|
+| `src/Scanner/ContentParser.php` | +5 lignes : Quick Check `str_contains` avant DOMDocument |
+| `src/Scanner/HttpChecker.php` | +60 lignes : SSRF blocking + skip résultats déjà traités |
+| `src/Queue/CheckJob.php` | Séparation internes/externes, injection `InternalLinkChecker` |
+| `src/Plugin.php` | Instanciation et injection `InternalLinkChecker` |
+| `tests/php/stubs.php` | Ajout stubs `WP_Post`, `get_post`, `url_to_postid`, `wp_upload_dir` |
+| `tests/php/Unit/HttpCheckerTest.php` | +4 tests SSRF (loopback, private, cloud metadata, public URL) |
+
+**Tests :** `vendor/bin/phpunit` → **121 tests, 247 assertions, OK**. `npm run build` → 250 KiB, OK.
+
+**Prochaine étape :** Créer les captures d'écran et la bannière (assets), puis tester l'archive d'installation sur un WP vierge indépendant avant soumission SVN.
+
+---

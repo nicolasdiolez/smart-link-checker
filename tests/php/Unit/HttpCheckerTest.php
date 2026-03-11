@@ -218,6 +218,47 @@ class HttpCheckerTest extends TestCase {
 		$this->assertSame( LinkStatus::Error, $result['status_category'] );
 	}
 
+	// --- SSRF Prevention ---
+
+	public function test_check_blocks_loopback_ip(): void {
+		WpHttpStub::$next_response = $this->make_response( 200 );
+
+		$result = $this->checker->check( 'http://127.0.0.1/admin' );
+
+		$this->assertSame( 0, $result['http_status'] );
+		$this->assertSame( LinkStatus::Skipped, $result['status_category'] );
+		$this->assertSame( 'ssrf_blocked', $result['error'] );
+	}
+
+	public function test_check_blocks_private_ip(): void {
+		WpHttpStub::$next_response = $this->make_response( 200 );
+
+		$result = $this->checker->check( 'http://192.168.1.1/admin' );
+
+		$this->assertSame( 0, $result['http_status'] );
+		$this->assertSame( LinkStatus::Skipped, $result['status_category'] );
+		$this->assertSame( 'ssrf_blocked', $result['error'] );
+	}
+
+	public function test_check_blocks_cloud_metadata_ip(): void {
+		WpHttpStub::$next_response = $this->make_response( 200 );
+
+		$result = $this->checker->check( 'http://169.254.169.254/latest/meta-data/' );
+
+		$this->assertSame( 0, $result['http_status'] );
+		$this->assertSame( LinkStatus::Skipped, $result['status_category'] );
+		$this->assertSame( 'ssrf_blocked', $result['error'] );
+	}
+
+	public function test_check_allows_public_url(): void {
+		WpHttpStub::$next_response = $this->make_response( 200 );
+
+		$result = $this->checker->check( 'https://google.com/page' );
+
+		$this->assertSame( 200, $result['http_status'] );
+		$this->assertSame( LinkStatus::Ok, $result['status_category'] );
+	}
+
 	/**
 	 * Helper to create a mock HTTP response.
 	 *

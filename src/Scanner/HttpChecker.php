@@ -38,6 +38,17 @@ class HttpChecker {
 	private const MAX_RESPONSE_SIZE = 1048576;
 
 	/**
+	 * Hosts and IP patterns blocked for SSRF prevention.
+	 *
+	 * @since 1.0.0
+	 * @var string[]
+	 */
+	private const BLOCKED_HOSTS = array(
+		'metadata.google.internal',
+		'metadata.google.internal.',
+	);
+
+	/**
 	 * Request timeout in seconds.
 	 *
 	 * @since 1.0.0
@@ -123,10 +134,25 @@ class HttpChecker {
 		$results    = array();
 		$start_time = \microtime( true );
 
-		// Prepare requests.
+		// Prepare requests, filtering out SSRF-unsafe URLs.
 		$requests = array();
 		foreach ( $urls as $url ) {
 			$abs_url = $this->ensure_absolute_url( $url );
+
+			if ( $this->is_unsafe_url( $abs_url ) ) {
+				$results[ $url ] = array(
+					'http_status'      => 0,
+					'status_category'  => LinkStatus::Skipped,
+					'final_url'        => null,
+					'response_time'    => 0,
+					'redirect_count'   => 0,
+					'redirect_chain'   => null,
+					'is_redirect_loop' => false,
+					'error'            => 'ssrf_blocked',
+				);
+				continue;
+			}
+
 			$requests[$url] = array(
 				'url'     => $abs_url,
 				'options' => \array_merge( $this->get_request_args(), array( 'type' => 'HEAD' ) ),
@@ -139,6 +165,11 @@ class HttpChecker {
 		// Process first pass (HEAD).
 		$fallback_urls = array();
 		foreach ( $urls as $url ) {
+			// Skip URLs already handled (e.g. SSRF-blocked).
+			if ( isset( $results[ $url ] ) ) {
+				continue;
+			}
+
 			$response = $responses[$url] ?? null;
 
 			if ( null === $response || $response instanceof \WpOrg\Requests\Exception || $response instanceof \WP_Error ) {
@@ -351,5 +382,51 @@ class HttpChecker {
 	private function detect_redirect_loop( array $chain ): bool {
 		$urls = \array_column( $chain, 'url' );
 		return \count( $urls ) !== \count( \array_unique( $urls ) );
+	}
+
+	/**
+	 * Checks whether a URL targets a private/internal IP or cloud metadata endpoint.
+	 *
+	 * Prevents SSRF attacks by blocking requests to:
+	 * - Private IPv4 ranges (10.x, 172.16-31.x, 192.168.x)
+	 * - Loopback (127.x, ::1)
+	 * - Link-local (169.254.x)
+	 * - Cloud metadata (169.254.169.254, metadata.google.internal)
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $url The absolute URL to validate.
+	 * @return bool True if the URL is unsafe and should be blocked.
+	 */
+	private function is_unsafe_url( string $url ): bool {
+		$parsed = \wp_parse_url( $url );
+		$host   = \strtolower( $parsed['host'] ?? '' );
+
+		if ( '' === $host ) {
+			return false;
+		}
+
+		// Block known metadata hostnames.
+		if ( \in_array( $host, self::BLOCKED_HOSTS, true ) ) {
+			return true;
+		}
+
+		// Resolve hostname to IP for range checks.
+		$ip = $host;
+		if ( ! \filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			$resolved = \gethostbyname( $host );
+			// gethostbyname returns the hostname if resolution fails.
+			if ( $resolved === $host ) {
+				return false;
+			}
+			$ip = $resolved;
+		}
+
+		// Block private and reserved IP ranges.
+		return ! \filter_var(
+			$ip,
+			FILTER_VALIDATE_IP,
+			FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+		);
 	}
 }

@@ -24,6 +24,73 @@ namespace {
 		}
 	}
 
+	if ( ! function_exists( 'url_to_postid' ) ) {
+		/**
+		 * Stub for url_to_postid(). Override UrlToPostIdStub::$next_id in tests.
+		 */
+		function url_to_postid( string $url ): int {
+			return UrlToPostIdStub::$next_id;
+		}
+	}
+
+	if ( ! function_exists( 'wp_upload_dir' ) ) {
+		function wp_upload_dir(): array {
+			return array(
+				'basedir' => '/tmp/wp-uploads',
+				'baseurl' => 'https://example.com/wp-content/uploads',
+			);
+		}
+	}
+
+	/**
+	 * Stub for url_to_postid() return value control.
+	 */
+	class UrlToPostIdStub {
+		public static int $next_id = 0;
+		/** @var array<int, object|null> */
+		public static array $posts = array();
+		public static function reset(): void {
+			self::$next_id = 0;
+			self::$posts   = array();
+		}
+	}
+
+	// WP_Post stub.
+	if ( ! class_exists( 'WP_Post' ) ) {
+		class WP_Post {
+			public int $ID = 0;
+			public string $post_status = 'publish';
+			public string $post_content = '';
+			public string $post_excerpt = '';
+			public string $post_title = '';
+			public function __construct( ?object $data = null ) {
+				if ( $data ) {
+					foreach ( get_object_vars( $data ) as $key => $value ) {
+						$this->$key = $value;
+					}
+				}
+			}
+		}
+	}
+
+	// get_post stub — integrates with UrlToPostIdStub::$posts for testing.
+	if ( ! function_exists( 'get_post' ) ) {
+		function get_post( int|object|null $post = null, string $output = 'OBJECT', string $filter = 'raw' ): ?WP_Post {
+			if ( is_int( $post ) && isset( UrlToPostIdStub::$posts[ $post ] ) ) {
+				$data = UrlToPostIdStub::$posts[ $post ];
+				return new WP_Post( $data );
+			}
+			if ( is_int( $post ) && $post > 0 ) {
+				// Default: return a published post.
+				$obj = new WP_Post();
+				$obj->ID = $post;
+				$obj->post_status = 'publish';
+				return $obj;
+			}
+			return null;
+		}
+	}
+
 	if ( ! function_exists( 'wp_parse_url' ) ) {
 		function wp_parse_url( string $url, int $component = -1 ): mixed {
 			return parse_url( $url, $component );

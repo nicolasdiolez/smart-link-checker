@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 use FlavorLinkChecker\Database\LinksRepository;
 use FlavorLinkChecker\Models\Enums\LinkStatus;
 use FlavorLinkChecker\Scanner\HttpChecker;
+use FlavorLinkChecker\Scanner\InternalLinkChecker;
 
 /**
  * Processes a batch of links: verifies their HTTP status in parallel.
@@ -46,11 +47,13 @@ class CheckJob {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param HttpChecker     $checker    HTTP verification engine.
-	 * @param LinksRepository $links_repo Links CRUD repository.
+	 * @param HttpChecker          $checker          HTTP verification engine.
+	 * @param InternalLinkChecker  $internal_checker Internal link verification engine.
+	 * @param LinksRepository      $links_repo       Links CRUD repository.
 	 */
 	public function __construct(
 		private readonly HttpChecker $checker,
+		private readonly InternalLinkChecker $internal_checker,
 		private readonly LinksRepository $links_repo,
 	) {}
 
@@ -77,27 +80,39 @@ class CheckJob {
 
 		foreach ( $chunks as $chunk_ids ) {
 			// Resolve URLs for the chunk in a single query.
-			$links   = $this->links_repo->find_by_ids( $chunk_ids );
-			$url_map = array(); // link_id => url
+			$links        = $this->links_repo->find_by_ids( $chunk_ids );
+			$external_map = array(); // link_id => url (external links — HTTP check).
+			$internal_map = array(); // link_id => url (internal links — local check).
+
 			foreach ( $chunk_ids as $id ) {
 				if ( isset( $links[ $id ] ) ) {
-					$url_map[ $id ] = $links[ $id ]->url;
+					if ( $links[ $id ]->is_external ) {
+						$external_map[ $id ] = $links[ $id ]->url;
+					} else {
+						$internal_map[ $id ] = $links[ $id ]->url;
+					}
 				}
 			}
 
-			if ( empty( $url_map ) ) {
-				$offset += \count( $chunk_ids );
-				continue;
+			// Check internal links locally (no HTTP request).
+			if ( ! empty( $internal_map ) ) {
+				$internal_results = $this->internal_checker->check_batch( \array_values( $internal_map ) );
+				foreach ( $internal_map as $id => $url ) {
+					$result = $internal_results[ $url ] ?? null;
+					if ( $result ) {
+						$this->persist_result( $id, $result );
+					}
+				}
 			}
 
-			// Perform parallel check.
-			$results = $this->checker->check_batch( \array_values( $url_map ) );
-
-			// Process and persist results.
-			foreach ( $url_map as $id => $url ) {
-				$result = $results[$url] ?? null;
-				if ( $result ) {
-					$this->persist_result( $id, $result );
+			// Check external links via HTTP.
+			if ( ! empty( $external_map ) ) {
+				$external_results = $this->checker->check_batch( \array_values( $external_map ) );
+				foreach ( $external_map as $id => $url ) {
+					$result = $external_results[ $url ] ?? null;
+					if ( $result ) {
+						$this->persist_result( $id, $result );
+					}
 				}
 			}
 

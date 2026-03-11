@@ -27,6 +27,7 @@ use FlavorLinkChecker\REST\SettingsController;
 use FlavorLinkChecker\Scanner\BlockParser;
 use FlavorLinkChecker\Scanner\ContentParser;
 use FlavorLinkChecker\Scanner\HttpChecker;
+use FlavorLinkChecker\Scanner\InternalLinkChecker;
 use FlavorLinkChecker\Scanner\LinkClassifier;
 use FlavorLinkChecker\Scanner\LinkExtractor;
 use FlavorLinkChecker\Scanner\LinkHtmlEditor;
@@ -182,13 +183,14 @@ class Plugin {
 		$extractor      = new LinkExtractor( $content_parser, $block_parser, $classifier );
 
 		// HTTP checker.
-		$settings     = get_option( 'flc_settings', array() );
-		$timeout      = (int) ( $settings['check_timeout'] ?? 15 );
-		$http_checker = new HttpChecker( $timeout );
+		$settings          = get_option( 'flc_settings', array() );
+		$timeout           = (int) ( $settings['check_timeout'] ?? 15 );
+		$http_checker      = new HttpChecker( $timeout );
+		$internal_checker  = new InternalLinkChecker();
 
 		// Jobs.
 		$scan_job  = new ScanJob( $extractor, $links_repo, $instances_repo );
-		$check_job = new CheckJob( $http_checker, $links_repo );
+		$check_job = new CheckJob( $http_checker, $internal_checker, $links_repo );
 
 		// Hook jobs to Action Scheduler actions.
 		add_action( SchedulerBootstrap::SCAN_BATCH_HOOK, array( $scan_job, 'process_batch' ) );

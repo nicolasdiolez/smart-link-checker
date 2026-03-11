@@ -44,6 +44,11 @@ class ContentParser {
 			return array();
 		}
 
+		// Quick check: skip expensive DOMDocument allocation if no anchor tags exist.
+		if ( ! str_contains( $html, '<a ' ) && ! str_contains( $html, '<a>' ) && ! str_contains( $html, 'href=' ) ) {
+			return array();
+		}
+
 		$dom = new \DOMDocument();
 		libxml_use_internal_errors( true );
 		$dom->loadHTML(
