@@ -86,6 +86,7 @@ namespace {
 	if ( ! class_exists( 'wpdb' ) ) {
 		class wpdb {
 			public string $prefix = 'wp_';
+			public string $posts  = 'wp_posts';
 			public int $insert_id = 0;
 			public function prepare( $query, ...$args ): string {
 				return (string) $query;
@@ -102,10 +103,23 @@ namespace {
 			public function query( $query ): int|bool {
 				return 0;
 			}
+			public function update( $table, array $data, array $where, $format = null, $where_format = null ): int|false {
+				return 1;
+			}
 			public function esc_like( $text ): string {
 				return addcslashes( (string) $text, '_%\\' );
 			}
 		}
+	}
+
+	// Alias used by LinkHtmlEditorTest.
+	if ( ! class_exists( 'WpdbStub' ) ) {
+		class WpdbStub extends wpdb {}
+	}
+
+	// Post cache function.
+	if ( ! function_exists( 'clean_post_cache' ) ) {
+		function clean_post_cache( int $post_id ): void {}
 	}
 
 	// WP_Error stub class.

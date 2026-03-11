@@ -19,6 +19,7 @@ use FlavorLinkChecker\Models\Enums\LinkStatus;
 use FlavorLinkChecker\Models\Link;
 use FlavorLinkChecker\Models\LinkInstance;
 use FlavorLinkChecker\Queue\SchedulerBootstrap;
+use FlavorLinkChecker\Scanner\LinkHtmlEditor;
 
 /**
  * Handles REST API endpoints for links.
@@ -51,11 +52,15 @@ class LinksController extends \WP_REST_Controller {
 	 * @param QueryBuilder        $query_builder  Filtered query builder.
 	 * @param LinksRepository     $links_repo     Links CRUD repository.
 	 * @param InstancesRepository $instances_repo Instances CRUD repository.
+	 * @param LinkHtmlEditor      $html_editor    HTML link editor.
+	 * @param CsvExporter         $csv_exporter   CSV export handler.
 	 */
 	public function __construct(
 		private readonly QueryBuilder $query_builder,
 		private readonly LinksRepository $links_repo,
 		private readonly InstancesRepository $instances_repo,
+		private readonly LinkHtmlEditor $html_editor,
+		private readonly CsvExporter $csv_exporter,
 	) {}
 
 	/**
@@ -96,13 +101,13 @@ class LinksController extends \WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::EDITABLE,
 					'callback'            => $this->update_item( ... ),
-					'permission_callback' => $this->check_permissions( ... ),
+					'permission_callback' => $this->check_write_permissions( ... ),
 					'args'                => $this->get_update_params(),
 				),
 				array(
 					'methods'             => \WP_REST_Server::DELETABLE,
 					'callback'            => $this->delete_item( ... ),
-					'permission_callback' => $this->check_permissions( ... ),
+					'permission_callback' => $this->check_write_permissions( ... ),
 					'args'                => array(
 						'id' => array(
 							'type'              => 'integer',
@@ -121,7 +126,7 @@ class LinksController extends \WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => $this->bulk_action( ... ),
-					'permission_callback' => $this->check_permissions( ... ),
+					'permission_callback' => $this->check_write_permissions( ... ),
 					'args'                => $this->get_bulk_params(),
 				),
 			)
@@ -184,6 +189,20 @@ class LinksController extends \WP_REST_Controller {
 	 */
 	public function check_permissions( \WP_REST_Request $request ): bool {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Permission check for write endpoints that modify post content.
+	 *
+	 * Requires both admin access and the ability to edit posts.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request Full request object.
+	 * @return bool
+	 */
+	public function check_write_permissions( \WP_REST_Request $request ): bool {
+		return current_user_can( 'manage_options' ) && current_user_can( 'edit_posts' );
 	}
 
 	/**
@@ -293,7 +312,7 @@ class LinksController extends \WP_REST_Controller {
 				continue;
 			}
 
-			$updated_content = $this->replace_link_in_html(
+			$updated_content = $this->html_editor->replace_link_in_html(
 				$post->post_content,
 				$link->url,
 				$new_url,
@@ -301,7 +320,7 @@ class LinksController extends \WP_REST_Controller {
 			);
 
 			if ( $updated_content !== $post->post_content ) {
-				$this->update_post_content_silently( $post->ID, $updated_content );
+				$this->html_editor->update_post_content_silently( $post->ID, $updated_content );
 				++$updated_posts;
 			}
 		}
@@ -454,7 +473,7 @@ class LinksController extends \WP_REST_Controller {
 	/**
 	 * Returns aggregated link statistics by status, category, and network.
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -477,7 +496,9 @@ class LinksController extends \WP_REST_Controller {
 	/**
 	 * Exports all matching links as CSV.
 	 *
-	 * @since 1.1.0
+	 * Delegates to CsvExporter to keep the controller focused on routing.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
@@ -497,74 +518,8 @@ class LinksController extends \WP_REST_Controller {
 			'per_page'          => 100,
 		);
 
-		$args = array_filter( $args, fn( $v ) => null !== $v );
-
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
-		$csv = fopen( 'php://temp', 'r+' );
-		fputcsv(
-			$csv,
-			array(
-				__( 'ID', 'flavor-link-checker' ),
-				__( 'URL', 'flavor-link-checker' ),
-				__( 'Final URL', 'flavor-link-checker' ),
-				__( 'HTTP Status', 'flavor-link-checker' ),
-				__( 'Status', 'flavor-link-checker' ),
-				__( 'Type', 'flavor-link-checker' ),
-				__( 'Affiliate', 'flavor-link-checker' ),
-				__( 'Network', 'flavor-link-checker' ),
-				__( 'Cloaked', 'flavor-link-checker' ),
-				__( 'Redirect Count', 'flavor-link-checker' ),
-				__( 'Response Time (ms)', 'flavor-link-checker' ),
-				__( 'Instances', 'flavor-link-checker' ),
-				__( 'Last Checked', 'flavor-link-checker' ),
-				__( 'Last Error', 'flavor-link-checker' ),
-			)
-		);
-
-		$page = 1;
-		do {
-			$args['page'] = $page;
-			$result       = $this->query_builder->query( $args );
-			$items        = $result['items'];
-
-			if ( empty( $items ) ) {
-				break;
-			}
-
-			$link_ids        = array_map( fn( Link $link ) => $link->id, $items );
-			$instance_counts = $this->instances_repo->count_by_link_ids( $link_ids );
-
-			foreach ( $items as $link ) {
-				$is_cloaked = $link->is_affiliate && ! $link->is_external;
-				fputcsv(
-					$csv,
-					array(
-						$link->id,
-						$link->url,
-						$link->final_url ?? '',
-						$link->http_status ?? '',
-						$link->status_category->value,
-						$link->is_external ? __( 'external', 'flavor-link-checker' ) : __( 'internal', 'flavor-link-checker' ),
-						$link->is_affiliate ? __( 'yes', 'flavor-link-checker' ) : __( 'no', 'flavor-link-checker' ),
-						$link->affiliate_network ?? '',
-						$is_cloaked ? __( 'yes', 'flavor-link-checker' ) : __( 'no', 'flavor-link-checker' ),
-						$link->redirect_count,
-						$link->response_time ?? '',
-						$instance_counts[ $link->id ] ?? 0,
-						$link->last_checked?->format( 'Y-m-d H:i:s' ) ?? '',
-						$link->last_error ?? '',
-					)
-				);
-			}
-
-			$item_count = count( $items );
-			++$page;
-		} while ( 100 === $item_count );
-
-		rewind( $csv );
-		$csv_data = stream_get_contents( $csv );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
-		fclose( $csv );
+		$args     = array_filter( $args, fn( $v ) => null !== $v );
+		$csv_data = $this->csv_exporter->export( $this->query_builder, $this->instances_repo, $args );
 
 		$response = new \WP_REST_Response( $csv_data, 200 );
 		$response->header( 'X-FLC-Export', 'csv' );
@@ -575,7 +530,9 @@ class LinksController extends \WP_REST_Controller {
 	/**
 	 * Intercepts REST response for CSV export to send raw CSV instead of JSON.
 	 *
-	 * @since 1.1.0
+	 * Delegates to CsvExporter::serve_response().
+	 *
+	 * @since 1.0.0
 	 *
 	 * @param bool              $served  Whether the request has been served.
 	 * @param \WP_HTTP_Response $result  Response object.
@@ -584,17 +541,7 @@ class LinksController extends \WP_REST_Controller {
 	 * @return bool
 	 */
 	public function serve_csv_response( bool $served, \WP_HTTP_Response $result, \WP_REST_Request $request, \WP_REST_Server $server ): bool {
-		if ( ! str_contains( $request->get_route(), '/' . $this->rest_base . '/export' ) ) {
-			return $served;
-		}
-
-		$filename = 'links-export-' . gmdate( 'Y-m-d' ) . '.csv';
-		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
-
-		echo $result->get_data(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Raw CSV data.
-
-		return true;
+		return $this->csv_exporter->serve_response( $served, $result, $request, $server );
 	}
 
 	/**
@@ -728,106 +675,7 @@ class LinksController extends \WP_REST_Controller {
 		);
 	}
 
-	/**
-	 * Replaces a link's URL and/or rel attribute in HTML content.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string      $html    HTML content.
-	 * @param string      $old_url URL to find.
-	 * @param string|null $new_url New URL (null = keep current).
-	 * @param string|null $new_rel New rel attribute value (null = keep current).
-	 * @return string Updated HTML.
-	 */
-	private function replace_link_in_html( string $html, string $old_url, ?string $new_url, ?string $new_rel ): string {
-		if ( empty( $html ) ) {
-			return $html;
-		}
 
-		$dom = new \DOMDocument();
-		libxml_use_internal_errors( true );
-		$dom->loadHTML( '<?xml encoding="utf-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-		libxml_clear_errors();
-
-		$modified = false;
-
-		foreach ( $dom->getElementsByTagName( 'a' ) as $node ) {
-			/** @var \DOMElement $node */
-			if ( $node->getAttribute( 'href' ) !== $old_url ) {
-				continue;
-			}
-
-			if ( null !== $new_url ) {
-				$node->setAttribute( 'href', $new_url );
-				$modified = true;
-			}
-
-			if ( null !== $new_rel ) {
-				if ( '' === $new_rel ) {
-					$node->removeAttribute( 'rel' );
-				} else {
-					$node->setAttribute( 'rel', $new_rel );
-				}
-				$modified = true;
-			}
-		}
-
-		if ( ! $modified ) {
-			return $html;
-		}
-
-		$output = $dom->saveHTML();
-		// Remove the XML encoding declaration we added.
-		$output = str_replace( '<?xml encoding="utf-8">', '', $output );
-
-		return $output;
-	}
-
-	/**
-	 * Removes a link from HTML, replacing <a> tags with their text content.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $html HTML content.
-	 * @param string $url  URL to unlink.
-	 * @return string Updated HTML.
-	 */
-	private function unlink_in_html( string $html, string $url ): string {
-		if ( empty( $html ) ) {
-			return $html;
-		}
-
-		$dom = new \DOMDocument();
-		libxml_use_internal_errors( true );
-		$dom->loadHTML( '<?xml encoding="utf-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-		libxml_clear_errors();
-
-		$modified = false;
-		$nodes    = array();
-
-		// Collect matching nodes first (can't modify DOM while iterating).
-		foreach ( $dom->getElementsByTagName( 'a' ) as $node ) {
-			/** @var \DOMElement $node */
-			if ( $node->getAttribute( 'href' ) === $url ) {
-				$nodes[] = $node;
-			}
-		}
-
-		foreach ( $nodes as $node ) {
-			$text_node = $dom->createTextNode( $node->textContent );
-			$node->parentNode->replaceChild( $text_node, $node );
-			$modified = true;
-		}
-
-		if ( ! $modified ) {
-			return $html;
-		}
-
-		$output = $dom->saveHTML();
-		$output = str_replace( '<?xml encoding="utf-8">', '', $output );
-
-		return $output;
-	}
 
 	/**
 	 * Deletes a link from the database and removes all its instances from post content.
@@ -847,37 +695,14 @@ class LinksController extends \WP_REST_Controller {
 				continue;
 			}
 
-			$updated_content = $this->unlink_in_html( $post->post_content, $link->url );
+			$updated_content = $this->html_editor->unlink_in_html( $post->post_content, $link->url );
 
 			if ( $updated_content !== $post->post_content ) {
-				$this->update_post_content_silently( $post->ID, $updated_content );
+				$this->html_editor->update_post_content_silently( $post->ID, $updated_content );
 			}
 		}
 
 		$this->links_repo->delete( $link->id );
-	}
-
-	/**
-	 * Updates a post's content directly in the database to avoid updating the modified date
-	 * and creating unnecessary revisions.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param int    $post_id      Post ID.
-	 * @param string $new_content  New post content.
-	 * @return void
-	 */
-	private function update_post_content_silently( int $post_id, string $new_content ): void {
-		global $wpdb;
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$wpdb->update(
-			$wpdb->posts,
-			array( 'post_content' => $new_content ),
-			array( 'ID' => $post_id )
-		);
-
-		\clean_post_cache( $post_id );
 	}
 
 	/**

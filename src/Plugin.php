@@ -20,6 +20,7 @@ use FlavorLinkChecker\Queue\BatchOrchestrator;
 use FlavorLinkChecker\Queue\CheckJob;
 use FlavorLinkChecker\Queue\ScanJob;
 use FlavorLinkChecker\Queue\SchedulerBootstrap;
+use FlavorLinkChecker\REST\CsvExporter;
 use FlavorLinkChecker\REST\LinksController;
 use FlavorLinkChecker\REST\ScanController;
 use FlavorLinkChecker\REST\SettingsController;
@@ -28,6 +29,7 @@ use FlavorLinkChecker\Scanner\ContentParser;
 use FlavorLinkChecker\Scanner\HttpChecker;
 use FlavorLinkChecker\Scanner\LinkClassifier;
 use FlavorLinkChecker\Scanner\LinkExtractor;
+use FlavorLinkChecker\Scanner\LinkHtmlEditor;
 
 /**
  * Singleton that boots the plugin and registers all hooks.
@@ -43,6 +45,22 @@ class Plugin {
 	 * @var self|null
 	 */
 	private static ?self $instance = null;
+
+	/**
+	 * Lazily-instantiated links repository (shared between REST and Queue layers).
+	 *
+	 * @since 1.0.0
+	 * @var LinksRepository|null
+	 */
+	private ?LinksRepository $links_repo = null;
+
+	/**
+	 * Lazily-instantiated instances repository (shared between REST and Queue layers).
+	 *
+	 * @since 1.0.0
+	 * @var InstancesRepository|null
+	 */
+	private ?InstancesRepository $instances_repo = null;
 
 	/**
 	 * Returns the singleton instance.
@@ -94,18 +112,52 @@ class Plugin {
 	private function register_rest_api(): void {
 		global $wpdb;
 
-		$links_repo     = new LinksRepository( $wpdb );
-		$instances_repo = new InstancesRepository( $wpdb );
+		$links_repo     = $this->get_links_repo();
+		$instances_repo = $this->get_instances_repo();
 		$query_builder  = new QueryBuilder( $wpdb );
 		$orchestrator   = new BatchOrchestrator( $links_repo, $instances_repo );
+		$html_editor    = new LinkHtmlEditor( $wpdb );
+		$csv_exporter   = new CsvExporter();
 
-		$links_ctrl    = new LinksController( $query_builder, $links_repo, $instances_repo );
+		$links_ctrl    = new LinksController( $query_builder, $links_repo, $instances_repo, $html_editor, $csv_exporter );
 		$scan_ctrl     = new ScanController( $orchestrator );
 		$settings_ctrl = new SettingsController();
 
 		add_action( 'rest_api_init', $links_ctrl->register_routes( ... ) );
 		add_action( 'rest_api_init', $scan_ctrl->register_routes( ... ) );
 		add_action( 'rest_api_init', $settings_ctrl->register_routes( ... ) );
+	}
+
+	/**
+	 * Returns the shared LinksRepository instance (lazy singleton).
+	 *
+	 * One instance is shared by both the REST layer and the Queue layer.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return LinksRepository
+	 */
+	private function get_links_repo(): LinksRepository {
+		if ( null === $this->links_repo ) {
+			global $wpdb;
+			$this->links_repo = new LinksRepository( $wpdb );
+		}
+		return $this->links_repo;
+	}
+
+	/**
+	 * Returns the shared InstancesRepository instance (lazy singleton).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return InstancesRepository
+	 */
+	private function get_instances_repo(): InstancesRepository {
+		if ( null === $this->instances_repo ) {
+			global $wpdb;
+			$this->instances_repo = new InstancesRepository( $wpdb );
+		}
+		return $this->instances_repo;
 	}
 
 	/**
@@ -120,11 +172,8 @@ class Plugin {
 			return;
 		}
 
-		global $wpdb;
-
-		// Repositories.
-		$links_repo     = new LinksRepository( $wpdb );
-		$instances_repo = new InstancesRepository( $wpdb );
+		$links_repo     = $this->get_links_repo();
+		$instances_repo = $this->get_instances_repo();
 
 		// Scanner pipeline.
 		$content_parser = new ContentParser();

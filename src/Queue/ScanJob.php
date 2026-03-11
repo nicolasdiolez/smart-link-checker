@@ -63,13 +63,17 @@ class ScanJob {
 	public function process_batch( string $batch_id ): void {
 		$this->start_time = \microtime( true );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		\error_log( "[FlavorLinkChecker] ScanJob::process_batch() started for batch {$batch_id}." );
+		if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			\error_log( "[FlavorLinkChecker] ScanJob::process_batch() started for batch {$batch_id}." );
+		}
 
 		$batch_data = \get_transient( 'flc_scan_batch_' . $batch_id );
 		if ( false === $batch_data || ! \is_array( $batch_data ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			\error_log( "[FlavorLinkChecker] ScanJob::process_batch() failed to load data for batch {$batch_id}." );
+			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				\error_log( "[FlavorLinkChecker] ScanJob::process_batch() failed to load data for batch {$batch_id}." );
+			}
 			return;
 		}
 
@@ -119,8 +123,10 @@ class ScanJob {
 			}
 
 			// All posts in this batch are processed.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			\error_log( "[FlavorLinkChecker] ScanJob batch {$batch_id}: completed, processed {$count} posts." );
+			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				\error_log( "[FlavorLinkChecker] ScanJob batch {$batch_id}: completed, processed {$count} posts." );
+			}
 			\delete_transient( 'flc_scan_batch_' . $batch_id );
 
 			/**
@@ -132,8 +138,10 @@ class ScanJob {
 			 */
 			\do_action( 'flc/scan/batch_complete', $batch_id );
 		} catch ( \Throwable $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			\error_log( '[FlavorLinkChecker] ScanJob error in batch ' . $batch_id . ': ' . $e->getMessage() );
+			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				\error_log( '[FlavorLinkChecker] ScanJob error in batch ' . $batch_id . ': ' . $e->getMessage() );
+			}
 		} finally {
 			\wp_suspend_cache_addition( false );
 			\wp_defer_term_counting( false );
@@ -221,13 +229,15 @@ class ScanJob {
 		$has_resources = ( $memory_usage < $limit_bytes * 0.8 ) && ( $time_elapsed < 25 );
 
 		if ( ! $has_resources ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			\error_log( \sprintf(
-				'[FlavorLinkChecker] Low resources detected! Memory: %.2f MB / %.2f MB, Time: %.2f s. Pausing batch.',
-				$memory_usage / 1024 / 1024,
-				$limit_bytes / 1024 / 1024,
-				$time_elapsed
-			) );
+			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				\error_log( \sprintf(
+					'[FlavorLinkChecker] Low resources detected! Memory: %.2f MB / %.2f MB, Time: %.2f s. Pausing batch.',
+					$memory_usage / 1024 / 1024,
+					$limit_bytes / 1024 / 1024,
+					$time_elapsed
+				) );
+			}
 		}
 
 		return $has_resources;

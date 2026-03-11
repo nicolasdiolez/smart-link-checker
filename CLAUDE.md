@@ -1,4 +1,4 @@
-# CLAUDE.md — Instructions permanentes pour le développement du plugin LinkChecker
+# CLAUDE.md — Instructions permanentes pour le développement du plugin Smart Link Checker
 
 > **Ce fichier est la source de vérité du projet.** Il doit être lu par l'IA au début de CHAQUE conversation.
 > Il ne change que lors de décisions architecturales majeures. Pour l'état courant du projet, voir `HANDOFF.md`.
@@ -7,7 +7,7 @@
 
 ## 1. IDENTITÉ DU PROJET
 
-- **Nom** : LinkChecker (nom interne de développement — le nom commercial sera décidé plus tard)
+- **Nom** : Smart Link Checker
 - **Slug WordPress** : `flavor-link-checker` (préfixe `flavor_lc_` pour toutes les fonctions globales, `flc_` pour les shortcodes)
 - **Namespace PHP** : `FlavorLinkChecker\`
 - **REST API namespace** : `flavor-link-checker/v1`
@@ -27,8 +27,8 @@
 | Build JS                  | `@wordpress/scripts` (wp-scripts)            |
 | Interface admin           | React via `@wordpress/element` + `@wordpress/components` |
 | State management          | `@wordpress/data` (createReduxStore)         |
-| Affichage données         | `@wordpress/dataviews` (import depuis `@wordpress/dataviews/wp`) |
-| Background processing     | Action Scheduler 3.x (bundled dans `libraries/`) |
+| Affichage données         | `@wordpress/dataviews` (bundled, import sans suffixe `/wp`) |
+| Background processing     | Action Scheduler 3.x (bundled dans `vendor/woocommerce/action-scheduler/`) |
 | Tests PHP                 | PHPUnit 10+ avec `yoast/phpunit-polyfills`   |
 | Tests JS                  | Jest (intégré via wp-scripts)                |
 | Linting PHP               | PHPCS avec WordPress Coding Standards 3.x    |
@@ -119,8 +119,8 @@ flavor-link-checker/
 │
 ├── build/                           # Généré par `npm run build` — IGNORÉ par git
 │
-├── libraries/
-│   └── action-scheduler/            # Action Scheduler bundled (via Composer ou copie)
+├── vendor/
+│   └── woocommerce/action-scheduler/ # Action Scheduler bundled via Composer
 │
 ├── languages/
 │   └── flavor-link-checker.pot      # Template de traduction
@@ -357,7 +357,17 @@ check_admin_referer( 'flc_action_nonce', '_flc_nonce' );
 defined( 'ABSPATH' ) || exit;
 ```
 
-### 6.6 Ce qui est INTERDIT
+### 6.6 Logging
+
+```php
+// TOUJOURS conditionner error_log() à WP_DEBUG (exigence WordPress.org)
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+    error_log( '[FlavorLinkChecker] ...' );
+}
+```
+
+### 6.7 Ce qui est INTERDIT
 
 - `eval()`, `extract()`, `compact()` dans un contexte de données utilisateur
 - `file_get_contents()` pour les URLs → utiliser `wp_remote_get()`
@@ -433,7 +443,7 @@ import { Button, Modal, Notice, Spinner, TextControl } from '@wordpress/componen
 import { useSelect, useDispatch } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { DataViews } from '@wordpress/dataviews/wp'; // IMPORTANT : /wp suffix
+import { DataViews } from '@wordpress/dataviews'; // Bundled (PAS de /wp suffix, cf. décision #16)
 ```
 
 ### 8.2 Store @wordpress/data
@@ -627,5 +637,5 @@ $wpdb->query( 'SET autocommit = 1' );
 
 ---
 
-> **Dernière mise à jour de ce fichier** : [Date de création initiale]
+> **Dernière mise à jour de ce fichier** : 2026-03-11 (Session 22 — Audit v1.0)
 > **Version** : 1.0.0

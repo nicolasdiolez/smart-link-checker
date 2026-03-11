@@ -80,8 +80,10 @@ class SchedulerBootstrap {
 	 */
 	public static function enqueue_scan_batch( string $batch_id ): int {
 		if ( ! self::is_available() ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( '[FlavorLinkChecker] enqueue_scan_batch: Action Scheduler not available.' );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( '[FlavorLinkChecker] enqueue_scan_batch: Action Scheduler not available.' );
+			}
 			return 0;
 		}
 
@@ -92,8 +94,10 @@ class SchedulerBootstrap {
 		);
 
 		if ( 0 === $action_id ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( "[FlavorLinkChecker] enqueue_scan_batch: as_enqueue_async_action returned 0 for batch {$batch_id}." );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "[FlavorLinkChecker] enqueue_scan_batch: as_enqueue_async_action returned 0 for batch {$batch_id}." );
+			}
 		}
 
 		return $action_id;
@@ -108,8 +112,10 @@ class SchedulerBootstrap {
 	 */
 	public static function enqueue_check_batch( array $link_ids ): int {
 		if ( ! self::is_available() ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( '[FlavorLinkChecker] enqueue_check_batch: Action Scheduler not available.' );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( '[FlavorLinkChecker] enqueue_check_batch: Action Scheduler not available.' );
+			}
 			return 0;
 		}
 
@@ -120,8 +126,10 @@ class SchedulerBootstrap {
 		);
 
 		if ( 0 === $action_id ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( '[FlavorLinkChecker] enqueue_check_batch: as_enqueue_async_action returned 0.' );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( '[FlavorLinkChecker] enqueue_check_batch: as_enqueue_async_action returned 0.' );
+			}
 		}
 
 		return $action_id;

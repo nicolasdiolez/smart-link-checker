@@ -224,7 +224,7 @@ class InstancesRepository {
 	/**
 	 * Counts instances grouped by link ID for a batch of link IDs.
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.0
 	 *
 	 * @param int[] $link_ids Array of link IDs.
 	 * @return array<int, int> Map of link_id => instance count.
@@ -284,7 +284,7 @@ class InstancesRepository {
 	/**
 	 * Deletes all instances from the table.
 	 *
-	 * @since 1.2.0
+	 * @since 1.0.0
 	 *
 	 * @return int Number of deleted rows.
 	 */

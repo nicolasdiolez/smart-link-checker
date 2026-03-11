@@ -14,6 +14,7 @@ import Dashboard from './components/Dashboard';
 import LinkTable from './components/LinkTable';
 import LinkEditModal from './components/LinkEditModal';
 import SettingsPanel from './components/SettingsPanel';
+import ErrorBoundary from './components/ErrorBoundary';
 import { STORE_NAME } from './store';
 
 const TABS = [
@@ -48,37 +49,39 @@ const App = () => {
 	);
 
 	return (
-		<div className="flc-app">
-			<h1>{ __( 'LinkChecker', 'flavor-link-checker' ) }</h1>
+		<ErrorBoundary>
+			<div className="flc-app">
+				<h1>{ __( 'Smart Link Checker', 'flavor-link-checker' ) }</h1>
 
-			<TabPanel tabs={ TABS }>
-				{ ( tab ) => {
-					if ( tab.name === 'dashboard' ) {
-						return <Dashboard />;
-					}
-					if ( tab.name === 'links' ) {
-						return <LinkTable onEditLink={ handleEditLink } />;
-					}
-					if ( tab.name === 'settings' ) {
-						return <SettingsPanel />;
-					}
-					return null;
-				} }
-			</TabPanel>
+				<TabPanel tabs={ TABS }>
+					{ ( tab ) => {
+						if ( tab.name === 'dashboard' ) {
+							return <Dashboard />;
+						}
+						if ( tab.name === 'links' ) {
+							return <LinkTable onEditLink={ handleEditLink } />;
+						}
+						if ( tab.name === 'settings' ) {
+							return <SettingsPanel />;
+						}
+						return null;
+					} }
+				</TabPanel>
 
-			{ editLinkId && (
-				<LinkEditModal
-					linkId={ editLinkId }
-					onClose={ handleCloseModal }
+				{ editLinkId && (
+					<LinkEditModal
+						linkId={ editLinkId }
+						onClose={ handleCloseModal }
+					/>
+				) }
+
+				<SnackbarList
+					notices={ snackbarNotices }
+					onRemove={ removeNotice }
+					className="flc-snackbar-list"
 				/>
-			) }
-
-			<SnackbarList
-				notices={ snackbarNotices }
-				onRemove={ removeNotice }
-				className="flc-snackbar-list"
-			/>
-		</div>
+			</div>
+		</ErrorBoundary>
 	);
 };
 

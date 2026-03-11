@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:       LinkChecker
- * Plugin URI:
- * Description:       A high-performance link checker for WordPress with affiliate detection.
+ * Plugin Name:       Smart Link Checker
+ * Plugin URI:        https://flavor.dev/smart-link-checker
+ * Description:       A high-performance link checker for WordPress with affiliate detection, redirect tracking, and background processing.
  * Version:           1.0.0
  * Requires at least: 6.9
  * Requires PHP:      8.2

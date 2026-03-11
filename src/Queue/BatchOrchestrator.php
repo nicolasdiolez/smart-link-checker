@@ -155,7 +155,7 @@ class BatchOrchestrator {
 	/**
 	 * Resets all scan data: cancels jobs and truncates tables.
 	 *
-	 * @since 1.2.0
+	 * @since 1.0.0
 	 */
 	public function reset(): void {
 		$this->cancel();
@@ -170,7 +170,7 @@ class BatchOrchestrator {
 	/**
 	 * Resumes a cancelled or interrupted scan.
 	 *
-	 * @since 1.3.0
+	 * @since 1.0.0
 	 *
 	 * @return bool True if scan was resumed.
 	 */
@@ -197,7 +197,7 @@ class BatchOrchestrator {
 	/**
 	 * Removes a scan batch from the tracking list.
 	 *
-	 * @since 1.3.0
+	 * @since 1.0.0
 	 *
 	 * @param string $batch_id Batch identifier.
 	 */
@@ -212,7 +212,7 @@ class BatchOrchestrator {
 	/**
 	 * Removes a check batch from the tracking list.
 	 *
-	 * @since 1.3.0
+	 * @since 1.0.0
 	 *
 	 * @param int[] $link_ids Link IDs that were in the batch.
 	 */
@@ -234,7 +234,7 @@ class BatchOrchestrator {
 	/**
 	 * Handles a check batch being split into a smaller one due to resource limits.
 	 *
-	 * @since 1.3.0
+	 * @since 1.0.0
 	 *
 	 * @param int[] $old_link_ids Original batch link IDs.
 	 * @param int[] $new_link_ids Remaining link IDs.
@@ -255,7 +255,7 @@ class BatchOrchestrator {
 	/**
 	 * Adds a check batch to the tracking list (used during re-enqueueing).
 	 *
-	 * @since 1.3.0
+	 * @since 1.0.0
 	 *
 	 * @param int[] $link_ids Link IDs in the new batch.
 	 */
@@ -282,7 +282,7 @@ class BatchOrchestrator {
 		}
 
 		if ( 'running' !== $status['status'] ) {
-			$stats = $this->links_repo->get_category_stats();
+			$stats = $this->get_cached_stats();
 			return array_merge( $status, array(
 				'total_links'    => $stats['total'],
 				'ok_count'       => $stats['ok_count'],
@@ -327,7 +327,7 @@ class BatchOrchestrator {
 			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
 		}
 
-		$stats = $this->links_repo->get_category_stats();
+		$stats = $this->get_cached_stats();
 		return array_merge( $status, array(
 			'total_links'     => $stats['total'],
 			'ok_count'        => $stats['ok_count'],
@@ -349,7 +349,7 @@ class BatchOrchestrator {
 	 * @return array<string, mixed>
 	 */
 	private function get_idle_status(): array {
-		$stats = $this->links_repo->get_category_stats();
+		$stats = $this->get_cached_stats();
 		return array(
 			'status'         => 'idle',
 			'phase'          => null,
@@ -363,6 +363,28 @@ class BatchOrchestrator {
 			'started_at'     => null,
 			'error_message'  => null,
 		);
+	}
+
+	/**
+	 * Returns category stats with a short-lived transient cache.
+	 *
+	 * Avoids running the heavy 16-SUM aggregation query on every
+	 * status poll (every 5 seconds).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<string, int>
+	 */
+	private function get_cached_stats(): array {
+		$cached = get_transient( 'flc_stats_cache' );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$stats = $this->links_repo->get_category_stats();
+		set_transient( 'flc_stats_cache', $stats, 30 );
+
+		return $stats;
 	}
 
 	/**
@@ -464,8 +486,10 @@ class BatchOrchestrator {
 		}
 
 		if ( $fail_count > 0 && $fail_count === $batch_count ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( "[FlavorLinkChecker] All {$batch_count} scan batches failed to enqueue." );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "[FlavorLinkChecker] All {$batch_count} scan batches failed to enqueue." );
+			}
 			$status = get_transient( 'flc_scan_status' );
 			if ( is_array( $status ) ) {
 				$status['status']        = 'error';
@@ -480,7 +504,7 @@ class BatchOrchestrator {
 	/**
 	 * Enqueues check batches from chunks.
 	 *
-	 * @since 1.3.0
+	 * @since 1.0.0
 	 *
 	 * @param array $chunks Array of link ID chunks.
 	 * @return int Number of batches enqueued.
@@ -498,8 +522,10 @@ class BatchOrchestrator {
 		}
 
 		if ( $fail_count > 0 && $fail_count === $batch_count ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( "[FlavorLinkChecker] All {$batch_count} check batches failed to enqueue." );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "[FlavorLinkChecker] All {$batch_count} check batches failed to enqueue." );
+			}
 		}
 
 		return $batch_count;

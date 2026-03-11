@@ -113,48 +113,6 @@ class LinkExtractor {
 	}
 
 	/**
-	 * Extracts links from post custom fields that contain HTML.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param int $post_id The post ID.
-	 * @return ScanResult[]
-	 */
-	private function extract_from_custom_fields( int $post_id ): array {
-		$results = array();
-		$meta    = \get_post_meta( $post_id );
-
-		if ( ! \is_array( $meta ) ) {
-			return $results;
-		}
-
-		foreach ( $meta as $meta_key => $meta_values ) {
-			// Skip internal/private meta keys.
-			if ( \str_starts_with( $meta_key, '_' ) ) {
-				continue;
-			}
-
-			foreach ( $meta_values as $value ) {
-				if ( ! \is_string( $value ) || '' === \trim( $value ) ) {
-					continue;
-				}
-
-				// Only parse values that look like they contain HTML links.
-				if ( ! \str_contains( $value, '<a ' ) && ! \str_contains( $value, 'href' ) ) {
-					continue;
-				}
-
-				$results = \array_merge(
-					$results,
-					$this->content_parser->parse( $value, 'custom_field' )
-				);
-			}
-		}
-
-		return $results;
-	}
-
-	/**
 	 * Deduplicates scan results by URL and classifies each unique URL.
 	 *
 	 * Groups all instances referencing the same URL under a single entry.
@@ -215,7 +173,7 @@ class LinkExtractor {
 	/**
 	 * Checks if a URL points to a common media file extension.
 	 *
-	 * @since 1.2.0
+	 * @since 1.0.0
 	 *
 	 * @param string $url The URL to check.
 	 * @return bool True if media URL.

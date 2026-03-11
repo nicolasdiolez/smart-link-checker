@@ -99,17 +99,19 @@ array(
 			)
 		);
 
-		\register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/debug',
-array(
+		if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			\register_rest_route(
+				$this->namespace,
+				'/' . $this->rest_base . '/debug',
 				array(
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => $this->get_debug_info( ... ),
-					'permission_callback' => $this->check_permissions( ... ),
-				),
-			)
-		);
+					array(
+						'methods'             => \WP_REST_Server::READABLE,
+						'callback'            => $this->get_debug_info( ... ),
+						'permission_callback' => $this->check_permissions( ... ),
+					),
+				)
+			);
+		}
 
 		\register_rest_route(
 			$this->namespace,
@@ -149,6 +151,32 @@ array(
 	}
 
 	/**
+	 * Checks rate-limit for resource-intensive actions.
+	 *
+	 * Uses a transient lock to prevent rapid-fire requests.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $action Action identifier (e.g. 'start', 'reset').
+	 * @return \WP_Error|null WP_Error if rate-limited, null if OK.
+	 */
+	private function check_rate_limit( string $action ): ?\WP_Error {
+		$transient_key = 'flc_rate_limit_' . $action;
+
+		if ( false !== \get_transient( $transient_key ) ) {
+			return new \WP_Error(
+				'flc_rate_limited',
+				\__( 'Please wait a few seconds before trying again.', 'flavor-link-checker' ),
+				array( 'status' => 429 )
+			);
+		}
+
+		\set_transient( $transient_key, 1, 10 );
+
+		return null;
+	}
+
+	/**
 	 * Starts a scan (full or delta).
 	 *
 	 * Launches both the link extraction (scan) and HTTP verification (check) phases.
@@ -159,6 +187,11 @@ array(
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function start_scan( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$rate_error = $this->check_rate_limit( 'start' );
+		if ( null !== $rate_error ) {
+			return $rate_error;
+		}
+
 		$current_status = $this->orchestrator->get_status();
 
 		if ( 'running' === $current_status['status'] ) {
@@ -214,12 +247,17 @@ array(
 	/**
 	 * Resumes the current scan.
 	 *
-	 * @since 1.3.0
+	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function resume_scan( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$rate_error = $this->check_rate_limit( 'resume' );
+		if ( null !== $rate_error ) {
+			return $rate_error;
+		}
+
 		$resumed = $this->orchestrator->resume();
 
 		if ( ! $resumed ) {
@@ -236,12 +274,17 @@ array(
 	/**
 	 * Resets all scan data.
 	 *
-	 * @since 1.2.0
+	 * @since 1.0.0
 	 *
 	 * @param \WP_REST_Request $request Full request object.
 	 * @return \WP_REST_Response
 	 */
-	public function reset_scan( \WP_REST_Request $request ): \WP_REST_Response {
+	public function reset_scan( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error {
+		$rate_error = $this->check_rate_limit( 'reset' );
+		if ( null !== $rate_error ) {
+			return $rate_error;
+		}
+
 		$this->orchestrator->reset();
 
 		return new \WP_REST_Response( $this->orchestrator->get_status(), 200 );

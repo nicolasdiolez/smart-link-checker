@@ -52,7 +52,8 @@ class Migrator {
 			KEY idx_status_category (status_category),
 			KEY idx_last_checked (last_checked),
 			KEY idx_is_external (is_external),
-			KEY idx_is_affiliate (is_affiliate)
+			KEY idx_is_affiliate (is_affiliate),
+		KEY idx_redirect_count (redirect_count)
 		) {$charset_collate};";
 
 		$sql_instances = "CREATE TABLE {$wpdb->prefix}flc_instances (

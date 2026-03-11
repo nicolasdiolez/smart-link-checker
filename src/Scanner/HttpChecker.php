@@ -105,7 +105,7 @@ class HttpChecker {
 	/**
 	 * Checks a batch of URLs in parallel.
 	 *
-	 * @since 1.4.0
+	 * @since 1.0.0
 	 *
 	 * @param string[] $urls Array of URLs to check.
 	 * @return array<string, array{
@@ -204,7 +204,7 @@ class HttpChecker {
 	/**
 	 * Builds a success result from a Requests response.
 	 *
-	 * @since 1.4.0
+	 * @since 1.0.0
 	 *
 	 * @param \WpOrg\Requests\Response $response   The response object.
 	 * @param string                   $url        Original URL.
@@ -343,7 +343,7 @@ class HttpChecker {
 	/**
 	 * Detects whether a redirect chain contains a loop (repeated URL).
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.0
 	 *
 	 * @param array<int, array{url: string, status: int}> $chain The redirect chain.
 	 * @return bool True if a loop is detected.

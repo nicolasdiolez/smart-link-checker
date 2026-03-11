@@ -139,6 +139,7 @@ const Dashboard = () => {
 					<div
 						key={ card.key }
 						className={ `flc-summary-card ${ card.className }` }
+						aria-label={ `${ card.label }: ${ card.value }` }
 					>
 						<span className="flc-summary-card__value">
 							{ card.value }

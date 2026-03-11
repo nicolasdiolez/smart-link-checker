@@ -37,4 +37,11 @@ if ( function_exists( 'as_unschedule_all_actions' ) ) {
  */
 global $wpdb;
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
-$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_flc\_%' OR option_name LIKE '_transient_timeout_flc\_%'" );
+$wpdb->query(
+	$wpdb->prepare(
+		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+		$wpdb->esc_like( '_transient_flc_' ) . '%',
+		$wpdb->esc_like( '_transient_timeout_flc_' ) . '%'
+	)
+);
+delete_option( 'flc_last_scan_date' );

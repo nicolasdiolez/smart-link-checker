@@ -1,4 +1,4 @@
-# HANDOFF.md — État courant du projet LinkChecker
+# HANDOFF.md — État courant du projet Smart Link Checker
 
 > **Ce fichier est mis à jour à la FIN de chaque session de travail avec l'IA.**
 > Il permet à une nouvelle conversation de reprendre exactement là où la précédente s'est arrêtée.
@@ -10,12 +10,12 @@
 
 | Champ                  | Valeur                                              |
 |------------------------|------------------------------------------------------|
-| **Phase actuelle**     | Maintenance & Améliorations                       |
-| **Dernière session**   | Session 21 — 2026-03-10                              |
-| **Prochaine action**   | Déploiement final                                    |
+| **Phase actuelle**     | Audit v1.0 — Sprint 4 (Refactoring)                |
+| **Dernière session**   | Session 24 — 2026-03-11                              |
+| **Prochaine action**   | Sprint 4 : Extraire LinkHtmlEditor/CsvExporter, supprimer code mort, lazy repos, a11y, tests intégration |
 | **Blocages connus**    | Aucun                                                |
 | **URL admin LocalWP**  | http://localhost:10008/wp-admin/?localwp_auto_login=12 |
-| **Décisions en attente** | Nom commercial définitif, choix de licence          |
+| **Décisions en attente** | Choix de licence                                   |
 
 ---
 
@@ -282,6 +282,10 @@
 | 20      | `admin/src/components/Dashboard.js` | Modifié | Ajout de la carte "OK Links" et fallbacks globaux. |
 | 20      | `admin/src/components/ScanPanel.js` | Modifié | Amélioration message de complétion + trigger `refreshData()`. |
 | 20      | `admin/src/index.scss`            | Modifié | Ajout du style pour la carte summary `--ok`. |
+| 24      | `src/Database/Migrator.php`       | Modifié | Ajout index `idx_redirect_count` |
+| 24      | `src/Database/LinksRepository.php`| Modifié | Ajout méthode `find_by_ids()` |
+| 24      | `src/Queue/CheckJob.php`          | Modifié | Batch `find_by_ids()` + `wp_suspend_cache_addition()` |
+| 24      | `src/Queue/BatchOrchestrator.php` | Modifié | Cache stats 30s via `get_cached_stats()` |
 
 ---
 
@@ -338,6 +342,18 @@
 | 46 | Session 19 | `update_progress` par batch de 20 | Réduit de 95% les écritures dans la table `options` (via transient) pendant les gros scans d'articles, préservant l'I/O disque du serveur. |
 | 47 | Session 20 | Fusion des stats globales dans le Status | Garantit que le dashboard affiche toujours le nombre réel de liens OK/Broken/Redirect en DB, même hors scan ou si le polling est décalé. |
 | 48 | Session 20 | Auto-refresh via Redux thunk | Centralise la synchronisation post-scan dans une action `refreshData()` appelée par un `useEffect` dans `ScanPanel`. |
+| 49 | Session 22 | Nom commercial : Smart Link Checker | Choisi pour être descriptif (les utilisateurs cherchent "link checker") tout en se démarquant de la concurrence avec le préfixe "Smart". Le slug reste `flavor-link-checker`. |
+| 50 | Session 22 | `error_log()` toujours conditionné à `WP_DEBUG` | Exigence stricte de WordPress.org : aucun appel à `error_log()` sans guard `defined('WP_DEBUG') && WP_DEBUG`. |
+| 51 | Session 22 | Debug endpoint conditionné à `WP_DEBUG` | `/scan/debug` n'est enregistré comme route REST que si `WP_DEBUG` est actif, empêchant la divulgation d'informations en production. |
+| 52 | Session 22 | SQL préparé dans `uninstall.php` | Remplacement de la concaténation SQL directe par `$wpdb->prepare()` + `$wpdb->esc_like()` pour le nettoyage des transients. |
+| 53 | Session 23 | CSV injection via tab-prefix | Les cellules CSV commençant par `=`, `+`, `-`, `@`, `\t`, `\r` sont préfixées par une tabulation pour empêcher l'exécution de formules dans Excel/Sheets. |
+| 54 | Session 23 | Rate-limiting via transient (TTL 10s) | Les endpoints `start`, `resume` et `reset` du scan utilisent un transient `flc_rate_limit_{action}` pour empêcher le spam (HTTP 429). |
+| 55 | Session 23 | `edit_posts` pour les opérations d'écriture | Les endpoints PUT/DELETE `/links/{id}` et POST `/links/bulk` vérifient `manage_options` ET `edit_posts`. Les endpoints de lecture restent `manage_options` uniquement. |
+| 56 | Session 23 | Error Boundary React (class component) | Requis car `getDerivedStateFromError` / `componentDidCatch` n'existent que sur les class components. Wraps tout le contenu de `<App>`. |
+| 57 | Session 24 | Cache stats transient 30s | Évite d'exécuter la requête lourde `get_category_stats()` (16 SUM) à chaque poll de 5s. Cache dans `flc_stats_cache` (TTL 30s). |
+| 58 | Session 24 | Batch `find_by_ids()` via `WHERE IN` | Remplace N requêtes `find()` individuelles par une seule dans `CheckJob`. Réduit les requêtes DB de 20 → 1 par chunk. |
+| 59 | Session 24 | Index `redirect_count` | Ajoute `KEY idx_redirect_count (redirect_count)` pour accélérer le filtre QueryBuilder `redirect_count > 0`. |
+| 60 | Session 24 | `wp_suspend_cache_addition()` dans CheckJob | Aligne `CheckJob` avec `ScanJob` : suspend le cache objet pendant le traitement batch pour réduire la consommation mémoire. |
 
 ---
 
@@ -347,7 +363,7 @@
 
 | # | Question | Contexte | Réponse |
 |---|----------|----------|---------|
-| 1 | Nom commercial définitif du plugin ? | Impacte le slug, text-domain, branding | En attente |
+| 1 | Nom commercial définitif du plugin ? | Impacte le slug, text-domain, branding | ✅ **Smart Link Checker** (choisi session 22) |
 | 2 | Licence ? GPL-2.0-or-later (obligatoire pour WordPress.org) ou propriétaire ? | Si distribution WordPress.org, GPL obligatoire | En attente |
 | 3 | Faut-il scanner les custom fields (post meta) en plus du contenu ? | Certains thèmes/builders stockent du HTML dans les meta | Implémenté (désactivé par défaut, option `scan_custom_fields`) |
 | 4 | Nombre max de requêtes HTTP simultanées en vérification ? | Impact sur le serveur et les hôtes distants | Implémentation : 5 requêtes simultanées (parallélisme `Requests::request_multiple`) |
@@ -777,5 +793,125 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 - **Scan Panel** : Message de fin de scan plus complet incluant redirections et erreurs.
 
 **Résultat :** Le total "Checked" correspond désormais exactement à la somme (OK + Redirects + Broken + Errors). Les redirections vers des erreurs (ex: 503 Amazon) sont désormais visibles dans l'onglet Redirects.
+
+### Session 22 — Audit v1.0 & Sprint 1 WordPress.org Blockers (2026-03-11)
+
+**Résumé :** Audit complet du plugin (32 findings, 6 catégories) suivi de la correction de tous les bloquants WordPress.org (Sprint 1 — 7 items).
+
+**Audit réalisé :**
+- Revue des 26 fichiers PHP, 15+ fichiers JS/SCSS, configurations, `readme.txt`
+- 32 points d'amélioration identifiés : 5 critiques, 14 importants, 13 recommandés
+- Plan d'action en 4 sprints (Sécurité, Compliance, Performance, Refactoring)
+
+**Sprint 1 — Corrections Appliquées :**
+- **WP-01** : Plugin Name `LinkChecker` → `Smart Link Checker` (header, `AdminPage.php`, `App.js`)
+- **WP-02** : `readme.txt` réécrit (120+ lignes : description, privacy, FAQ 6 entrées, changelog, screenshots)
+- **WP-03** : 11 appels `error_log()` wrappés avec `WP_DEBUG` (`ScanJob`, `SchedulerBootstrap`, `BatchOrchestrator`)
+- **SEC-01** : Endpoint `/scan/debug` conditionné à `WP_DEBUG` (`ScanController.php`)
+- **SEC-02** : `uninstall.php` — `$wpdb->prepare()` + `$wpdb->esc_like()` + ajout `delete_option('flc_last_scan_date')`
+- **WP-04** : `.pot` généré (540 lignes) dans `languages/flavor-link-checker.pot`
+- **WP-07** : 23 tags `@since` nettoyés (1.1.0–1.4.0 → 1.0.0) dans 8 fichiers PHP
+
+**Fichiers modifiés :**
+| Fichier | Action |
+|---------|--------|
+| `flavor-link-checker.php` | Plugin Name + Description + Plugin URI |
+| `src/Admin/AdminPage.php` | Menu title → Smart Link Checker |
+| `admin/src/App.js` | H1 title → Smart Link Checker |
+| `src/Queue/ScanJob.php` | 5 `error_log()` wrappés `WP_DEBUG` |
+| `src/Queue/SchedulerBootstrap.php` | 4 `error_log()` wrappés `WP_DEBUG` |
+| `src/Queue/BatchOrchestrator.php` | 2 `error_log()` wrappés `WP_DEBUG` |
+| `src/REST/ScanController.php` | Debug endpoint conditionné `WP_DEBUG` |
+| `uninstall.php` | SQL préparé + `delete_option` |
+| `readme.txt` | Réécriture complète |
+| `languages/flavor-link-checker.pot` | Créé (540 lignes) |
+| 8 fichiers `src/` | @since 1.x.0 → 1.0.0 |
+| `CLAUDE.md` | Renommage, corrections (DataViews, vendor/, logging policy) |
+
+**Tests :** Non retenus (changements documentaires et conditionnels uniquement).
+
+**Prochaine étape :** Sprint 2 — Sécurité & Robustesse (CSV injection, rate-limiting, `edit_post` capability, Error Boundary React).
+
+### Session 23 — Sprint 2 : Sécurité & Robustesse (2026-03-11)
+
+**Résumé :** Implémentation des 4 items de sécurité et robustesse identifiés dans l'audit v1.0.
+
+**Accompli :**
+- **SEC-03 — CSV injection** : Ajout de `sanitize_csv_value()` dans `LinksController`. Préfixe les cellules commençant par `=`, `+`, `-`, `@`, `\t`, `\r` avec une tabulation. Appliqué aux colonnes URL, Final URL, Network et Last Error.
+- **SEC-04 — Rate-limiting** : Ajout de `check_rate_limit()` dans `ScanController` avec transient TTL 10s. Protège `start_scan()`, `resume_scan()` et `reset_scan()`. Retourne HTTP 429 si le cooldown est actif.
+- **SEC-05 — Capability granulaire** : Nouveau `check_write_permissions()` dans `LinksController` vérifiant `manage_options` ET `edit_posts`. Utilisé pour PUT/DELETE `/links/{id}` et POST `/links/bulk`.
+- **UI-01 — Error Boundary React** : Nouveau composant `ErrorBoundary.js` (class component) avec message d'erreur, détails collapsibles et bouton "Try Again". Wraps le contenu de `<App>`.
+
+**Fichiers modifiés :**
+| Fichier | Action |
+|---------|--------|
+| `src/REST/LinksController.php` | `sanitize_csv_value()` + `check_write_permissions()` |
+| `src/REST/ScanController.php` | `check_rate_limit()` + fix return type `reset_scan()` |
+| `admin/src/components/ErrorBoundary.js` | Créé — class component Error Boundary |
+| `admin/src/App.js` | Wrap dans `<ErrorBoundary>` |
+
+**Tests :** `vendor/bin/phpunit` → 98 tests, 190 assertions, 100% OK. `npm run build` → 243 KiB, OK. 2 tests JS pré-existants échouent (Dashboard + ScanPanel, depuis Session 20).
+
+**Prochaine étape :** Sprint 3 — Performance (cache stats, batch find, index redirect_count, wp_suspend_cache_addition dans CheckJob).
+
+### Session 24 — Sprint 3 : Performance (2026-03-11)
+
+**Résumé :** Implémentation des 4 items de performance identifiés dans l'audit v1.0.
+
+**Accompli :**
+- **PERF-01 — Cache stats** : Nouvelle méthode `get_cached_stats()` dans `BatchOrchestrator` avec transient `flc_stats_cache` (TTL 30s). Évite d'exécuter la requête lourde `get_category_stats()` (16 SUM conditionnels) à chaque poll de 5 secondes.
+- **PERF-02 — Batch find** : Nouvelle méthode `find_by_ids()` dans `LinksRepository` utilisant `WHERE id IN(...)`. `CheckJob` refactorisé pour charger les liens par chunk entier au lieu de N appels individuels `find()`.
+- **PERF-03 — Index redirect_count** : Ajout de `KEY idx_redirect_count (redirect_count)` dans la table `flc_links` (Migrator). Accélère les requêtes `redirect_count > 0` du QueryBuilder.
+- **PERF-05 — Cache suspension** : Ajout de `wp_suspend_cache_addition(true/false)` dans `CheckJob::process_batch()` pour réduire l'overhead mémoire lors du traitement batch.
+
+**Fichiers modifiés :**
+| Fichier | Action |
+|---------|--------|
+| `src/Database/Migrator.php` | Ajout index `idx_redirect_count` |
+| `src/Database/LinksRepository.php` | Nouvelle méthode `find_by_ids()` |
+| `src/Queue/CheckJob.php` | Batch find + `wp_suspend_cache_addition()` |
+| `src/Queue/BatchOrchestrator.php` | `get_cached_stats()` avec transient 30s |
+
+**Tests :** `vendor/bin/phpunit` → 98 tests, 190 assertions, 100% OK. `npm run build` → 243 KiB, OK.
+
+**Prochaine étape :** Sprint 4 — Refactoring & Qualité (extraire LinkHtmlEditor/CsvExporter, supprimer code mort, lazy repos, a11y, tests intégration).
+
+---
+
+### Session 25 — Sprint 4 : Refactoring & Qualité (2026-03-11)
+
+**Résumé :** Dernier sprint de l'audit v1.0. Extraction de deux classes depuis `LinksController`, suppression du code mort, lazy-loading des repositories, accessibilité ARIA, et nouveaux tests unitaires.
+
+**Accompli :**
+
+- **ARCH-03 — Extraction `LinkHtmlEditor`** : Nouvelle classe `src/Scanner/LinkHtmlEditor.php` contenant `replace_link_in_html()`, `unlink_in_html()`, et `update_post_content_silently()`. Reçoit `$wpdb` via constructeur.
+- **ARCH-03 — Extraction `CsvExporter`** : Nouvelle classe `src/REST/CsvExporter.php` contenant `export()`, `serve_response()`, et `sanitize_csv_value()`. `LinksController` délègue entièrement à ces deux classes.
+- **ARCH-05 — Code mort supprimé** : Méthode `extract_from_custom_fields()` (33 lignes) supprimée de `LinkExtractor.php` (jamais appelée depuis Session 16).
+- **ARCH-02 — Lazy repositories** : `Plugin.php` possède maintenant deux propriétés lazy-initialized (`$links_repo`, `$instances_repo`) et des getters. Les contextes REST et Queue partagent les mêmes instances — **4 instanciations → 2**.
+- **FE-02 — Accessibilité ARIA** :
+  - `ScanPanel.js` : Barre de progression enrichie (`role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-label`).
+  - `Dashboard.js` : Summary cards avec `aria-label` combinant valeur + libellé.
+- **TEST-02 — Tests `LinkHtmlEditor`** : 10 nouveaux tests PHPUnit dans `LinkHtmlEditorTest.php`. Stubs `stubs.php` mis à jour (`$posts`, `update()`, `clean_post_cache()`).
+
+**Fichiers créés :**
+| Fichier | Description |
+|---------|-------------|
+| `src/Scanner/LinkHtmlEditor.php` | Nouveau — éditeur HTML DOM pour liens |
+| `src/REST/CsvExporter.php` | Nouveau — exporteur CSV |
+| `tests/php/Unit/LinkHtmlEditorTest.php` | Nouveau — 10 tests unitaires |
+
+**Fichiers modifiés :**
+| Fichier | Action |
+|---------|--------|
+| `src/REST/LinksController.php` | Injection LinkHtmlEditor + CsvExporter, suppression ~200 lignes |
+| `src/Scanner/LinkExtractor.php` | Suppression `extract_from_custom_fields()` |
+| `src/Plugin.php` | Lazy repos + instanciation LinkHtmlEditor/CsvExporter |
+| `admin/src/components/ScanPanel.js` | ARIA sur progress bar |
+| `admin/src/components/Dashboard.js` | `aria-label` sur summary cards |
+| `tests/php/stubs.php` | Ajout `$posts`, `update()`, `clean_post_cache()` |
+
+**Tests :** `vendor/bin/phpunit` → **109 tests, 208 assertions, OK**. `npm run build` → 244 KiB, OK.
+
+**Prochaine étape :** Plugin prêt pour la soumission WordPress.org. Vérifier les derniers points de la liste `readme.txt` (screenshots, FAQ), tester manuellement sur un site WordPress réel avant soumission.
 
 ---

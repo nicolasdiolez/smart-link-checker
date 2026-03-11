@@ -124,8 +124,15 @@ const ScanPanel = () => {
 			</div>
 
 			{isRunning && (
-				<div className="flc-scan-panel__progress">
-					<div className="flc-progress-bar">
+				<div className="flc-scan-panel__progress" aria-label={ __( 'Scan progress details', 'flavor-link-checker' ) }>
+					<div
+						className="flc-progress-bar"
+						role="progressbar"
+						aria-valuenow={ progress }
+						aria-valuemin={ 0 }
+						aria-valuemax={ 100 }
+						aria-label={ __( 'Scan progress', 'flavor-link-checker' ) }
+					>
 						<div
 							className="flc-progress-bar__fill"
 							style={{ width: `${progress}%` }}

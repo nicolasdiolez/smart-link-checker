@@ -158,7 +158,7 @@ class LinkClassifier {
 	 * 4. rel="sponsored" attribute as a fallback hint
 	 *
 	 * @since 1.0.0
-	 * @since 1.1.0 Added $rel parameter for sponsored attribute detection.
+	 * @since 1.0.0 Added $rel parameter for sponsored attribute detection.
 	 *
 	 * @param string $url The URL to check.
 	 * @param string $rel Optional rel attribute value from the link.

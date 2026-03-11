@@ -64,6 +64,9 @@ class CheckJob {
 	public function process_batch( array $link_ids ): void {
 		$this->start_time = \microtime( true );
 
+		// Suspend object cache additions during batch processing.
+		\wp_suspend_cache_addition( true );
+
 		$settings            = \get_option( 'flc_settings', array() );
 		$this->request_delay = (int) ( $settings['http_request_delay'] ?? 300 );
 		$parallel_size       = 5; // Default parallel cluster size.
@@ -73,12 +76,12 @@ class CheckJob {
 		$offset   = 0;
 
 		foreach ( $chunks as $chunk_ids ) {
-			// Resolve URLs for the chunk.
+			// Resolve URLs for the chunk in a single query.
+			$links   = $this->links_repo->find_by_ids( $chunk_ids );
 			$url_map = array(); // link_id => url
 			foreach ( $chunk_ids as $id ) {
-				$link = $this->links_repo->find( $id );
-				if ( $link ) {
-					$url_map[$id] = $link->url;
+				if ( isset( $links[ $id ] ) ) {
+					$url_map[ $id ] = $links[ $id ]->url;
 				}
 			}
 
@@ -108,20 +111,22 @@ class CheckJob {
 			// Resource check.
 			if ( ! $this->has_resources() && $offset < $count ) {
 				$remaining = \array_slice( $link_ids, $offset );
-				
+
+				\wp_suspend_cache_addition( false );
 				\do_action( 'flc/check/batch_split', $link_ids, $remaining );
 				SchedulerBootstrap::enqueue_check_batch( $remaining );
 				return;
 			}
 		}
 
+		\wp_suspend_cache_addition( false );
 		\do_action( 'flc/check/batch_complete', $link_ids );
 	}
 
 	/**
 	 * Persists a check result to the database and updates progress.
 	 *
-	 * @since 1.4.0
+	 * @since 1.0.0
 	 *
 	 * @param int   $link_id The link ID.
 	 * @param array $result  Check result data.

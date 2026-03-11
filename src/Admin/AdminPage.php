@@ -36,8 +36,8 @@ class AdminPage {
 	 */
 	private function add_menu_page(): void {
 		add_menu_page(
-			__( 'LinkChecker', 'flavor-link-checker' ),
-			__( 'LinkChecker', 'flavor-link-checker' ),
+			__( 'Smart Link Checker', 'flavor-link-checker' ),
+			__( 'Smart Link Checker', 'flavor-link-checker' ),
 			'manage_options',
 			'flavor-link-checker',
 			$this->render_page( ... ),

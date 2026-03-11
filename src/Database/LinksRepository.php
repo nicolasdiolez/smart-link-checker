@@ -68,6 +68,44 @@ class LinksRepository {
 	}
 
 	/**
+	 * Finds multiple links by their IDs in a single query.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int[] $ids Link IDs.
+	 * @return array<int, Link> Associative array keyed by link ID.
+	 */
+	public function find_by_ids( array $ids ): array {
+		if ( empty( $ids ) ) {
+			return array();
+		}
+
+		$ids          = array_map( 'absint', $ids );
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $this->wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			$this->wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM %i WHERE id IN ($placeholders)",
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				$this->table,
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				...$ids
+			)
+		);
+
+		$map = array();
+		foreach ( $rows as $row ) {
+			$link              = Link::from_db_row( $row );
+			$map[ $link->id ] = $link;
+		}
+
+		return $map;
+	}
+
+	/**
 	 * Finds a link by its URL hash.
 	 *
 	 * @since 1.0.0
@@ -359,7 +397,7 @@ class LinksRepository {
 	/**
 	 * Counts links grouped by affiliate network.
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.0
 	 *
 	 * @return array<string, int> e.g. ['amazon' => 42, 'awin' => 15].
 	 */
@@ -387,7 +425,7 @@ class LinksRepository {
 	 *
 	 * Uses a single query with conditional aggregation for efficiency.
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.0
 	 *
 	 * @return array<string, int>
 	 */
@@ -478,7 +516,7 @@ class LinksRepository {
 	/**
 	 * Deletes all links from the table.
 	 *
-	 * @since 1.2.0
+	 * @since 1.0.0
 	 *
 	 * @return int Number of deleted rows.
 	 */
