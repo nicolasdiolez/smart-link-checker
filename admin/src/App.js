@@ -1,5 +1,5 @@
 /**
- * App component — Root of the LinkChecker admin interface.
+ * App component — Root of the Smart Link Checker admin interface.
  *
  * @package
  * @since   1.0.0

@@ -1,5 +1,5 @@
 /**
- * Shared constants for the LinkChecker admin UI.
+ * Shared constants for the Smart Link Checker admin UI.
  *
  * @package
  * @since   1.0.0

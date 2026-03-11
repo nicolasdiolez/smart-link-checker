@@ -10,9 +10,9 @@
 
 | Champ                  | Valeur                                              |
 |------------------------|------------------------------------------------------|
-| **Phase actuelle**     | Audit v1.0 — Sprint 4 (Refactoring)                |
-| **Dernière session**   | Session 24 — 2026-03-11                              |
-| **Prochaine action**   | Sprint 4 : Extraire LinkHtmlEditor/CsvExporter, supprimer code mort, lazy repos, a11y, tests intégration |
+| **Phase actuelle**     | Lancement v1.0 — Commercialisation                 |
+| **Dernière session**   | Session 26 — 2026-03-11                              |
+| **Prochaine action**   | Déploiement : Tester l'archive ZIP générée sur un site WP vierge |
 | **Blocages connus**    | Aucun                                                |
 | **URL admin LocalWP**  | http://localhost:10008/wp-admin/?localwp_auto_login=12 |
 | **Décisions en attente** | Choix de licence                                   |
@@ -364,7 +364,7 @@
 | # | Question | Contexte | Réponse |
 |---|----------|----------|---------|
 | 1 | Nom commercial définitif du plugin ? | Impacte le slug, text-domain, branding | ✅ **Smart Link Checker** (choisi session 22) |
-| 2 | Licence ? GPL-2.0-or-later (obligatoire pour WordPress.org) ou propriétaire ? | Si distribution WordPress.org, GPL obligatoire | En attente |
+| 2 | Licence ? GPL-2.0-or-later (obligatoire pour WordPress.org) ou propriétaire ? | Si distribution WordPress.org, GPL obligatoire | ✅ **GPL-2.0-or-later** (Modèle Freemium) |
 | 3 | Faut-il scanner les custom fields (post meta) en plus du contenu ? | Certains thèmes/builders stockent du HTML dans les meta | Implémenté (désactivé par défaut, option `scan_custom_fields`) |
 | 4 | Nombre max de requêtes HTTP simultanées en vérification ? | Impact sur le serveur et les hôtes distants | Implémentation : 5 requêtes simultanées (parallélisme `Requests::request_multiple`) |
 
@@ -913,5 +913,27 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 **Tests :** `vendor/bin/phpunit` → **109 tests, 208 assertions, OK**. `npm run build` → 244 KiB, OK.
 
 **Prochaine étape :** Plugin prêt pour la soumission WordPress.org. Vérifier les derniers points de la liste `readme.txt` (screenshots, FAQ), tester manuellement sur un site WordPress réel avant soumission.
+
+---
+
+### Session 26 — Choix du modèle économique et nettoyage final (2026-03-11)
+
+**Résumé :** Décision stratégique de distribuer le plugin sous modèle Freemium via WordPress.org (licence GPLv2-or-later). Création du plan de déploiement, et passe de nettoyage finale pour éradiquer les dernières traces de l'ancien nom de code interne ("LinkChecker") dans les interfaces visibles.
+
+**Accompli :**
+- **Décision Licence** : Choix de la licence `GPL-2.0-or-later` confirmé et validé pour le déploiement sur WordPress.org.
+- **Stratégie** : Modèle Freemium validé. Conception et sauvegarde d'un plan de déploiement en 5 phases (`deployment_plan.md`).
+- **Nom du plugin** : Vérification exhaustive du dépôt. Remplacement de "LinkChecker" par "Smart Link Checker" dans l'erreur d'autoload Composer (`flavor-link-checker.php`) et dans les commentaires d'en-tête de 4 fichiers React (JS/SCSS). (Le namespace PHP reste `FlavorLinkChecker` pour la robustesse technique).
+- **Build & Tests** : Validation finale du build React (`npm run build`), toutes les vérifications sont au vert.
+
+**Fichiers modifiés :**
+| Fichier | Action |
+|---------|--------|
+| `HANDOFF.md` | Mise à jour des questions ouvertes (licence) et état global |
+| `flavor-link-checker.php` | Changement de nom dans l'erreur d'autoloader |
+| `admin/src/index.scss`, `index.js`, `App.js`, `constants.js` | Changement de nom dans les commentaires en-tête |
+| `deployment_plan.md` | Artifact Markdown créé listant les phases de la commercialisation |
+
+**Prochaine étape :** Créer les captures d'écran et la bannière (assets), puis tester l'archive d'installation sur un WP vierge indépendant avant soumission SVN.
 
 ---

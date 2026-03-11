@@ -1,5 +1,5 @@
 /**
- * LinkChecker admin entry point.
+ * Smart Link Checker admin entry point.
  *
  * @package
  * @since   1.0.0

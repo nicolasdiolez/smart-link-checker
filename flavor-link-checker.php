@@ -59,7 +59,7 @@ if ( ! file_exists( FLC_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 		'admin_notices',
 		static function (): void {
 			echo '<div class="notice notice-error"><p>';
-			echo esc_html__( 'LinkChecker: Composer autoloader not found. Please run "composer install" in the plugin directory.', 'flavor-link-checker' );
+			echo esc_html__( 'Smart Link Checker: Composer autoloader not found. Please run "composer install" in the plugin directory.', 'flavor-link-checker' );
 			echo '</p></div>';
 		}
 	);
