@@ -13,6 +13,7 @@ namespace FlavorLinkChecker;
 defined( 'ABSPATH' ) || exit;
 
 use FlavorLinkChecker\Admin\AdminPage;
+use FlavorLinkChecker\Admin\ReviewNotice;
 use FlavorLinkChecker\Database\InstancesRepository;
 use FlavorLinkChecker\Database\LinksRepository;
 use FlavorLinkChecker\Database\QueryBuilder;
@@ -90,7 +91,7 @@ class Plugin {
 	 * @since 1.0.0
 	 */
 	public function register(): void {
-		add_action( 'init', $this->load_textdomain( ... ) );
+		\add_action( 'init', $this->load_textdomain( ... ) );
 
 		// Queue system must register on ALL requests (not just admin)
 		// because Action Scheduler processes actions via WP-Cron/frontend.
@@ -99,9 +100,12 @@ class Plugin {
 		// REST API must register on ALL requests for wp-json availability.
 		$this->register_rest_api();
 
-		if ( is_admin() ) {
+		if ( \is_admin() ) {
 			$admin_page = new AdminPage();
 			$admin_page->register();
+
+			$review_notice = new ReviewNotice();
+			$review_notice->register();
 		}
 	}
 
@@ -124,9 +128,9 @@ class Plugin {
 		$scan_ctrl     = new ScanController( $orchestrator );
 		$settings_ctrl = new SettingsController();
 
-		add_action( 'rest_api_init', $links_ctrl->register_routes( ... ) );
-		add_action( 'rest_api_init', $scan_ctrl->register_routes( ... ) );
-		add_action( 'rest_api_init', $settings_ctrl->register_routes( ... ) );
+		\add_action( 'rest_api_init', $links_ctrl->register_routes( ... ) );
+		\add_action( 'rest_api_init', $scan_ctrl->register_routes( ... ) );
+		\add_action( 'rest_api_init', $settings_ctrl->register_routes( ... ) );
 	}
 
 	/**
@@ -183,7 +187,7 @@ class Plugin {
 		$extractor      = new LinkExtractor( $content_parser, $block_parser, $classifier );
 
 		// HTTP checker.
-		$settings          = get_option( 'flc_settings', array() );
+		$settings          = \get_option( 'flc_settings', array() );
 		$timeout           = (int) ( $settings['check_timeout'] ?? 15 );
 		$http_checker      = new HttpChecker( $timeout );
 		$internal_checker  = new InternalLinkChecker();
@@ -193,20 +197,20 @@ class Plugin {
 		$check_job = new CheckJob( $http_checker, $internal_checker, $links_repo );
 
 		// Hook jobs to Action Scheduler actions.
-		add_action( SchedulerBootstrap::SCAN_BATCH_HOOK, array( $scan_job, 'process_batch' ) );
-		add_action( SchedulerBootstrap::CHECK_BATCH_HOOK, array( $check_job, 'process_batch' ) );
+		\add_action( SchedulerBootstrap::SCAN_BATCH_HOOK, array( $scan_job, 'process_batch' ) );
+		\add_action( SchedulerBootstrap::CHECK_BATCH_HOOK, array( $check_job, 'process_batch' ) );
 
 		// Orchestrator for daily recheck and batch tracking.
 		$orchestrator = new BatchOrchestrator( $links_repo, $instances_repo );
-		add_action( SchedulerBootstrap::RECHECK_DAILY_HOOK, array( $orchestrator, 'recheck_stale_links' ) );
+		\add_action( SchedulerBootstrap::RECHECK_DAILY_HOOK, array( $orchestrator, 'recheck_stale_links' ) );
 
 		// Batch tracking hooks.
-		add_action( 'flc/scan/batch_complete', array( $orchestrator, 'remove_scan_batch' ) );
-		add_action( 'flc/check/batch_complete', array( $orchestrator, 'remove_check_batch' ) );
-		add_action( 'flc/check/batch_split', array( $orchestrator, 'handle_check_batch_split' ), 10, 2 );
+		\add_action( 'flc/scan/batch_complete', array( $orchestrator, 'remove_scan_batch' ) );
+		\add_action( 'flc/check/batch_complete', array( $orchestrator, 'remove_check_batch' ) );
+		\add_action( 'flc/check/batch_split', array( $orchestrator, 'handle_check_batch_split' ), 10, 2 );
 
 		// Orphan cleanup.
-		add_action(
+		\add_action(
 			SchedulerBootstrap::CLEANUP_HOOK,
 			static function () use ( $links_repo ): void {
 				$links_repo->cleanup_orphans();
@@ -220,10 +224,10 @@ class Plugin {
 	 * @since 1.0.0
 	 */
 	private function load_textdomain(): void {
-		load_plugin_textdomain(
+		\load_plugin_textdomain(
 			'flavor-link-checker',
 			false,
-			dirname( plugin_basename( FLC_PLUGIN_FILE ) ) . '/languages'
+			dirname( \plugin_basename( FLC_PLUGIN_FILE ) ) . '/languages'
 		);
 	}
 }

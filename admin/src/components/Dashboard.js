@@ -215,6 +215,33 @@ const Dashboard = () => {
 					</div>
 				</div>
 			) }
+
+			<div className="flc-dashboard__section flc-dashboard__support">
+				<div className="flc-support-card">
+					<div className="flc-support-card__content">
+						<h3>{ __( 'Support & Feedback', 'flavor-link-checker' ) }</h3>
+						<p>{ __( 'Are we missing a feature? Found a bug? Or just want to say thanks?', 'flavor-link-checker' ) }</p>
+					</div>
+					<div className="flc-support-card__actions">
+						<a 
+							href="https://wordpress.org/support/plugin/flavor-link-checker/" 
+							target="_blank" 
+							rel="noopener noreferrer"
+							className="button"
+						>
+							{ __( 'Get Support', 'flavor-link-checker' ) }
+						</a>
+						<a 
+							href="https://wordpress.org/support/plugin/flavor-link-checker/reviews/#new-post" 
+							target="_blank" 
+							rel="noopener noreferrer"
+							className="button button-primary"
+						>
+							{ __( 'Leave a Review', 'flavor-link-checker' ) }
+						</a>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 };

@@ -180,6 +180,14 @@ const ScanPanel = () => {
 							( scanStatus.timeout_count || 0 ) +
 							( scanStatus.skipped_count || 0 )
 					)}
+					<a
+						href="https://wordpress.org/support/plugin/flavor-link-checker/reviews/#new-post"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="flc-scan-panel__review-link"
+					>
+						{__( 'Enjoying the plugin? Please leave a 5-star review!', 'flavor-link-checker' )}
+					</a>
 				</p>
 			)}
 

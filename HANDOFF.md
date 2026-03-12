@@ -10,8 +10,8 @@
 
 | Champ                  | Valeur                                              |
 |------------------------|------------------------------------------------------|
-| **Phase actuelle**     | Lancement v1.0 — Commercialisation                 |
-| **Dernière session**   | Session 26 — 2026-03-11                              |
+| **Phase actuelle**     | Lancement v1.0 — Marketing & UX                    |
+| **Dernière session**   | Session 27 — 2026-03-12                              |
 | **Prochaine action**   | Déploiement : Tester l'archive ZIP générée sur un site WP vierge |
 | **Blocages connus**    | Aucun                                                |
 | **URL admin LocalWP**  | http://localhost:10008/wp-admin/?localwp_auto_login=12 |
@@ -286,6 +286,12 @@
 | 24      | `src/Database/LinksRepository.php`| Modifié | Ajout méthode `find_by_ids()` |
 | 24      | `src/Queue/CheckJob.php`          | Modifié | Batch `find_by_ids()` + `wp_suspend_cache_addition()` |
 | 24      | `src/Queue/BatchOrchestrator.php` | Modifié | Cache stats 30s via `get_cached_stats()` |
+| 27      | `src/Admin/ReviewNotice.php`      | Créé    | Système de notification d'avis WordPress.org |
+| 27      | `src/Plugin.php`                  | Modifié | Enregistrement de `ReviewNotice` |
+| 27      | `src/Queue/BatchOrchestrator.php` | Modifié | Ajout du hook `flc/scan/complete` |
+| 27      | `admin/src/components/ScanPanel.js` | Modifié | Ajout du lien d'avis après scan |
+| 27      | `admin/src/components/Dashboard.js` | Modifié | Ajout de la carte "Support & Feedback" |
+| 27      | `admin/src/index.scss`            | Modifié | Styles pour la carte support et liens d'avis |
 
 ---
 
@@ -354,6 +360,7 @@
 | 58 | Session 24 | Batch `find_by_ids()` via `WHERE IN` | Remplace N requêtes `find()` individuelles par une seule dans `CheckJob`. Réduit les requêtes DB de 20 → 1 par chunk. |
 | 59 | Session 24 | Index `redirect_count` | Ajoute `KEY idx_redirect_count (redirect_count)` pour accélérer le filtre QueryBuilder `redirect_count > 0`. |
 | 60 | Session 24 | `wp_suspend_cache_addition()` dans CheckJob | Aligne `CheckJob` avec `ScanJob` : suspend le cache objet pendant le traitement batch pour réduire la consommation mémoire. |
+| 61 | Session 27 | Système d'incitation aux avis (Review Prompt) | Combinaison d'une notice admin (après 1er scan) et d'une carte support permanente pour maximiser la visibilité sur WordPress.org sans être intrusif. |
 
 ---
 

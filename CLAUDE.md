@@ -59,7 +59,8 @@ flavor-link-checker/
 │   │
 │   ├── Admin/
 │   │   ├── AdminPage.php            # add_menu_page + enqueue React conditionnel
-│   │   └── Settings.php             # register_setting + page de réglages
+│   │   ├── Settings.php             # register_setting + page de réglages
+│   │   └── ReviewNotice.php         # Admin notice d'avis WordPress.org
 │   │
 │   ├── REST/
 │   │   ├── LinksController.php      # GET/PUT/DELETE /links, POST /links/bulk

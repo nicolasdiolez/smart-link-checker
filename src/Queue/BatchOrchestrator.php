@@ -320,11 +320,13 @@ class BatchOrchestrator {
 				$status['status'] = 'complete';
 				update_option( 'flc_last_scan_date', $status['started_at'] );
 				set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
+				do_action( 'flc/scan/complete' );
 			}
 		} elseif ( 'checking' === $phase && 0 === $pending_count ) {
 			$status['status'] = 'complete';
 			update_option( 'flc_last_scan_date', $status['started_at'] );
 			set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
+			do_action( 'flc/scan/complete' );
 		}
 
 		$stats = $this->get_cached_stats();
