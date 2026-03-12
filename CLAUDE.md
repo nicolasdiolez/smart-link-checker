@@ -8,10 +8,10 @@
 ## 1. IDENTITÉ DU PROJET
 
 - **Nom** : Smart Link Checker
-- **Slug WordPress** : `flavor-link-checker` (préfixe `flavor_lc_` pour toutes les fonctions globales, `flc_` pour les shortcodes)
+- **Slug WordPress** : `smart-link-checker` (préfixe `flavor_lc_` pour toutes les fonctions globales, `flc_` pour les shortcodes)
 - **Namespace PHP** : `FlavorLinkChecker\`
-- **REST API namespace** : `flavor-link-checker/v1`
-- **Text domain** : `flavor-link-checker`
+- **REST API namespace** : `smart-link-checker/v1`
+- **Text domain** : `smart-link-checker`
 - **Préfixe tables DB** : `{$wpdb->prefix}flc_`
 - **Préfixe options WP** : `flc_`
 - **Préfixe hooks (actions/filtres)** : `flc/`
@@ -39,8 +39,8 @@
 ## 3. STRUCTURE DE FICHIERS CANONIQUE
 
 ```
-flavor-link-checker/
-├── flavor-link-checker.php         # Point d'entrée (headers plugin + bootstrap)
+smart-link-checker/
+├── smart-link-checker.php         # Point d'entrée (headers plugin + bootstrap)
 ├── uninstall.php                    # Nettoyage complet à la suppression
 ├── composer.json                    # PSR-4, dépendances dev (WPCS, PHPStan, PHPUnit)
 ├── package.json                     # @wordpress/scripts, dépendances React
@@ -101,7 +101,7 @@ flavor-link-checker/
 │       ├── index.scss               # Styles globaux du plugin
 │       ├── App.js                   # Router principal (tabs/sections)
 │       ├── store/
-│       │   ├── index.js             # createReduxStore('flavor-link-checker', {...})
+│       │   ├── index.js             # createReduxStore('smart-link-checker', {...})
 │       │   ├── actions.js           # Actions : fetchLinks, startScan, updateLink, bulkAction
 │       │   ├── reducer.js           # État : links, scan, filters, pagination, notices
 │       │   ├── selectors.js         # getLinks, getScanStatus, getFilters, isLoading
@@ -124,7 +124,7 @@ flavor-link-checker/
 │   └── woocommerce/action-scheduler/ # Action Scheduler bundled via Composer
 │
 ├── languages/
-│   └── flavor-link-checker.pot      # Template de traduction
+│   └── smart-link-checker.pot      # Template de traduction
 │
 └── tests/
     ├── php/
@@ -229,7 +229,7 @@ CREATE TABLE {prefix}flc_instances (
 
 ## 5. ENDPOINTS REST API
 
-Base : `wp-json/flavor-link-checker/v1`
+Base : `wp-json/smart-link-checker/v1`
 
 ### 5.1 Liens
 
@@ -450,10 +450,10 @@ import { DataViews } from '@wordpress/dataviews'; // Bundled (PAS de /wp suffix,
 ### 8.2 Store @wordpress/data
 
 ```js
-// Le store doit s'appeler exactement 'flavor-link-checker'
+// Le store doit s'appeler exactement 'smart-link-checker'
 import { createReduxStore, register } from '@wordpress/data';
 
-const store = createReduxStore( 'flavor-link-checker', {
+const store = createReduxStore( 'smart-link-checker', {
     reducer,
     actions,
     selectors,
@@ -475,10 +475,10 @@ register( store );
 
 ```php
 // Planifier une action async (exécution dès que possible)
-as_enqueue_async_action( 'flc/scan/process_batch', [ $batch_id ], 'flavor-link-checker' );
+as_enqueue_async_action( 'flc/scan/process_batch', [ $batch_id ], 'smart-link-checker' );
 
 // Planifier une action récurrente
-as_schedule_recurring_action( time(), DAY_IN_SECONDS, 'flc/recheck/daily', [], 'flavor-link-checker' );
+as_schedule_recurring_action( time(), DAY_IN_SECONDS, 'flc/recheck/daily', [], 'smart-link-checker' );
 
 // Vérifier les ressources avant chaque item du batch
 private function has_resources(): bool {
@@ -489,7 +489,7 @@ private function has_resources(): bool {
     return ( $memory_usage < $memory_limit * 0.8 ) && ( $time_elapsed < 25 );
 }
 
-// TOUJOURS utiliser le groupe 'flavor-link-checker' pour identifier nos actions
+// TOUJOURS utiliser le groupe 'smart-link-checker' pour identifier nos actions
 // TOUJOURS vérifier if ( ! function_exists( 'as_enqueue_async_action' ) ) avant usage
 ```
 

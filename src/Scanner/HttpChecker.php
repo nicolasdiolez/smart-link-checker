@@ -86,7 +86,7 @@ class HttpChecker {
 	) {
 		$this->timeout    = $timeout;
 		$this->site_url   = '' !== $site_url ? $site_url : \home_url();
-		$this->user_agent = 'Mozilla/5.0 (compatible; FlavorLinkChecker/' . FLC_VERSION . '; +' . $this->site_url . ')';
+		$this->user_agent = 'Mozilla/5.0 (compatible; SmartLinkChecker/' . FLC_VERSION . '; +' . $this->site_url . ')';
 	}
 
 	/**

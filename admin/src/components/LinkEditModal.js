@@ -79,7 +79,7 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 
 	return (
 		<Modal
-			title={ __( 'Edit Link', 'flavor-link-checker' ) }
+			title={ __( 'Edit Link', 'smart-link-checker' ) }
 			onRequestClose={ () => onClose( false ) }
 			className="flc-edit-modal"
 		>
@@ -87,18 +87,18 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 			{ ! loading && currentLink && (
 				<>
 					<TextControl
-						label={ __( 'URL', 'flavor-link-checker' ) }
+						label={ __( 'URL', 'smart-link-checker' ) }
 						value={ url }
 						onChange={ setUrl }
 						__nextHasNoMarginBottom
 					/>
 					<TextControl
-						label={ __( 'Rel attribute', 'flavor-link-checker' ) }
+						label={ __( 'Rel attribute', 'smart-link-checker' ) }
 						value={ rel }
 						onChange={ setRel }
 						help={ __(
 							'e.g. nofollow sponsored',
-							'flavor-link-checker'
+							'smart-link-checker'
 						) }
 						__nextHasNoMarginBottom
 					/>
@@ -106,7 +106,7 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 					{ currentLink.instances?.length > 0 && (
 						<div className="flc-edit-modal__instances">
 							<h3>
-								{ __( 'Found in:', 'flavor-link-checker' ) }
+								{ __( 'Found in:', 'smart-link-checker' ) }
 							</h3>
 							<ul>
 								{ currentLink.instances.map( ( inst ) => (
@@ -138,13 +138,13 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 							isBusy={ saving }
 							disabled={ saving }
 						>
-							{ __( 'Save', 'flavor-link-checker' ) }
+							{ __( 'Save', 'smart-link-checker' ) }
 						</Button>
 						<Button
 							variant="tertiary"
 							onClick={ () => onClose( false ) }
 						>
-							{ __( 'Cancel', 'flavor-link-checker' ) }
+							{ __( 'Cancel', 'smart-link-checker' ) }
 						</Button>
 					</div>
 				</>

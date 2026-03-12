@@ -50,7 +50,7 @@ const ScanPanel = () => {
 
 	const handleReset = () => {
 		// eslint-disable-next-line no-alert
-		if (window.confirm(__('Are you sure you want to reset all scan data? This will clear all links found so far.', 'flavor-link-checker'))) {
+		if (window.confirm(__('Are you sure you want to reset all scan data? This will clear all links found so far.', 'smart-link-checker'))) {
 			resetScan();
 		}
 	};
@@ -81,7 +81,7 @@ const ScanPanel = () => {
 							isBusy={scanLoading}
 							disabled={scanLoading}
 						>
-							{__('Full Scan', 'flavor-link-checker')}
+							{__('Full Scan', 'smart-link-checker')}
 						</Button>
 						<Button
 							variant="secondary"
@@ -90,7 +90,7 @@ const ScanPanel = () => {
 							disabled={scanLoading}
 							className="flc-scan-panel__delta-btn"
 						>
-							{__('Delta Scan', 'flavor-link-checker')}
+							{__('Delta Scan', 'smart-link-checker')}
 						</Button>
 						{scanStatus?.status === 'cancelled' && (
 							<Button
@@ -99,7 +99,7 @@ const ScanPanel = () => {
 								isBusy={scanLoading}
 								disabled={scanLoading}
 							>
-								{__('Resume Scan', 'flavor-link-checker')}
+								{__('Resume Scan', 'smart-link-checker')}
 							</Button>
 						)}
 						<Button
@@ -109,7 +109,7 @@ const ScanPanel = () => {
 							isBusy={scanLoading}
 							disabled={scanLoading}
 						>
-							{__('Reset Data', 'flavor-link-checker')}
+							{__('Reset Data', 'smart-link-checker')}
 						</Button>
 					</>
 				) : (
@@ -118,20 +118,20 @@ const ScanPanel = () => {
 						isDestructive
 						onClick={cancelScan}
 					>
-						{__('Cancel Scan', 'flavor-link-checker')}
+						{__('Cancel Scan', 'smart-link-checker')}
 					</Button>
 				)}
 			</div>
 
 			{isRunning && (
-				<div className="flc-scan-panel__progress" aria-label={ __( 'Scan progress details', 'flavor-link-checker' ) }>
+				<div className="flc-scan-panel__progress" aria-label={ __( 'Scan progress details', 'smart-link-checker' ) }>
 					<div
 						className="flc-progress-bar"
 						role="progressbar"
 						aria-valuenow={ progress }
 						aria-valuemin={ 0 }
 						aria-valuemax={ 100 }
-						aria-label={ __( 'Scan progress', 'flavor-link-checker' ) }
+						aria-label={ __( 'Scan progress', 'smart-link-checker' ) }
 					>
 						<div
 							className="flc-progress-bar__fill"
@@ -144,7 +144,7 @@ const ScanPanel = () => {
 								/* translators: 1: checked links, 2: total links, 3: progress percentage. */
 								__(
 									'Checking links: %1$d / %2$d (%3$d%%)',
-									'flavor-link-checker'
+									'smart-link-checker'
 								),
 								scanStatus.checked_links,
 								scanStatus.total_links,
@@ -154,7 +154,7 @@ const ScanPanel = () => {
 								/* translators: 1: scanned posts, 2: total posts, 3: progress percentage. */
 								__(
 									'Scanning posts: %1$d / %2$d (%3$d%%)',
-									'flavor-link-checker'
+									'smart-link-checker'
 								),
 								scanStatus.scanned_posts,
 								scanStatus.total_posts,
@@ -170,7 +170,7 @@ const ScanPanel = () => {
 						/* translators: 1: total links, 2: ok count, 3: broken count, 4: redirects, 5: errors. */
 						__(
 							'Scan complete — %1$d links checked: %2$d OK, %3$d redirects, %4$d broken, %5$d errors.',
-							'flavor-link-checker'
+							'smart-link-checker'
 						),
 						scanStatus.total_links || 0,
 						scanStatus.ok_count || 0,
@@ -181,19 +181,19 @@ const ScanPanel = () => {
 							( scanStatus.skipped_count || 0 )
 					)}
 					<a
-						href="https://wordpress.org/support/plugin/flavor-link-checker/reviews/#new-post"
+						href="https://wordpress.org/support/plugin/smart-link-checker/reviews/#new-post"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="flc-scan-panel__review-link"
 					>
-						{__( 'Enjoying the plugin? Please leave a 5-star review!', 'flavor-link-checker' )}
+						{__( 'Enjoying the plugin? Please leave a 5-star review!', 'smart-link-checker' )}
 					</a>
 				</p>
 			)}
 
 			{!isRunning && (
 				<p className="flc-scan-panel__help">
-					{__('Delta Scan only checks posts modified since the last successful scan.', 'flavor-link-checker')}
+					{__('Delta Scan only checks posts modified since the last successful scan.', 'smart-link-checker')}
 				</p>
 			)}
 		</div>

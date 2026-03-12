@@ -225,7 +225,7 @@ class Plugin {
 	 */
 	private function load_textdomain(): void {
 		\load_plugin_textdomain(
-			'flavor-link-checker',
+			'smart-link-checker',
 			false,
 			dirname( \plugin_basename( FLC_PLUGIN_FILE ) ) . '/languages'
 		);

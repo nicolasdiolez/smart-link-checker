@@ -33,7 +33,7 @@ jest.mock( '@wordpress/components', () => ( {
 	ButtonGroup: ( { children } ) => <div>{ children }</div>,
 } ) );
 
-jest.mock( '../../store', () => ( { STORE_NAME: 'flavor-link-checker' } ) );
+jest.mock( '../../store', () => ( { STORE_NAME: 'smart-link-checker' } ) );
 
 describe( 'Dashboard', () => {
 	beforeEach( () => {

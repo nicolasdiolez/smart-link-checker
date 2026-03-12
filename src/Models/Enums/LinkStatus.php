@@ -54,13 +54,13 @@ enum LinkStatus: string {
 	 */
 	public function label(): string {
 		return match ( $this ) {
-			self::Pending  => __( 'Pending', 'flavor-link-checker' ),
-			self::Ok       => __( 'OK', 'flavor-link-checker' ),
-			self::Redirect => __( 'Redirect', 'flavor-link-checker' ),
-			self::Broken   => __( 'Broken', 'flavor-link-checker' ),
-			self::Error    => __( 'Error', 'flavor-link-checker' ),
-			self::Timeout  => __( 'Timeout', 'flavor-link-checker' ),
-			self::Skipped  => __( 'Skipped', 'flavor-link-checker' ),
+			self::Pending  => __( 'Pending', 'smart-link-checker' ),
+			self::Ok       => __( 'OK', 'smart-link-checker' ),
+			self::Redirect => __( 'Redirect', 'smart-link-checker' ),
+			self::Broken   => __( 'Broken', 'smart-link-checker' ),
+			self::Error    => __( 'Error', 'smart-link-checker' ),
+			self::Timeout  => __( 'Timeout', 'smart-link-checker' ),
+			self::Skipped  => __( 'Skipped', 'smart-link-checker' ),
 		};
 	}
 }

@@ -28,7 +28,7 @@ class ScanController extends \WP_REST_Controller {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	protected $namespace = 'flavor-link-checker/v1';
+	protected $namespace = 'smart-link-checker/v1';
 
 	/**
 	 * REST base route.
@@ -166,7 +166,7 @@ array(
 		if ( false !== \get_transient( $transient_key ) ) {
 			return new \WP_Error(
 				'flc_rate_limited',
-				\__( 'Please wait a few seconds before trying again.', 'flavor-link-checker' ),
+				\__( 'Please wait a few seconds before trying again.', 'smart-link-checker' ),
 				array( 'status' => 429 )
 			);
 		}
@@ -197,7 +197,7 @@ array(
 		if ( 'running' === $current_status['status'] ) {
 			return new \WP_Error(
 				'flc_scan_already_running',
-				\__( 'A scan is already in progress.', 'flavor-link-checker' ),
+				\__( 'A scan is already in progress.', 'smart-link-checker' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -263,7 +263,7 @@ array(
 		if ( ! $resumed ) {
 			return new \WP_Error(
 				'flc_scan_cannot_resume',
-				\__( 'Scan cannot be resumed. It may have already finished or was never started.', 'flavor-link-checker' ),
+				\__( 'Scan cannot be resumed. It may have already finished or was never started.', 'smart-link-checker' ),
 				array( 'status' => 400 )
 			);
 		}

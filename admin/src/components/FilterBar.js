@@ -9,11 +9,11 @@ import { Button, ButtonGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const QUICK_FILTERS = [
-	{ key: '', label: __( 'All', 'flavor-link-checker' ) },
-	{ key: 'broken', label: __( 'Broken', 'flavor-link-checker' ) },
-	{ key: 'redirect', label: __( 'Redirects', 'flavor-link-checker' ) },
-	{ key: 'ok', label: __( 'OK', 'flavor-link-checker' ) },
-	{ key: 'pending', label: __( 'Pending', 'flavor-link-checker' ) },
+	{ key: '', label: __( 'All', 'smart-link-checker' ) },
+	{ key: 'broken', label: __( 'Broken', 'smart-link-checker' ) },
+	{ key: 'redirect', label: __( 'Redirects', 'smart-link-checker' ) },
+	{ key: 'ok', label: __( 'OK', 'smart-link-checker' ) },
+	{ key: 'pending', label: __( 'Pending', 'smart-link-checker' ) },
 ];
 
 const FilterBar = ( { currentStatus, onStatusChange } ) => {

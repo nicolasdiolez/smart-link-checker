@@ -1,19 +1,19 @@
 <?php
 /**
  * Plugin Name:       Smart Link Checker
- * Plugin URI:        https://flavor.dev/smart-link-checker
+ * Plugin URI:        https://nicolasdiolez.com
  * Description:       A high-performance link checker for WordPress with affiliate detection, redirect tracking, and background processing.
  * Version:           1.0.0
  * Requires at least: 6.9
  * Requires PHP:      8.2
- * Author:            Flavor
- * Author URI:
+ * Author:            Nicolas Diolez
+ * Author URI:        https://nicolasdiolez.com
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       flavor-link-checker
+ * Text Domain:       smart-link-checker
  * Domain Path:       /languages
  *
- * @package FlavorLinkChecker
+ * @package SmartLinkChecker
  * @since   1.0.0
  */
 
@@ -59,7 +59,7 @@ if ( ! file_exists( FLC_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 		'admin_notices',
 		static function (): void {
 			echo '<div class="notice notice-error"><p>';
-			echo esc_html__( 'Smart Link Checker: Composer autoloader not found. Please run "composer install" in the plugin directory.', 'flavor-link-checker' );
+			echo esc_html__( 'Smart Link Checker: Composer autoloader not found. Please run "composer install" in the plugin directory.', 'smart-link-checker' );
 			echo '</p></div>';
 		}
 	);

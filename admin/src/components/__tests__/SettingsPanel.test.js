@@ -71,7 +71,7 @@ jest.mock( '@wordpress/components', () => ( {
 	PanelRow: ( { children } ) => <div>{ children }</div>,
 } ) );
 
-jest.mock( '../../store', () => ( { STORE_NAME: 'flavor-link-checker' } ) );
+jest.mock( '../../store', () => ( { STORE_NAME: 'smart-link-checker' } ) );
 
 const DEFAULT_SETTINGS = {
 	scan_post_types: [ 'post', 'page' ],

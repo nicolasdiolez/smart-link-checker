@@ -55,7 +55,7 @@ jest.mock('@wordpress/components', () => ({
 	),
 }));
 
-jest.mock('../../store', () => ({ STORE_NAME: 'flavor-link-checker' }));
+jest.mock('../../store', () => ({ STORE_NAME: 'smart-link-checker' }));
 
 describe('ScanPanel', () => {
 	beforeEach(() => {

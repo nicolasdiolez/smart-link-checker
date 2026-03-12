@@ -975,3 +975,15 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 **Prochaine étape :** Créer les captures d'écran et la bannière (assets), puis tester l'archive d'installation sur un WP vierge indépendant avant soumission SVN.
 
 ---
+
+### Session 28 : Renommage du slug et Packaging de distribution
+- **Objectif** : Transition complète vers le nom final "Smart Link Checker" et création d'une archive ZIP propre pour WordPress.org.
+- **Changements majeurs** :
+    - Renommage du slug technique : flavor-link-checker -> smart-link-checker.
+    - Renommage du fichier principal en smart-link-checker.php.
+    - Mise à jour globale du Text Domain et du REST Namespace (smart-link-checker).
+    - Mise à jour des constantes JS et du store Redux.
+    - Régénération automatique du fichier .pot (languages/smart-link-checker.pot).
+    - Création de smart-link-checker.zip (Build production : composer install --no-dev, npm run build).
+- **Fichiers exclus du ZIP** : .git, node_modules, tests, outils de dev, composer.lock, etc.
+- **Statut** : L'archive est prête pour test sur site vierge. Le namespace PHP reste FlavorLinkChecker pour éviter les conflits de classes.

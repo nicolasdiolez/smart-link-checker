@@ -1,8 +1,14 @@
 {
-    "name": "flavor/link-checker",
+    "name": "nicolasdiolez/smart-link-checker",
     "description": "A high-performance link checker for WordPress with affiliate detection.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Nicolas Diolez",
+            "homepage": "https://nicolasdiolez.com"
+        }
+    ],
     "require": {
         "php": ">=8.2",
         "woocommerce/action-scheduler": "^3.9"

@@ -26,7 +26,7 @@ class Deactivator {
 	 */
 	public static function deactivate(): void {
 		if ( function_exists( 'as_unschedule_all_actions' ) ) {
-			as_unschedule_all_actions( '', array(), 'flavor-link-checker' );
+			as_unschedule_all_actions( '', array(), 'smart-link-checker' );
 		}
 	}
 }

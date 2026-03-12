@@ -22,7 +22,7 @@ if ( ! defined( 'FLC_PLUGIN_DIR' ) ) {
 }
 
 if ( ! defined( 'FLC_PLUGIN_FILE' ) ) {
-	define( 'FLC_PLUGIN_FILE', FLC_PLUGIN_DIR . 'flavor-link-checker.php' );
+	define( 'FLC_PLUGIN_FILE', FLC_PLUGIN_DIR . 'smart-link-checker.php' );
 }
 
 // Load WordPress function stubs for unit testing without WordPress.

@@ -1,6 +1,6 @@
 <?php
 /**
- * Load Test Data Generator for flavor-link-checker.
+ * Load Test Data Generator for smart-link-checker.
  *
  * Generates 5000+ posts with various types of links for scale testing.
  *

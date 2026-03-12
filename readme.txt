@@ -1,8 +1,8 @@
 === Smart Link Checker ===
-Contributors: flavorseo
+Contributors: nicolasdiolez
 Tags: link checker, broken links, affiliate links, redirect checker, seo
 Requires at least: 6.9
-Tested up to: 6.9
+Tested up to: 6.7.2
 Requires PHP: 8.2
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -37,11 +37,11 @@ A high-performance link checker for WordPress with affiliate detection, redirect
 
 = Privacy =
 
-Smart Link Checker makes outbound HTTP requests to verify the status of links found in your content. These requests use a clearly identified User-Agent string (`FlavorLinkChecker/1.0.0`). No personal user data is collected, stored, or transmitted to third parties.
+Smart Link Checker makes outbound HTTP requests to verify the status of links found in your content. These requests use a clearly identified User-Agent string (`SmartLinkChecker/1.0.0`). No personal user data is collected, stored, or transmitted to third parties.
 
 == Installation ==
 
-1. Upload the `flavor-link-checker` folder to the `/wp-content/plugins/` directory.
+1. Upload the `smart-link-checker` folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 3. Access the dashboard via **Smart Link Checker** in the admin sidebar.
 4. Click **Full Scan** to analyze all your published content.
@@ -79,10 +79,10 @@ Yes. If a scan is cancelled or interrupted, you can resume it from the dashboard
 
 == Screenshots ==
 
-1. Dashboard showing comprehensive link statistics and scan controls.
-2. Filterable link table with status indicators and bulk actions.
-3. Link editing modal with URL, rel attribute, and status details.
-4. Settings panel with scan configuration options.
+1. **The Pulse of Your Content** — The Dashboard provides a high-level view of your site's link health with real-time stats and intuitive scan controls.
+2. **Precision Link Management** — Explore every link on your site with the filterable link table. Spot broken URLs and affiliate patterns at a glance with status-coded labels.
+3. **Instant Fixes** — Correct URLs or update SEO attributes (nofollow, sponsored) directly from the dashboard without ever leaving the page.
+4. **Tailored to Your Hosting** — Fine-tune scan intensity, timeouts, and batch sizes in the Settings panel to ensure peak performance on any server.
 
 == Changelog ==
 

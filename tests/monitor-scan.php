@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	require_once $current_dir . '/wp-load.php';
 }
 
-require_once wp_normalize_path( WP_PLUGIN_DIR . '/flavor-link-checker/vendor/autoload.php' );
+require_once wp_normalize_path( WP_PLUGIN_DIR . '/smart-link-checker/vendor/autoload.php' );
 
 $links_repo   = new \FlavorLinkChecker\Database\LinksRepository( $GLOBALS['wpdb'] );
 $orchestrator = new \FlavorLinkChecker\Queue\BatchOrchestrator( $links_repo );
@@ -39,7 +39,7 @@ if ( $should_reset ) {
 	$GLOBALS['wpdb']->query( "TRUNCATE TABLE {$GLOBALS['wpdb']->prefix}flc_links" );
 	// Clear all AS actions for this plugin.
 	if ( class_exists( 'ActionScheduler_DBStore' ) ) {
-		\ActionScheduler_DBStore::instance()->cancel_actions_by_group( 'flavor-link-checker' );
+		\ActionScheduler_DBStore::instance()->cancel_actions_by_group( 'smart-link-checker' );
 	}
 }
 
@@ -72,7 +72,7 @@ while ( true ) {
 	
 	// Also check for 'running' actions.
 	$running = count( as_get_scheduled_actions( [
-		'group'    => 'flavor-link-checker',
+		'group'    => 'smart-link-checker',
 		'status'   => 'in-progress',
 		'per_page' => 0,
 	], 'ids' ) );

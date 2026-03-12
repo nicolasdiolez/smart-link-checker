@@ -107,7 +107,7 @@ use WP_Error;
 
 class LinksController extends WP_REST_Controller {
 
-    protected $namespace = 'flavor-link-checker/v1';
+    protected $namespace = 'smart-link-checker/v1';
     protected $rest_base = 'links';
 
     public function __construct(
@@ -264,7 +264,7 @@ const LinkTable = () => {
     const fields = [
         {
             id: 'url',
-            label: __( 'URL', 'flavor-link-checker' ),
+            label: __( 'URL', 'smart-link-checker' ),
             enableSorting: true,
             enableGlobalSearch: true,
             render: ( { item } ) => (
@@ -275,7 +275,7 @@ const LinkTable = () => {
         },
         {
             id: 'http_status',
-            label: __( 'Statut HTTP', 'flavor-link-checker' ),
+            label: __( 'Statut HTTP', 'smart-link-checker' ),
             enableSorting: true,
             render: ( { item } ) => (
                 <StatusBadge status={ item.status_category } code={ item.http_status } />
@@ -283,36 +283,36 @@ const LinkTable = () => {
         },
         {
             id: 'status_category',
-            label: __( 'Catégorie', 'flavor-link-checker' ),
+            label: __( 'Catégorie', 'smart-link-checker' ),
             elements: Object.entries( STATUS_LABELS ).map( ( [ value, label ] ) => ( { value, label } ) ),
             filterBy: { operators: [ 'is', 'isNot' ] },
         },
         {
             id: 'link_type',
-            label: __( 'Type', 'flavor-link-checker' ),
+            label: __( 'Type', 'smart-link-checker' ),
             render: ( { item } ) => item.is_external
-                ? __( 'Externe', 'flavor-link-checker' )
-                : __( 'Interne', 'flavor-link-checker' ),
+                ? __( 'Externe', 'smart-link-checker' )
+                : __( 'Interne', 'smart-link-checker' ),
             elements: [
-                { value: 'external', label: __( 'Externe', 'flavor-link-checker' ) },
-                { value: 'internal', label: __( 'Interne', 'flavor-link-checker' ) },
+                { value: 'external', label: __( 'Externe', 'smart-link-checker' ) },
+                { value: 'internal', label: __( 'Interne', 'smart-link-checker' ) },
             ],
             filterBy: { operators: [ 'is' ] },
         },
         {
             id: 'last_checked',
-            label: __( 'Dernière vérification', 'flavor-link-checker' ),
+            label: __( 'Dernière vérification', 'smart-link-checker' ),
             enableSorting: true,
             render: ( { item } ) => item.last_checked
                 ? new Date( item.last_checked ).toLocaleString()
-                : __( 'Jamais', 'flavor-link-checker' ),
+                : __( 'Jamais', 'smart-link-checker' ),
         },
     ];
 
     const actions = [
         {
             id: 'recheck',
-            label: __( 'Re-vérifier', 'flavor-link-checker' ),
+            label: __( 'Re-vérifier', 'smart-link-checker' ),
             icon: 'update',
             supportsBulk: true,
             callback: async ( items ) => {
@@ -321,14 +321,14 @@ const LinkTable = () => {
         },
         {
             id: 'edit',
-            label: __( 'Modifier', 'flavor-link-checker' ),
+            label: __( 'Modifier', 'smart-link-checker' ),
             callback: ( [ item ] ) => {
                 // ... ouvrir modal d'édition
             },
         },
         {
             id: 'delete',
-            label: __( 'Supprimer du contenu', 'flavor-link-checker' ),
+            label: __( 'Supprimer du contenu', 'smart-link-checker' ),
             supportsBulk: true,
             isDestructive: true,
             callback: async ( items ) => {
@@ -363,7 +363,7 @@ import * as actions from './actions';
 import * as selectors from './selectors';
 import * as resolvers from './resolvers';
 
-export const STORE_NAME = 'flavor-link-checker';
+export const STORE_NAME = 'smart-link-checker';
 
 const store = createReduxStore( STORE_NAME, {
     reducer,
@@ -391,7 +391,7 @@ export const fetchLinks = ( params ) => async ( { dispatch } ) => {
     dispatch( setLoading( true ) );
     try {
         const response = await apiFetch( {
-            path: '/flavor-link-checker/v1/links',
+            path: '/smart-link-checker/v1/links',
             method: 'GET',
             data: params,
             parse: false, // Important : pour accéder aux headers
@@ -433,7 +433,7 @@ export const getLinks = () => async ( { dispatch, select } ) => {
 
 public function enqueue_assets( string $hook_suffix ): void {
     // Ne charger QUE sur notre page
-    if ( 'toplevel_page_flavor-link-checker' !== $hook_suffix ) {
+    if ( 'toplevel_page_smart-link-checker' !== $hook_suffix ) {
         return;
     }
 
@@ -463,7 +463,7 @@ public function enqueue_assets( string $hook_suffix ): void {
     wp_add_inline_script(
         'flc-admin',
         'window.flcData = ' . wp_json_encode( [
-            'restUrl'  => rest_url( 'flavor-link-checker/v1/' ),
+            'restUrl'  => rest_url( 'smart-link-checker/v1/' ),
             'nonce'    => wp_create_nonce( 'wp_rest' ),
             'adminUrl' => admin_url(),
             'version'  => FLC_VERSION,
@@ -541,7 +541,7 @@ public function create_tables(): void {
 // Erreurs dans les contrôleurs REST : retourner WP_Error
 return new WP_Error(
     'flc_link_not_found',
-    __( 'Link not found.', 'flavor-link-checker' ),
+    __( 'Link not found.', 'smart-link-checker' ),
     [ 'status' => 404 ]
 );
 
@@ -565,7 +565,7 @@ try {
     dispatch( setLinks( result ) );
 } catch ( error ) {
     dispatch( 'core/notices' ).createErrorNotice(
-        error.message || __( 'Une erreur est survenue.', 'flavor-link-checker' )
+        error.message || __( 'Une erreur est survenue.', 'smart-link-checker' )
     );
 }
 ```

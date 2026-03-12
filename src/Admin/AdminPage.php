@@ -36,10 +36,10 @@ class AdminPage {
 	 */
 	private function add_menu_page(): void {
 		add_menu_page(
-			__( 'Smart Link Checker', 'flavor-link-checker' ),
-			__( 'Smart Link Checker', 'flavor-link-checker' ),
+			__( 'Smart Link Checker', 'smart-link-checker' ),
+			__( 'Smart Link Checker', 'smart-link-checker' ),
 			'manage_options',
-			'flavor-link-checker',
+			'smart-link-checker',
 			$this->render_page( ... ),
 			'dashicons-admin-links',
 			82
@@ -63,7 +63,7 @@ class AdminPage {
 	 * @param string $hook_suffix The current admin page hook suffix.
 	 */
 	private function enqueue_assets( string $hook_suffix ): void {
-		if ( 'toplevel_page_flavor-link-checker' !== $hook_suffix ) {
+		if ( 'toplevel_page_smart-link-checker' !== $hook_suffix ) {
 			return;
 		}
 
@@ -95,7 +95,7 @@ class AdminPage {
 			'flc-admin',
 			'window.flcData = ' . wp_json_encode(
 				array(
-					'restUrl'  => rest_url( 'flavor-link-checker/v1/' ),
+					'restUrl'  => rest_url( 'smart-link-checker/v1/' ),
 					'nonce'    => wp_create_nonce( 'wp_rest' ),
 					'adminUrl' => admin_url(),
 					'version'  => FLC_VERSION,

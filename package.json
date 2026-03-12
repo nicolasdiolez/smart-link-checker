@@ -1,8 +1,9 @@
 {
-    "name": "flavor-link-checker",
+    "name": "smart-link-checker",
     "version": "1.0.0",
     "private": true,
     "description": "LinkChecker admin interface",
+    "author": "Nicolas Diolez <https://nicolasdiolez.com>",
     "scripts": {
         "build": "wp-scripts build admin/src/index.js --output-path=build",
         "start": "wp-scripts start admin/src/index.js --output-path=build",

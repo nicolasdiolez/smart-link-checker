@@ -26,7 +26,7 @@ class SchedulerBootstrap {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	public const GROUP = 'flavor-link-checker';
+	public const GROUP = 'smart-link-checker';
 
 	/**
 	 * Action hook for processing a batch of posts (link extraction).

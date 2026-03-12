@@ -202,7 +202,7 @@ const LinkTable = ( { onEditLink } ) => {
 	const fields = [
 		{
 			id: 'url',
-			label: __( 'URL', 'flavor-link-checker' ),
+			label: __( 'URL', 'smart-link-checker' ),
 			enableSorting: true,
 			enableGlobalSearch: true,
 			render: ( { item } ) => (
@@ -221,7 +221,7 @@ const LinkTable = ( { onEditLink } ) => {
 		},
 		{
 			id: 'httpStatus',
-			label: __( 'HTTP', 'flavor-link-checker' ),
+			label: __( 'HTTP', 'smart-link-checker' ),
 			enableSorting: true,
 			render: ( { item } ) => (
 				<span
@@ -233,7 +233,7 @@ const LinkTable = ( { onEditLink } ) => {
 		},
 		{
 			id: 'statusCategory',
-			label: __( 'Status', 'flavor-link-checker' ),
+			label: __( 'Status', 'smart-link-checker' ),
 			enableSorting: false,
 			elements: Object.entries( STATUS_LABELS ).map(
 				( [ value, label ] ) => ( { value, label } )
@@ -251,29 +251,29 @@ const LinkTable = ( { onEditLink } ) => {
 		},
 		{
 			id: 'isExternal',
-			label: __( 'Type', 'flavor-link-checker' ),
+			label: __( 'Type', 'smart-link-checker' ),
 			elements: [
 				{
 					value: 'true',
-					label: __( 'External', 'flavor-link-checker' ),
+					label: __( 'External', 'smart-link-checker' ),
 				},
 				{
 					value: 'false',
-					label: __( 'Internal', 'flavor-link-checker' ),
+					label: __( 'Internal', 'smart-link-checker' ),
 				},
 			],
 			filterBy: { operators: [ 'is' ] },
 			render: ( { item } ) => (
 				<span className="flc-link-type">
 					{ item.isExternal
-						? __( 'External', 'flavor-link-checker' )
-						: __( 'Internal', 'flavor-link-checker' ) }
+						? __( 'External', 'smart-link-checker' )
+						: __( 'Internal', 'smart-link-checker' ) }
 				</span>
 			),
 		},
 		{
 			id: 'lastChecked',
-			label: __( 'Last Checked', 'flavor-link-checker' ),
+			label: __( 'Last Checked', 'smart-link-checker' ),
 			enableSorting: true,
 			render: ( { item } ) =>
 				item.lastChecked
@@ -296,7 +296,7 @@ const LinkTable = ( { onEditLink } ) => {
 					onStatusChange={ handleStatusChange }
 				/>
 				<Button variant="secondary" onClick={ handleExport }>
-					{ __( 'Export CSV', 'flavor-link-checker' ) }
+					{ __( 'Export CSV', 'smart-link-checker' ) }
 				</Button>
 			</div>
 

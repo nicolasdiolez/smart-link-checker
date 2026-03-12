@@ -5,11 +5,11 @@ parameters:
     level: 5
     paths:
         - src/
-        - flavor-link-checker.php
+        - smart-link-checker.php
         - uninstall.php
     bootstrapFiles:
         - vendor/autoload.php
-        - flavor-link-checker.php
+        - smart-link-checker.php
     scanDirectories:
         - vendor/woocommerce/action-scheduler/
     ignoreErrors:

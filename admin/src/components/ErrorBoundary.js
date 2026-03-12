@@ -43,14 +43,14 @@ class ErrorBoundary extends Component {
 							<strong>
 								{ __(
 									'Something went wrong.',
-									'flavor-link-checker'
+									'smart-link-checker'
 								) }
 							</strong>
 						</p>
 						<p>
 							{ __(
 								'An unexpected error occurred in the plugin interface. Please try reloading.',
-								'flavor-link-checker'
+								'smart-link-checker'
 							) }
 						</p>
 						{ this.state.error && (
@@ -58,7 +58,7 @@ class ErrorBoundary extends Component {
 								<summary>
 									{ __(
 										'Error details',
-										'flavor-link-checker'
+										'smart-link-checker'
 									) }
 								</summary>
 								<pre
@@ -75,7 +75,7 @@ class ErrorBoundary extends Component {
 					</Notice>
 					<div style={ { marginTop: '12px' } }>
 						<Button variant="primary" onClick={ this.handleReload }>
-							{ __( 'Try Again', 'flavor-link-checker' ) }
+							{ __( 'Try Again', 'smart-link-checker' ) }
 						</Button>
 					</div>
 				</div>
