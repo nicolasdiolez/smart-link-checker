@@ -194,6 +194,7 @@ class SchedulerBootstrap {
 			$as_version = \ActionScheduler_Versions::instance()->latest_version();
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time diagnostic check, caching not applicable.
 		$tables_exist = (bool) $wpdb->get_var(
 			$wpdb->prepare(
 				'SHOW TABLES LIKE %s',

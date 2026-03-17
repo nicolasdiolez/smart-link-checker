@@ -25,6 +25,17 @@
         <exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
     </rule>
 
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="smart_link_checker"/>
+                <element value="flc"/>
+                <element value="FLC"/>
+                <element value="FlavorLinkChecker"/>
+            </property>
+        </properties>
+    </rule>
+
     <rule ref="WordPress.WP.I18n">
         <properties>
             <property name="text_domain" type="array">

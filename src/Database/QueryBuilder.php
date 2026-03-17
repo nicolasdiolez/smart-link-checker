@@ -153,13 +153,13 @@ class QueryBuilder {
 		$count_sql    = "SELECT $count_select FROM %i l" . $join_sql . $where_sql;
 
 		if ( ! empty( $where_params ) ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is built with prepare() and whitelisted column names only.
 			$total = (int) $this->wpdb->get_var(
 				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$this->wpdb->prepare( $count_sql, $this->links_table, ...$where_params )
 			);
 		} else {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is built with prepare() and whitelisted column names only.
 			$total = (int) $this->wpdb->get_var(
 				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$this->wpdb->prepare( $count_sql, $this->links_table )
@@ -191,7 +191,7 @@ class QueryBuilder {
 
 		$all_params = array( $this->links_table, ...$where_params, $per_page, $offset );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is built with prepare() and whitelisted column names only.
 		$rows = $this->wpdb->get_results(
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$this->wpdb->prepare( $query_sql, ...$all_params )

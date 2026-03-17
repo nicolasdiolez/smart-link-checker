@@ -72,9 +72,8 @@ require_once FLC_PLUGIN_DIR . 'vendor/autoload.php';
 /*
  * Action Scheduler.
  */
-$flc_as_file = FLC_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
-if ( file_exists( $flc_as_file ) ) {
-	require_once $flc_as_file;
+if ( file_exists( FLC_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
+	require_once FLC_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
 }
 
 /*

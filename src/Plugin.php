@@ -91,8 +91,6 @@ class Plugin {
 	 * @since 1.0.0
 	 */
 	public function register(): void {
-		\add_action( 'init', $this->load_textdomain( ... ) );
-
 		// Queue system must register on ALL requests (not just admin)
 		// because Action Scheduler processes actions via WP-Cron/frontend.
 		$this->register_queue();
@@ -218,16 +216,4 @@ class Plugin {
 		);
 	}
 
-	/**
-	 * Loads the plugin text domain for translations.
-	 *
-	 * @since 1.0.0
-	 */
-	private function load_textdomain(): void {
-		\load_plugin_textdomain(
-			'smart-link-checker',
-			false,
-			dirname( \plugin_basename( FLC_PLUGIN_FILE ) ) . '/languages'
-		);
-	}
 }
