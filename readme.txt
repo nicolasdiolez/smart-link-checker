@@ -39,6 +39,11 @@ A high-performance link checker for WordPress with affiliate detection, redirect
 
 Smart Link Checker makes outbound HTTP requests to verify the status of links found in your content. These requests use a clearly identified User-Agent string (`SmartLinkChecker/1.0.0`). No personal user data is collected, stored, or transmitted to third parties.
 
+= Development =
+
+The full source code, including React/JavaScript source files and build configuration, is available on GitHub:
+[https://github.com/nicolasdiolez/smart-link-checker](https://github.com/nicolasdiolez/smart-link-checker)
+
 == Installation ==
 
 1. Upload the `smart-link-checker` folder to the `/wp-content/plugins/` directory.
