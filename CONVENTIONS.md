@@ -1,4 +1,4 @@
-# CONVENTIONS.md — Conventions de code et patterns du projet LinkChecker
+# CONVENTIONS.md — Conventions de code et patterns du projet Smart Link Checker
 
 > Ce fichier complète `CLAUDE.md` avec des exemples détaillés et des patterns de référence.
 > Il sert de guide rapide quand l'IA code un fichier spécifique.

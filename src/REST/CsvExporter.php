@@ -130,7 +130,7 @@ class CsvExporter {
 			return $served;
 		}
 
-		$filename = 'links-export-' . \gmdate( 'Y-m-d' ) . '.csv';
+		$filename = \sanitize_file_name( 'links-export-' . \gmdate( 'Y-m-d' ) . '.csv' );
 		header( 'Content-Type: text/csv; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
 

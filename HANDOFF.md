@@ -10,12 +10,12 @@
 
 | Champ                  | Valeur                                              |
 |------------------------|------------------------------------------------------|
-| **Phase actuelle**     | Lancement v1.0 — Marketing & UX                    |
-| **Dernière session**   | Session 27 — 2026-03-12                              |
-| **Prochaine action**   | Déploiement : Tester l'archive ZIP générée sur un site WP vierge |
+| **Phase actuelle**     | Soumission WordPress.org                             |
+| **Dernière session**   | Session 29 — 2026-03-17                              |
+| **Prochaine action**   | Valider readme.txt sur le validateur WP.org, tester le ZIP sur site vierge, soumettre |
 | **Blocages connus**    | Aucun                                                |
 | **URL admin LocalWP**  | http://localhost:10008/wp-admin/?localwp_auto_login=12 |
-| **Décisions en attente** | Choix de licence                                   |
+| **Décisions en attente** | Aucune                                              |
 
 ---
 
@@ -976,14 +976,54 @@ Action Scheduler (AS) possède 2 mécanismes pour traiter sa queue : (1) un cron
 
 ---
 
-### Session 28 : Renommage du slug et Packaging de distribution
-- **Objectif** : Transition complète vers le nom final "Smart Link Checker" et création d'une archive ZIP propre pour WordPress.org.
-- **Changements majeurs** :
-    - Renommage du slug technique : flavor-link-checker -> smart-link-checker.
-    - Renommage du fichier principal en smart-link-checker.php.
-    - Mise à jour globale du Text Domain et du REST Namespace (smart-link-checker).
-    - Mise à jour des constantes JS et du store Redux.
-    - Régénération automatique du fichier .pot (languages/smart-link-checker.pot).
-    - Création de smart-link-checker.zip (Build production : composer install --no-dev, npm run build).
-- **Fichiers exclus du ZIP** : .git, node_modules, tests, outils de dev, composer.lock, etc.
-- **Statut** : L'archive est prête pour test sur site vierge. Le namespace PHP reste FlavorLinkChecker pour éviter les conflits de classes.
+### Session 28 — Renommage du slug et Packaging de distribution (2026-03-13)
+
+**Résumé :** Transition complète vers le nom final "Smart Link Checker" et création d'une archive ZIP propre pour WordPress.org.
+
+**Accompli :**
+- Renommage du slug technique : `flavor-link-checker` → `smart-link-checker`
+- Renommage du fichier principal en `smart-link-checker.php`
+- Mise à jour globale du Text Domain et du REST Namespace (`smart-link-checker`)
+- Mise à jour des constantes JS et du store Redux
+- Régénération automatique du fichier `.pot` (`languages/smart-link-checker.pot`)
+- Création de `smart-link-checker.zip` (build production : `composer install --no-dev`, `npm run build`)
+- Fichiers exclus du ZIP : .git, node_modules, tests, outils de dev, composer.lock, etc.
+- Le namespace PHP reste `FlavorLinkChecker\` pour éviter les conflits de classes
+
+**Prochaine étape :** Audit WordPress.org et finalisation du packaging.
+
+---
+
+### Session 29 — Audit WordPress.org & Finalisation (2026-03-17)
+
+**Résumé :** Audit complet de conformité aux guidelines WordPress.org. Correction des problèmes identifiés et reconstruction du ZIP de distribution.
+
+**Accompli :**
+- **Audit WordPress.org** : Vérification de toutes les guidelines (licence, sécurité, privacy, admin notices, tracking, trialware, code obfusqué, naming, etc.)
+- **Renommage répertoire** : `flavor-link-checker/` → `smart-link-checker/` pour aligner slug, text domain et répertoire
+- **Header `Tested up to: 6.9`** ajouté dans `smart-link-checker.php`
+- **`.distignore` créé** : liste des fichiers à exclure du ZIP (tests, node_modules, admin/src, docs dev, assets WP.org)
+- **Nettoyage vendor/** : suppression des répertoires vides laissés par les dépendances dev (phpunit, phpstan, phpcs, etc.) — de 59 Mo à 844 Ko
+- **ZIP reconstruit** : `smart-link-checker.zip` (356 Ko, 180 fichiers), aucun fichier dev inclus
+- **Documentation mise à jour** : CLAUDE.md, HANDOFF.md, CONVENTIONS.md
+
+**Fichiers créés :**
+| Fichier | Description |
+|---------|-------------|
+| `.distignore` | Liste des exclusions pour le ZIP de distribution |
+
+**Fichiers modifiés :**
+| Fichier | Action |
+|---------|--------|
+| `smart-link-checker.php` | +1 ligne : header `Tested up to: 6.9` |
+| `CLAUDE.md` | Mise à jour section identité (slug répertoire aligné) |
+| `HANDOFF.md` | Session 29, état global mis à jour |
+| `CONVENTIONS.md` | Mise à jour titre (Smart Link Checker) |
+
+**Décisions prises :**
+| # | Décision | Justification |
+|---|----------|---------------|
+| 62 | Répertoire renommé `smart-link-checker/` | WordPress.org attribue le slug depuis le nom du répertoire dans le ZIP. Le text domain doit correspondre au slug. |
+| 63 | `assets/` exclu du ZIP | Sur WordPress.org, les screenshots et bannières vont dans le SVN `/assets/`, pas dans le plugin. |
+
+**Prochaine étape :** Valider readme.txt via le validateur WP.org, tester le ZIP sur un WordPress vierge, soumettre via https://wordpress.org/plugins/developers/add/

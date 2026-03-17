@@ -5,9 +5,9 @@
  * @since   1.0.0
  */
 
-import { useEffect, useCallback } from '@wordpress/element';
+import { useEffect, useCallback, useState } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { Button } from '@wordpress/components';
+import { Button, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { STORE_NAME } from '../store';
 
@@ -48,11 +48,19 @@ const ScanPanel = () => {
 		[startScan]
 	);
 
+	const [ isResetConfirmOpen, setResetConfirmOpen ] = useState( false );
+
 	const handleReset = () => {
-		// eslint-disable-next-line no-alert
-		if (window.confirm(__('Are you sure you want to reset all scan data? This will clear all links found so far.', 'smart-link-checker'))) {
-			resetScan();
-		}
+		setResetConfirmOpen( true );
+	};
+
+	const handleResetConfirm = () => {
+		setResetConfirmOpen( false );
+		resetScan();
+	};
+
+	const handleResetCancel = () => {
+		setResetConfirmOpen( false );
 	};
 
 	const phase = scanStatus?.phase ?? 'scanning';
@@ -196,6 +204,14 @@ const ScanPanel = () => {
 					{__('Delta Scan only checks posts modified since the last successful scan.', 'smart-link-checker')}
 				</p>
 			)}
+		{ isResetConfirmOpen && (
+				<ConfirmDialog
+					onConfirm={ handleResetConfirm }
+					onCancel={ handleResetCancel }
+				>
+					{ __( 'Are you sure you want to reset all scan data? This will clear all links found so far.', 'smart-link-checker' ) }
+				</ConfirmDialog>
+			) }
 		</div>
 	);
 };

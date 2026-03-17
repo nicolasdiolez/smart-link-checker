@@ -135,13 +135,16 @@ class ReviewNotice {
 
 		\wp_add_inline_script(
 			'common',
-			'jQuery(document).on("click", "#flc-review-notice .notice-dismiss, .flc-dismiss-review", function() {
-				jQuery.post(ajaxurl, {
-					action: "' . self::AJAX_ACTION . '",
-					nonce: "' . \wp_create_nonce( self::AJAX_ACTION ) . '"
-				});
-				jQuery("#flc-review-notice").fadeOut();
-			});'
+			'var flcReviewData = ' . \wp_json_encode(
+				array(
+					'action' => self::AJAX_ACTION,
+					'nonce'  => \wp_create_nonce( self::AJAX_ACTION ),
+				)
+			) . ';'
+			. 'jQuery(document).on("click", "#flc-review-notice .notice-dismiss, .flc-dismiss-review", function() {'
+			. '    jQuery.post(ajaxurl, flcReviewData);'
+			. '    jQuery("#flc-review-notice").fadeOut();'
+			. '});'
 		);
 	}
 }

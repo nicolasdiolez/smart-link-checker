@@ -2,7 +2,7 @@
 Contributors: nicolasdiolez
 Tags: link checker, broken links, affiliate links, redirect checker, seo
 Requires at least: 6.9
-Tested up to: 6.7.2
+Tested up to: 6.9
 Requires PHP: 8.2
 Stable tag: 1.0.0
 License: GPLv2 or later

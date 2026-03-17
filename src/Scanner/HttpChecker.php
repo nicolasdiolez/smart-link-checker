@@ -46,6 +46,8 @@ class HttpChecker {
 	private const BLOCKED_HOSTS = array(
 		'metadata.google.internal',
 		'metadata.google.internal.',
+		'169.254.169.254',
+		'fd00:ec2::254',
 	);
 
 	/**

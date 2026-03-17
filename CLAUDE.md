@@ -8,7 +8,8 @@
 ## 1. IDENTITÉ DU PROJET
 
 - **Nom** : Smart Link Checker
-- **Slug WordPress** : `smart-link-checker` (préfixe `flavor_lc_` pour toutes les fonctions globales, `flc_` pour les shortcodes)
+- **Slug WordPress** : `smart-link-checker`
+- **Répertoire** : `smart-link-checker/` (anciennement `flavor-link-checker/`)
 - **Namespace PHP** : `FlavorLinkChecker\`
 - **REST API namespace** : `smart-link-checker/v1`
 - **Text domain** : `smart-link-checker`
@@ -638,5 +639,5 @@ $wpdb->query( 'SET autocommit = 1' );
 
 ---
 
-> **Dernière mise à jour de ce fichier** : 2026-03-11 (Session 22 — Audit v1.0)
+> **Dernière mise à jour de ce fichier** : 2026-03-17 (Session 29 — Audit WordPress.org & Finalisation)
 > **Version** : 1.0.0

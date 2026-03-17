@@ -1,0 +1,34 @@
+# Development files
+.git
+.gitignore
+.distignore
+.DS_Store
+.phpunit.result.cache
+.wp-env.json
+
+# Dev config files
+phpunit.xml
+phpunit_output.txt
+phpcs.xml
+phpstan.neon
+package.json
+package-lock.json
+composer.json
+composer.lock
+
+# Dev directories
+node_modules/
+tests/
+admin/src/
+
+# Documentation (dev only)
+CLAUDE.md
+CONVENTIONS.md
+HANDOFF.md
+implementation_plan.md
+
+# Assets (uploaded separately to WordPress.org SVN /assets/)
+assets/
+
+# Build artifacts
+smart-link-checker.zip
