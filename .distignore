@@ -19,7 +19,7 @@ composer.lock
 # Dev directories
 node_modules/
 tests/
-admin/src/
+admin/
 
 # Documentation (dev only)
 CLAUDE.md
