@@ -4,3 +4,10 @@
 .DS_Store
 .phpunit.result.cache
 phpunit_output.txt
+
+# Internal dev files (not for public repo)
+CLAUDE.md
+CONVENTIONS.md
+HANDOFF.md
+implementation_plan.md
+smart-link-checker.zip
