@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Smart Link Checker
- * Plugin URI:        https://nicolasdiolez.com
+ * Plugin URI:        https://github.com/nicolasdiolez/smart-link-checker
  * Description:       A high-performance link checker for WordPress with affiliate detection, redirect tracking, and background processing.
  * Version:           1.0.0
  * Requires at least: 6.9
