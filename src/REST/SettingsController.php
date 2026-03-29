@@ -25,7 +25,7 @@ class SettingsController extends \WP_REST_Controller {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	protected $namespace = 'smart-link-checker/v1';
+	protected $namespace = 'sentinel-link-checker/v1';
 
 	/**
 	 * REST base route.
@@ -120,7 +120,7 @@ class SettingsController extends \WP_REST_Controller {
 
 		if ( isset( $params['scan_post_types'] ) ) {
 			if ( ! is_array( $params['scan_post_types'] ) ) {
-				$errors[] = __( 'scan_post_types must be an array.', 'smart-link-checker' );
+				$errors[] = __( 'scan_post_types must be an array.', 'sentinel-link-checker' );
 			} else {
 				$updated['scan_post_types'] = array_map( 'sanitize_text_field', $params['scan_post_types'] );
 			}
@@ -129,7 +129,7 @@ class SettingsController extends \WP_REST_Controller {
 		if ( isset( $params['check_timeout'] ) ) {
 			$value = (int) $params['check_timeout'];
 			if ( $value < 5 || $value > 60 ) {
-				$errors[] = __( 'check_timeout must be between 5 and 60.', 'smart-link-checker' );
+				$errors[] = __( 'check_timeout must be between 5 and 60.', 'sentinel-link-checker' );
 			} else {
 				$updated['check_timeout'] = $value;
 			}
@@ -138,7 +138,7 @@ class SettingsController extends \WP_REST_Controller {
 		if ( isset( $params['batch_size'] ) ) {
 			$value = (int) $params['batch_size'];
 			if ( $value < 10 || $value > 200 ) {
-				$errors[] = __( 'batch_size must be between 10 and 200.', 'smart-link-checker' );
+				$errors[] = __( 'batch_size must be between 10 and 200.', 'sentinel-link-checker' );
 			} else {
 				$updated['batch_size'] = $value;
 			}
@@ -147,7 +147,7 @@ class SettingsController extends \WP_REST_Controller {
 		if ( isset( $params['recheck_interval'] ) ) {
 			$value = (int) $params['recheck_interval'];
 			if ( $value < 1 || $value > 30 ) {
-				$errors[] = __( 'recheck_interval must be between 1 and 30.', 'smart-link-checker' );
+				$errors[] = __( 'recheck_interval must be between 1 and 30.', 'sentinel-link-checker' );
 			} else {
 				$updated['recheck_interval'] = $value;
 			}
@@ -155,7 +155,7 @@ class SettingsController extends \WP_REST_Controller {
 
 		if ( isset( $params['excluded_urls'] ) ) {
 			if ( ! is_array( $params['excluded_urls'] ) ) {
-				$errors[] = __( 'excluded_urls must be an array.', 'smart-link-checker' );
+				$errors[] = __( 'excluded_urls must be an array.', 'sentinel-link-checker' );
 			} else {
 				$updated['excluded_urls'] = array_map( 'esc_url_raw', $params['excluded_urls'] );
 			}
@@ -168,7 +168,7 @@ class SettingsController extends \WP_REST_Controller {
 		if ( isset( $params['http_request_delay'] ) ) {
 			$value = (int) $params['http_request_delay'];
 			if ( $value < 0 || $value > 5000 ) {
-				$errors[] = __( 'http_request_delay must be between 0 and 5000.', 'smart-link-checker' );
+				$errors[] = __( 'http_request_delay must be between 0 and 5000.', 'sentinel-link-checker' );
 			} else {
 				$updated['http_request_delay'] = $value;
 			}
@@ -181,7 +181,7 @@ class SettingsController extends \WP_REST_Controller {
 		if ( isset( $params['density'] ) ) {
 			$value = sanitize_text_field( $params['density'] );
 			if ( ! in_array( $value, array( 'comfortable', 'balanced', 'compact' ), true ) ) {
-				$errors[] = __( 'density must be comfortable, balanced, or compact.', 'smart-link-checker' );
+				$errors[] = __( 'density must be comfortable, balanced, or compact.', 'sentinel-link-checker' );
 			} else {
 				$updated['density'] = $value;
 			}

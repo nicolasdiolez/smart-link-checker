@@ -1,5 +1,5 @@
 /**
- * App component — Root of the Smart Link Checker admin interface.
+ * App component — Root of the Sentinel Link Checker admin interface.
  *
  * @package
  * @since   1.0.0
@@ -18,9 +18,9 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { STORE_NAME } from './store';
 
 const TABS = [
-	{ name: 'dashboard', title: __( 'Dashboard', 'smart-link-checker' ) },
-	{ name: 'links', title: __( 'Links', 'smart-link-checker' ) },
-	{ name: 'settings', title: __( 'Settings', 'smart-link-checker' ) },
+	{ name: 'dashboard', title: __( 'Dashboard', 'sentinel-link-checker' ) },
+	{ name: 'links', title: __( 'Links', 'sentinel-link-checker' ) },
+	{ name: 'settings', title: __( 'Settings', 'sentinel-link-checker' ) },
 ];
 
 const App = () => {
@@ -51,7 +51,7 @@ const App = () => {
 	return (
 		<ErrorBoundary>
 			<div className="flc-app">
-				<h1>{ __( 'Smart Link Checker', 'smart-link-checker' ) }</h1>
+				<h1>{ __( 'Sentinel Link Checker', 'sentinel-link-checker' ) }</h1>
 
 				<TabPanel tabs={ TABS }>
 					{ ( tab ) => {

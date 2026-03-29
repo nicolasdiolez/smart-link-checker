@@ -56,14 +56,14 @@ const SettingsPanel = () => {
 		<div className="flc-settings">
 			<Panel>
 				<PanelBody
-					title={__('Scanning', 'smart-link-checker')}
+					title={__('Scanning', 'sentinel-link-checker')}
 					initialOpen
 				>
 					<PanelRow>
 						<TextControl
 							label={__(
 								'Post types to scan',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							)}
 							value={(form.scan_post_types || []).join(
 								', '
@@ -79,14 +79,14 @@ const SettingsPanel = () => {
 							}
 							help={__(
 								'Comma-separated list: post, page, product…',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							)}
 							__nextHasNoMarginBottom
 						/>
 					</PanelRow>
 					<PanelRow>
 						<TextControl
-							label={__('Batch size', 'smart-link-checker')}
+							label={__('Batch size', 'sentinel-link-checker')}
 							type="number"
 							min={10}
 							max={200}
@@ -104,7 +104,7 @@ const SettingsPanel = () => {
 						<ToggleControl
 							label={__(
 								'Scan custom fields',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							)}
 							checked={!!form.scan_custom_fields}
 							onChange={(val) =>
@@ -116,14 +116,14 @@ const SettingsPanel = () => {
 				</PanelBody>
 
 				<PanelBody
-					title={__('HTTP Checks', 'smart-link-checker')}
+					title={__('HTTP Checks', 'sentinel-link-checker')}
 					initialOpen
 				>
 					<PanelRow>
 						<TextControl
 							label={__(
 								'Timeout (seconds)',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							)}
 							type="number"
 							min={5}
@@ -142,7 +142,7 @@ const SettingsPanel = () => {
 						<TextControl
 							label={__(
 								'Delay between requests (ms)',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							)}
 							type="number"
 							min={0}
@@ -161,7 +161,7 @@ const SettingsPanel = () => {
 						<TextControl
 							label={__(
 								'Recheck interval (days)',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							)}
 							type="number"
 							min={1}
@@ -179,14 +179,14 @@ const SettingsPanel = () => {
 				</PanelBody>
 
 				<PanelBody
-					title={__('Exclusions', 'smart-link-checker')}
+					title={__('Exclusions', 'sentinel-link-checker')}
 					initialOpen={false}
 				>
 					<PanelRow>
 						<ToggleControl
 							label={__(
 								'Exclude media files',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							)}
 							checked={!!form.exclude_media}
 							onChange={(val) =>
@@ -194,7 +194,7 @@ const SettingsPanel = () => {
 							}
 							help={__(
 								'Skip images, videos, and document files (PDF, etc.) during scanning.',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							)}
 							__nextHasNoMarginBottom
 						/>
@@ -203,7 +203,7 @@ const SettingsPanel = () => {
 						<TextareaControl
 							label={__(
 								'Excluded URLs',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							)}
 							value={(form.excluded_urls || []).join('\n')}
 							onChange={(val) =>
@@ -217,7 +217,7 @@ const SettingsPanel = () => {
 							}
 							help={__(
 								'One URL pattern per line.',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							)}
 							rows={4}
 							__nextHasNoMarginBottom
@@ -233,7 +233,7 @@ const SettingsPanel = () => {
 					isBusy={loading}
 					disabled={loading}
 				>
-					{__('Save Settings', 'smart-link-checker')}
+					{__('Save Settings', 'sentinel-link-checker')}
 				</Button>
 			</div>
 		</div>

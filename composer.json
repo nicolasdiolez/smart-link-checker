@@ -1,5 +1,5 @@
 {
-    "name": "nicolasdiolez/smart-link-checker",
+    "name": "nicolasdiolez/sentinel-link-checker",
     "description": "A high-performance link checker for WordPress with affiliate detection.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",

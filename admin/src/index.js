@@ -1,5 +1,5 @@
 /**
- * Smart Link Checker admin entry point.
+ * Sentinel Link Checker admin entry point.
  *
  * @package
  * @since   1.0.0

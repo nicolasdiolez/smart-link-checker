@@ -13,8 +13,6 @@ phpcs.xml
 phpstan.neon
 package.json
 package-lock.json
-composer.json
-composer.lock
 
 # Dev directories
 node_modules/
@@ -31,4 +29,4 @@ implementation_plan.md
 assets/
 
 # Build artifacts
-smart-link-checker.zip
+sentinel-link-checker.zip

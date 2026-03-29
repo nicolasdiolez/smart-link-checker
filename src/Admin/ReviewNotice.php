@@ -74,7 +74,7 @@ class ReviewNotice {
 	public function maybe_display_notice(): void {
 		// Do not show on the plugin's own page to avoid clutter.
 		$screen = \get_current_screen();
-		if ( $screen && 'toplevel_page_smart-link-checker' === $screen->id ) {
+		if ( $screen && 'toplevel_page_sentinel-link-checker' === $screen->id ) {
 			return;
 		}
 
@@ -92,19 +92,19 @@ class ReviewNotice {
 			return;
 		}
 
-		$review_url = 'https://wordpress.org/support/plugin/smart-link-checker/reviews/#new-post';
+		$review_url = 'https://wordpress.org/support/plugin/sentinel-link-checker/reviews/#new-post';
 		?>
 		<div id="flc-review-notice" class="notice notice-info is-dismissible" style="position: relative;">
 			<p>
-				<strong><?php \esc_html_e( 'How do you like Smart Link Checker?', 'smart-link-checker' ); ?></strong><br>
-				<?php \esc_html_e( 'We hope the plugin is helping you maintain a healthy site! If you have a moment, could you please leave us a 5-star rating on WordPress.org? It helps us a lot!', 'smart-link-checker' ); ?>
+				<strong><?php \esc_html_e( 'How do you like Sentinel Link Checker?', 'sentinel-link-checker' ); ?></strong><br>
+				<?php \esc_html_e( 'We hope the plugin is helping you maintain a healthy site! If you have a moment, could you please leave us a 5-star rating on WordPress.org? It helps us a lot!', 'sentinel-link-checker' ); ?>
 			</p>
 			<p>
 				<a href="<?php echo \esc_url( $review_url ); ?>" class="button button-primary" target="_blank" rel="noopener noreferrer">
-					<?php \esc_html_e( 'Leave a Review', 'smart-link-checker' ); ?>
+					<?php \esc_html_e( 'Leave a Review', 'sentinel-link-checker' ); ?>
 				</a>
 				<button type="button" class="button button-link flc-dismiss-review" style="margin-left: 10px;">
-					<?php \esc_html_e( 'Maybe later', 'smart-link-checker' ); ?>
+					<?php \esc_html_e( 'Maybe later', 'sentinel-link-checker' ); ?>
 				</button>
 			</p>
 		</div>

@@ -34,7 +34,7 @@ class LinksController extends \WP_REST_Controller {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	protected $namespace = 'smart-link-checker/v1';
+	protected $namespace = 'sentinel-link-checker/v1';
 
 	/**
 	 * REST base route.
@@ -260,7 +260,7 @@ class LinksController extends \WP_REST_Controller {
 		if ( null === $link ) {
 			return new \WP_Error(
 				'flc_link_not_found',
-				__( 'Link not found.', 'smart-link-checker' ),
+				__( 'Link not found.', 'sentinel-link-checker' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -287,7 +287,7 @@ class LinksController extends \WP_REST_Controller {
 		if ( null === $link ) {
 			return new \WP_Error(
 				'flc_link_not_found',
-				__( 'Link not found.', 'smart-link-checker' ),
+				__( 'Link not found.', 'sentinel-link-checker' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -298,7 +298,7 @@ class LinksController extends \WP_REST_Controller {
 		if ( null === $new_url && null === $new_rel ) {
 			return new \WP_Error(
 				'flc_nothing_to_update',
-				__( 'Provide at least url or rel to update.', 'smart-link-checker' ),
+				__( 'Provide at least url or rel to update.', 'sentinel-link-checker' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -366,7 +366,7 @@ class LinksController extends \WP_REST_Controller {
 		if ( null === $link ) {
 			return new \WP_Error(
 				'flc_link_not_found',
-				__( 'Link not found.', 'smart-link-checker' ),
+				__( 'Link not found.', 'sentinel-link-checker' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -441,7 +441,7 @@ class LinksController extends \WP_REST_Controller {
 		if ( null === $link ) {
 			return new \WP_Error(
 				'flc_link_not_found',
-				__( 'Link not found.', 'smart-link-checker' ),
+				__( 'Link not found.', 'sentinel-link-checker' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -464,7 +464,7 @@ class LinksController extends \WP_REST_Controller {
 			array(
 				'id'      => $id,
 				'status'  => 'pending',
-				'message' => __( 'Link queued for re-checking.', 'smart-link-checker' ),
+				'message' => __( 'Link queued for re-checking.', 'sentinel-link-checker' ),
 			),
 			200
 		);

@@ -27,7 +27,7 @@ class ErrorBoundary extends Component {
 
 	componentDidCatch( error, errorInfo ) {
 		// eslint-disable-next-line no-console
-		console.error( '[SmartLinkChecker] UI Error:', error, errorInfo );
+		console.error( '[SentinelLinkChecker] UI Error:', error, errorInfo );
 	}
 
 	handleReload = () => {
@@ -43,14 +43,14 @@ class ErrorBoundary extends Component {
 							<strong>
 								{ __(
 									'Something went wrong.',
-									'smart-link-checker'
+									'sentinel-link-checker'
 								) }
 							</strong>
 						</p>
 						<p>
 							{ __(
 								'An unexpected error occurred in the plugin interface. Please try reloading.',
-								'smart-link-checker'
+								'sentinel-link-checker'
 							) }
 						</p>
 						{ this.state.error && (
@@ -58,7 +58,7 @@ class ErrorBoundary extends Component {
 								<summary>
 									{ __(
 										'Error details',
-										'smart-link-checker'
+										'sentinel-link-checker'
 									) }
 								</summary>
 								<pre
@@ -75,7 +75,7 @@ class ErrorBoundary extends Component {
 					</Notice>
 					<div style={ { marginTop: '12px' } }>
 						<Button variant="primary" onClick={ this.handleReload }>
-							{ __( 'Try Again', 'smart-link-checker' ) }
+							{ __( 'Try Again', 'sentinel-link-checker' ) }
 						</Button>
 					</div>
 				</div>

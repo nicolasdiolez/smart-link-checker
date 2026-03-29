@@ -495,7 +495,7 @@ class BatchOrchestrator {
 			$status = get_transient( 'flc_scan_status' );
 			if ( is_array( $status ) ) {
 				$status['status']        = 'error';
-				$status['error_message'] = __( 'Action Scheduler failed to enqueue scan batches. Check server error logs.', 'smart-link-checker' );
+				$status['error_message'] = __( 'Action Scheduler failed to enqueue scan batches. Check server error logs.', 'sentinel-link-checker' );
 				set_transient( 'flc_scan_status', $status, HOUR_IN_SECONDS );
 			}
 		}

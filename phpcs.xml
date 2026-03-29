@@ -3,7 +3,7 @@
     <description>PHPCS configuration for Flavor Link Checker</description>
 
     <file>./src</file>
-    <file>./smart-link-checker.php</file>
+    <file>./sentinel-link-checker.php</file>
     <file>./uninstall.php</file>
 
     <arg name="extensions" value="php"/>
@@ -28,7 +28,7 @@
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
             <property name="prefixes" type="array">
-                <element value="smart_link_checker"/>
+                <element value="sentinel_link_checker"/>
                 <element value="flc"/>
                 <element value="FLC"/>
                 <element value="FlavorLinkChecker"/>
@@ -39,7 +39,7 @@
     <rule ref="WordPress.WP.I18n">
         <properties>
             <property name="text_domain" type="array">
-                <element value="smart-link-checker"/>
+                <element value="sentinel-link-checker"/>
             </property>
         </properties>
     </rule>

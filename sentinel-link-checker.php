@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name:       Smart Link Checker
- * Plugin URI:        https://github.com/nicolasdiolez/smart-link-checker
+ * Plugin Name:       Sentinel Link Checker
+ * Plugin URI:        https://github.com/nicolasdiolez/sentinel-link-checker
  * Description:       A high-performance link checker for WordPress with affiliate detection, redirect tracking, and background processing.
  * Version:           1.0.0
  * Requires at least: 6.9
@@ -11,10 +11,10 @@
  * Author URI:        https://nicolasdiolez.com
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       smart-link-checker
+ * Text Domain:       sentinel-link-checker
  * Domain Path:       /languages
  *
- * @package SmartLinkChecker
+ * @package SentinelLinkChecker
  * @since   1.0.0
  */
 
@@ -60,7 +60,7 @@ if ( ! file_exists( FLC_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 		'admin_notices',
 		static function (): void {
 			echo '<div class="notice notice-error"><p>';
-			echo esc_html__( 'Smart Link Checker: Composer autoloader not found. Please run "composer install" in the plugin directory.', 'smart-link-checker' );
+			echo esc_html__( 'Sentinel Link Checker: Composer autoloader not found. Please run "composer install" in the plugin directory.', 'sentinel-link-checker' );
 			echo '</p></div>';
 		}
 	);

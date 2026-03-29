@@ -1,5 +1,5 @@
 {
-    "name": "smart-link-checker",
+    "name": "sentinel-link-checker",
     "version": "1.0.0",
     "private": true,
     "description": "LinkChecker admin interface",

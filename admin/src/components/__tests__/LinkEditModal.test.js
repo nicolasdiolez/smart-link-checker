@@ -60,7 +60,7 @@ jest.mock( '@wordpress/components', () => ( {
 	Spinner: () => <div data-testid="spinner" />,
 } ) );
 
-jest.mock( '../../store', () => ( { STORE_NAME: 'smart-link-checker' } ) );
+jest.mock( '../../store', () => ( { STORE_NAME: 'sentinel-link-checker' } ) );
 
 const MOCK_LINK = {
 	id: 42,
