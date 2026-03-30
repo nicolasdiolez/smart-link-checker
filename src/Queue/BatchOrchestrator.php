@@ -307,6 +307,7 @@ class BatchOrchestrator {
 			// All scan batches done — transition to check phase.
 			$check_batches = $this->start_check();
 			delete_transient( 'flc_transition_lock' );
+			delete_transient( 'flc_stats_cache' );
 
 			if ( $check_batches > 0 ) {
 				// Re-read transient to pick up total_links and check_batches set by start_check().

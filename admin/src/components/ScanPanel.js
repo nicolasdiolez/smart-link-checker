@@ -67,10 +67,12 @@ const ScanPanel = () => {
 
 	let progress = 0;
 	if (isRunning) {
-		if (phase === 'checking' && scanStatus.total_links > 0) {
-			progress = Math.round(
-				(scanStatus.checked_links / scanStatus.total_links) * 100
-			);
+		if (phase === 'checking') {
+			if (scanStatus.total_links > 0) {
+				progress = Math.round(
+					(scanStatus.checked_links / scanStatus.total_links) * 100
+				);
+			}
 		} else if (scanStatus.total_posts > 0) {
 			progress = Math.round(
 				(scanStatus.scanned_posts / scanStatus.total_posts) * 100
