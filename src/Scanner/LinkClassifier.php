@@ -137,7 +137,7 @@ class LinkClassifier {
 		 *
 		 * @param string[] $hosts Array of internal hostnames.
 		 */
-		$internal_hosts = apply_filters( 'flc/classifier/site_hosts', array( $this->site_host ) );
+		$internal_hosts = apply_filters( 'slkc/classifier/site_hosts', array( $this->site_host ) );
 
 		foreach ( $internal_hosts as $internal_host ) {
 			if ( $host === $internal_host || str_ends_with( $host, '.' . $internal_host ) ) {
@@ -178,7 +178,7 @@ class LinkClassifier {
 		 * @param array{domains: array<string, string[]>, paths: string[], params: string[]} $patterns
 		 */
 		$patterns = apply_filters(
-			'flc/classifier/affiliate_patterns',
+			'slkc/classifier/affiliate_patterns',
 			array(
 				'domains' => self::AFFILIATE_DOMAINS,
 				'paths'   => self::AFFILIATE_PATH_PATTERNS,

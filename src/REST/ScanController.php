@@ -161,11 +161,11 @@ array(
 	 * @return \WP_Error|null WP_Error if rate-limited, null if OK.
 	 */
 	private function check_rate_limit( string $action ): ?\WP_Error {
-		$transient_key = 'flc_rate_limit_' . $action;
+		$transient_key = 'slkc_rate_limit_' . $action;
 
 		if ( false !== \get_transient( $transient_key ) ) {
 			return new \WP_Error(
-				'flc_rate_limited',
+				'slkc_rate_limited',
 				\__( 'Please wait a few seconds before trying again.', 'sentinel-link-checker' ),
 				array( 'status' => 429 )
 			);
@@ -196,7 +196,7 @@ array(
 
 		if ( 'running' === $current_status['status'] ) {
 			return new \WP_Error(
-				'flc_scan_already_running',
+				'slkc_scan_already_running',
 				\__( 'A scan is already in progress.', 'sentinel-link-checker' ),
 				array( 'status' => 409 )
 			);
@@ -262,7 +262,7 @@ array(
 
 		if ( ! $resumed ) {
 			return new \WP_Error(
-				'flc_scan_cannot_resume',
+				'slkc_scan_cannot_resume',
 				\__( 'Scan cannot be resumed. It may have already finished or was never started.', 'sentinel-link-checker' ),
 				array( 'status' => 400 )
 			);

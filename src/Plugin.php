@@ -185,7 +185,7 @@ class Plugin {
 		$extractor      = new LinkExtractor( $content_parser, $block_parser, $classifier );
 
 		// HTTP checker.
-		$settings          = \get_option( 'flc_settings', array() );
+		$settings          = \get_option( 'slkc_settings', array() );
 		$timeout           = (int) ( $settings['check_timeout'] ?? 15 );
 		$http_checker      = new HttpChecker( $timeout );
 		$internal_checker  = new InternalLinkChecker();
@@ -203,9 +203,9 @@ class Plugin {
 		\add_action( SchedulerBootstrap::RECHECK_DAILY_HOOK, array( $orchestrator, 'recheck_stale_links' ) );
 
 		// Batch tracking hooks.
-		\add_action( 'flc/scan/batch_complete', array( $orchestrator, 'remove_scan_batch' ) );
-		\add_action( 'flc/check/batch_complete', array( $orchestrator, 'remove_check_batch' ) );
-		\add_action( 'flc/check/batch_split', array( $orchestrator, 'handle_check_batch_split' ), 10, 2 );
+		\add_action( 'slkc/scan/batch_complete', array( $orchestrator, 'remove_scan_batch' ) );
+		\add_action( 'slkc/check/batch_complete', array( $orchestrator, 'remove_check_batch' ) );
+		\add_action( 'slkc/check/batch_split', array( $orchestrator, 'handle_check_batch_split' ), 10, 2 );
 
 		// Orphan cleanup.
 		\add_action(

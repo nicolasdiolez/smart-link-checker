@@ -7,7 +7,7 @@
 
 /* ── App layout ─────────────────────────────────────────────────── */
 
-.flc-app {
+.slkc-app {
 	max-width: 1200px;
 	margin: 20px 0;
 
@@ -18,14 +18,14 @@
 
 /* ── Dashboard summary cards ────────────────────────────────────── */
 
-.flc-summary-cards {
+.slkc-summary-cards {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 	gap: 16px;
 	margin-top: 20px;
 }
 
-.flc-summary-card {
+.slkc-summary-card {
 	background: #fff;
 	border: 1px solid #ddd;
 	border-radius: 4px;
@@ -46,36 +46,36 @@
 		color: #646970;
 	}
 
-	&--broken .flc-summary-card__value {
+	&--broken .slkc-summary-card__value {
 		color: #d63638;
 	}
 
-	&--ok .flc-summary-card__value {
+	&--ok .slkc-summary-card__value {
 		color: #00a32a;
 	}
 
-	&--redirect .flc-summary-card__value {
+	&--redirect .slkc-summary-card__value {
 		color: #dba617;
 	}
 
-	&--internal .flc-summary-card__value {
+	&--internal .slkc-summary-card__value {
 		color: #2271b1;
 	}
 
-	&--external .flc-summary-card__value {
+	&--external .slkc-summary-card__value {
 		color: #8c8f94;
 	}
 
-	&--affiliate .flc-summary-card__value {
+	&--affiliate .slkc-summary-card__value {
 		color: #9b59b6;
 	}
 
-	&--cloaked .flc-summary-card__value {
+	&--cloaked .slkc-summary-card__value {
 		color: #e67e22;
 	}
 }
 
-.flc-dashboard__section {
+.slkc-dashboard__section {
 	margin-top: 24px;
 
 	h3 {
@@ -88,7 +88,7 @@
 
 /* ── Scan panel ─────────────────────────────────────────────────── */
 
-.flc-scan-panel {
+.slkc-scan-panel {
 	background: #fff;
 	border: 1px solid #ddd;
 	border-radius: 4px;
@@ -132,7 +132,7 @@
 	}
 }
 
-.flc-progress-bar {
+.slkc-progress-bar {
 	height: 8px;
 	background: #ddd;
 	border-radius: 4px;
@@ -148,13 +148,13 @@
 
 /* ── Filter bar ─────────────────────────────────────────────────── */
 
-.flc-filter-bar {
+.slkc-filter-bar {
 	margin-bottom: 12px;
 }
 
 /* ── Link table ─────────────────────────────────────────────────── */
 
-.flc-link-table {
+.slkc-link-table {
 	margin-top: 16px;
 
 	&__toolbar {
@@ -186,18 +186,18 @@
 			font-size: 12px;
 		}
  
-		.flc-badge {
+		.slkc-badge {
 			font-size: 10px;
 			padding: 2px 4px;
 		}
  
-		.flc-http-status {
+		.slkc-http-status {
 			font-size: 11px;
 		}
 	}
 }
 
-.flc-link-url {
+.slkc-link-url {
 	word-break: break-all;
 	color: #2271b1;
 	text-decoration: none;
@@ -207,7 +207,7 @@
 	}
 }
 
-.flc-http-status {
+.slkc-http-status {
 	font-weight: 600;
 
 	&--broken,
@@ -229,7 +229,7 @@
 	}
 }
 
-.flc-badge {
+.slkc-badge {
 	font-size: 12px;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -237,7 +237,7 @@
 
 /* ── Edit modal ─────────────────────────────────────────────────── */
 
-.flc-edit-modal {
+.slkc-edit-modal {
 	&__instances {
 		margin-top: 16px;
 		padding-top: 16px;
@@ -275,7 +275,7 @@
 
 /* ── Settings ───────────────────────────────────────────────────── */
 
-.flc-settings {
+.slkc-settings {
 	margin-top: 16px;
 
 	&__actions {
@@ -285,7 +285,7 @@
 
 /* ── Support Card ────────────────────────────────────────────────── */
 
-.flc-support-card {
+.slkc-support-card {
 	background: #fff;
 	border: 1px solid #ddd;
 	border-radius: 4px;
@@ -325,7 +325,7 @@
 
 /* ── Snackbar ───────────────────────────────────────────────────── */
 
-.flc-snackbar-list {
+.slkc-snackbar-list {
 	position: fixed;
 	bottom: 40px;
 	left: 50%;

@@ -13,20 +13,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', dirname( __DIR__, 2 ) . '/' );
 }
 
-if ( ! defined( 'FLC_VERSION' ) ) {
-	define( 'FLC_VERSION', '1.0.0' );
+if ( ! defined( 'SLKC_VERSION' ) ) {
+	define( 'SLKC_VERSION', '1.0.0' );
 }
 
-if ( ! defined( 'FLC_PLUGIN_DIR' ) ) {
-	define( 'FLC_PLUGIN_DIR', dirname( __DIR__, 2 ) . '/' );
+if ( ! defined( 'SLKC_PLUGIN_DIR' ) ) {
+	define( 'SLKC_PLUGIN_DIR', dirname( __DIR__, 2 ) . '/' );
 }
 
-if ( ! defined( 'FLC_PLUGIN_FILE' ) ) {
-	define( 'FLC_PLUGIN_FILE', FLC_PLUGIN_DIR . 'sentinel-link-checker.php' );
+if ( ! defined( 'SLKC_PLUGIN_FILE' ) ) {
+	define( 'SLKC_PLUGIN_FILE', SLKC_PLUGIN_DIR . 'sentinel-link-checker.php' );
 }
 
 // Load WordPress function stubs for unit testing without WordPress.
 require_once __DIR__ . '/stubs.php';
 
 // Load the Composer autoloader.
-require_once FLC_PLUGIN_DIR . 'vendor/autoload.php';
+require_once SLKC_PLUGIN_DIR . 'vendor/autoload.php';

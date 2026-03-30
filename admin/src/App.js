@@ -50,7 +50,7 @@ const App = () => {
 
 	return (
 		<ErrorBoundary>
-			<div className="flc-app">
+			<div className="slkc-app">
 				<h1>{ __( 'Sentinel Link Checker', 'sentinel-link-checker' ) }</h1>
 
 				<TabPanel tabs={ TABS }>
@@ -78,7 +78,7 @@ const App = () => {
 				<SnackbarList
 					notices={ snackbarNotices }
 					onRemove={ removeNotice }
-					className="flc-snackbar-list"
+					className="slkc-snackbar-list"
 				/>
 			</div>
 		</ErrorBoundary>

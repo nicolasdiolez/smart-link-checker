@@ -210,7 +210,7 @@ const LinkTable = ( { onEditLink } ) => {
 					href={ item.url }
 					target="_blank"
 					rel="noopener noreferrer"
-					className="flc-link-url"
+					className="slkc-link-url"
 					title={ item.url }
 				>
 					{ item.url.length > 60
@@ -225,7 +225,7 @@ const LinkTable = ( { onEditLink } ) => {
 			enableSorting: true,
 			render: ( { item } ) => (
 				<span
-					className={ `flc-http-status flc-http-status--${ item.statusCategory }` }
+					className={ `slkc-http-status slkc-http-status--${ item.statusCategory }` }
 				>
 					{ item.httpStatus || '—' }
 				</span>
@@ -241,7 +241,7 @@ const LinkTable = ( { onEditLink } ) => {
 			filterBy: { operators: [ 'is' ] },
 			render: ( { item } ) => (
 				<span
-					className={ `flc-badge flc-badge--${ item.statusCategory }` }
+					className={ `slkc-badge slkc-badge--${ item.statusCategory }` }
 					style={ { color: STATUS_COLORS[ item.statusCategory ] } }
 				>
 					{ STATUS_LABELS[ item.statusCategory ] ||
@@ -264,7 +264,7 @@ const LinkTable = ( { onEditLink } ) => {
 			],
 			filterBy: { operators: [ 'is' ] },
 			render: ( { item } ) => (
-				<span className="flc-link-type">
+				<span className="slkc-link-type">
 					{ item.isExternal
 						? __( 'External', 'sentinel-link-checker' )
 						: __( 'Internal', 'sentinel-link-checker' ) }
@@ -289,8 +289,8 @@ const LinkTable = ( { onEditLink } ) => {
 	} );
 
 	return (
-		<div className={ `flc-link-table is-density-${ view.layout?.density || 'balanced' }` }>
-			<div className="flc-link-table__toolbar">
+		<div className={ `slkc-link-table is-density-${ view.layout?.density || 'balanced' }` }>
+			<div className="slkc-link-table__toolbar">
 				<FilterBar
 					currentStatus={ quickStatus }
 					onStatusChange={ handleStatusChange }

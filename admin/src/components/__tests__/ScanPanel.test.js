@@ -136,7 +136,7 @@ describe('ScanPanel', () => {
 
 		const { container } = render(<ScanPanel />);
 
-		const fill = container.querySelector('.flc-progress-bar__fill');
+		const fill = container.querySelector('.slkc-progress-bar__fill');
 		expect(fill).toBeInTheDocument();
 		expect(fill.style.width).toBe('50%');
 	});

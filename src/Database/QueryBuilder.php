@@ -15,8 +15,8 @@ defined( 'ABSPATH' ) || exit;
 use FlavorLinkChecker\Models\Link;
 
 /**
- * Builds filtered SQL queries against the flc_links table
- * with optional JOIN on flc_instances for rel/search/post_id filters.
+ * Builds filtered SQL queries against the slkc_links table
+ * with optional JOIN on slkc_instances for rel/search/post_id filters.
  *
  * @since 1.0.0
  */
@@ -48,8 +48,8 @@ class QueryBuilder {
 	public function __construct(
 		private readonly \wpdb $wpdb,
 	) {
-		$this->links_table     = $this->wpdb->prefix . 'flc_links';
-		$this->instances_table = $this->wpdb->prefix . 'flc_instances';
+		$this->links_table     = $this->wpdb->prefix . 'slkc_links';
+		$this->instances_table = $this->wpdb->prefix . 'slkc_instances';
 	}
 
 	/**
@@ -78,7 +78,7 @@ class QueryBuilder {
 		$where_params  = array();
 		$needs_join    = false;
 
-		// --- Filters on flc_links ---
+		// --- Filters on slkc_links ---
 
 		if ( ! empty( $args['status'] ) ) {
 			if ( 'redirect' === $args['status'] ) {
@@ -109,7 +109,7 @@ class QueryBuilder {
 			$where_params[]  = $args['affiliate_network'];
 		}
 
-		// --- Filters requiring JOIN on flc_instances ---
+		// --- Filters requiring JOIN on slkc_instances ---
 
 		if ( ! empty( $args['rel'] ) ) {
 			$needs_join = true;

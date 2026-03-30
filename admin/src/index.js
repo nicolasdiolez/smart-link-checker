@@ -10,7 +10,7 @@ import './store';
 import './index.scss';
 import App from './App';
 
-const container = document.getElementById( 'flc-root' );
+const container = document.getElementById( 'slkc-root' );
 if ( container ) {
 	const root = createRoot( container );
 	root.render( <App /> );

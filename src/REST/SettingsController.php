@@ -189,13 +189,13 @@ class SettingsController extends \WP_REST_Controller {
 
 		if ( ! empty( $errors ) ) {
 			return new \WP_Error(
-				'flc_invalid_settings',
+				'slkc_invalid_settings',
 				implode( ' ', $errors ),
 				array( 'status' => 400 )
 			);
 		}
 
-		update_option( 'flc_settings', $updated );
+		update_option( 'slkc_settings', $updated );
 
 		return new \WP_REST_Response( $updated, 200 );
 	}
@@ -208,7 +208,7 @@ class SettingsController extends \WP_REST_Controller {
 	 * @return array<string, mixed>
 	 */
 	private function get_merged_settings(): array {
-		$stored = get_option( 'flc_settings', array() );
+		$stored = get_option( 'slkc_settings', array() );
 
 		if ( ! is_array( $stored ) ) {
 			$stored = array();

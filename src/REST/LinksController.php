@@ -259,7 +259,7 @@ class LinksController extends \WP_REST_Controller {
 
 		if ( null === $link ) {
 			return new \WP_Error(
-				'flc_link_not_found',
+				'slkc_link_not_found',
 				__( 'Link not found.', 'sentinel-link-checker' ),
 				array( 'status' => 404 )
 			);
@@ -286,7 +286,7 @@ class LinksController extends \WP_REST_Controller {
 
 		if ( null === $link ) {
 			return new \WP_Error(
-				'flc_link_not_found',
+				'slkc_link_not_found',
 				__( 'Link not found.', 'sentinel-link-checker' ),
 				array( 'status' => 404 )
 			);
@@ -297,7 +297,7 @@ class LinksController extends \WP_REST_Controller {
 
 		if ( null === $new_url && null === $new_rel ) {
 			return new \WP_Error(
-				'flc_nothing_to_update',
+				'slkc_nothing_to_update',
 				__( 'Provide at least url or rel to update.', 'sentinel-link-checker' ),
 				array( 'status' => 400 )
 			);
@@ -328,7 +328,7 @@ class LinksController extends \WP_REST_Controller {
 		// Update the link record in DB if URL changed.
 		if ( null !== $new_url && $new_url !== $link->url ) {
 			global $wpdb;
-			$links_table = $wpdb->prefix . 'flc_links';
+			$links_table = $wpdb->prefix . 'slkc_links';
 			$new_hash    = hash( 'sha256', $new_url );
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -365,7 +365,7 @@ class LinksController extends \WP_REST_Controller {
 
 		if ( null === $link ) {
 			return new \WP_Error(
-				'flc_link_not_found',
+				'slkc_link_not_found',
 				__( 'Link not found.', 'sentinel-link-checker' ),
 				array( 'status' => 404 )
 			);
@@ -440,7 +440,7 @@ class LinksController extends \WP_REST_Controller {
 
 		if ( null === $link ) {
 			return new \WP_Error(
-				'flc_link_not_found',
+				'slkc_link_not_found',
 				__( 'Link not found.', 'sentinel-link-checker' ),
 				array( 'status' => 404 )
 			);
@@ -522,7 +522,7 @@ class LinksController extends \WP_REST_Controller {
 		$csv_data = $this->csv_exporter->export( $this->query_builder, $this->instances_repo, $args );
 
 		$response = new \WP_REST_Response( $csv_data, 200 );
-		$response->header( 'X-FLC-Export', 'csv' );
+		$response->header( 'X-SLKC-Export', 'csv' );
 
 		return $response;
 	}

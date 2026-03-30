@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 use FlavorLinkChecker\Models\Enums\LinkStatus;
 
 /**
- * Immutable DTO representing a row in the flc_links table.
+ * Immutable DTO representing a row in the slkc_links table.
  *
  * @since 1.0.0
  */

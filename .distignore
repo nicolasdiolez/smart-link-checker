@@ -28,5 +28,8 @@ implementation_plan.md
 # Assets (uploaded separately to WordPress.org SVN /assets/)
 assets/
 
+# Composer lock (composer.json is kept for open-source transparency)
+composer.lock
+
 # Build artifacts
 sentinel-link-checker.zip

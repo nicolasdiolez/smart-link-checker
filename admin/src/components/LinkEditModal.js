@@ -81,7 +81,7 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 		<Modal
 			title={ __( 'Edit Link', 'sentinel-link-checker' ) }
 			onRequestClose={ () => onClose( false ) }
-			className="flc-edit-modal"
+			className="slkc-edit-modal"
 		>
 			{ loading && <Spinner /> }
 			{ ! loading && currentLink && (
@@ -104,7 +104,7 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 					/>
 
 					{ currentLink.instances?.length > 0 && (
-						<div className="flc-edit-modal__instances">
+						<div className="slkc-edit-modal__instances">
 							<h3>
 								{ __( 'Found in:', 'sentinel-link-checker' ) }
 							</h3>
@@ -119,7 +119,7 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 											{ inst.postTitle }
 										</a>
 										{ inst.anchorText && (
-											<span className="flc-edit-modal__anchor">
+											<span className="slkc-edit-modal__anchor">
 												{ ' — "' }
 												{ inst.anchorText }
 												{ '"' }
@@ -131,7 +131,7 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 						</div>
 					) }
 
-					<div className="flc-edit-modal__actions">
+					<div className="slkc-edit-modal__actions">
 						<Button
 							variant="primary"
 							onClick={ handleSave }

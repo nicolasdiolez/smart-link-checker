@@ -53,7 +53,7 @@ const SettingsPanel = () => {
 	}
 
 	return (
-		<div className="flc-settings">
+		<div className="slkc-settings">
 			<Panel>
 				<PanelBody
 					title={__('Scanning', 'sentinel-link-checker')}
@@ -226,7 +226,7 @@ const SettingsPanel = () => {
 				</PanelBody>
 			</Panel>
 
-			<div className="flc-settings__actions">
+			<div className="slkc-settings__actions">
 				<Button
 					variant="primary"
 					onClick={handleSave}

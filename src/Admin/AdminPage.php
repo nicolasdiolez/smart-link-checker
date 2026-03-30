@@ -52,7 +52,7 @@ class AdminPage {
 	 * @since 1.0.0
 	 */
 	private function render_page(): void {
-		echo '<div class="wrap"><div id="flc-root"></div></div>';
+		echo '<div class="wrap"><div id="slkc-root"></div></div>';
 	}
 
 	/**
@@ -67,7 +67,7 @@ class AdminPage {
 			return;
 		}
 
-		$asset_file = FLC_PLUGIN_DIR . 'build/index.asset.php';
+		$asset_file = SLKC_PLUGIN_DIR . 'build/index.asset.php';
 		if ( ! file_exists( $asset_file ) ) {
 			return;
 		}
@@ -75,30 +75,30 @@ class AdminPage {
 		$asset = require $asset_file;
 
 		wp_enqueue_script(
-			'flc-admin',
-			FLC_PLUGIN_URL . 'build/index.js',
+			'slkc-admin',
+			SLKC_PLUGIN_URL . 'build/index.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 
-		if ( file_exists( FLC_PLUGIN_DIR . 'build/index.css' ) ) {
+		if ( file_exists( SLKC_PLUGIN_DIR . 'build/index.css' ) ) {
 			wp_enqueue_style(
-				'flc-admin',
-				FLC_PLUGIN_URL . 'build/index.css',
+				'slkc-admin',
+				SLKC_PLUGIN_URL . 'build/index.css',
 				array( 'wp-components' ),
 				$asset['version']
 			);
 		}
 
 		wp_add_inline_script(
-			'flc-admin',
-			'window.flcData = ' . wp_json_encode(
+			'slkc-admin',
+			'window.slkcData = ' . wp_json_encode(
 				array(
 					'restUrl'  => rest_url( 'sentinel-link-checker/v1/' ),
 					'nonce'    => wp_create_nonce( 'wp_rest' ),
 					'adminUrl' => admin_url(),
-					'version'  => FLC_VERSION,
+					'version'  => SLKC_VERSION,
 				)
 			) . ';',
 			'before'

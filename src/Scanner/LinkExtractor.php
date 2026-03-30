@@ -47,7 +47,7 @@ class LinkExtractor {
 	 * @since 1.0.0
 	 *
 	 * @param \WP_Post             $post     The post to extract links from.
-	 * @param array<string, mixed> $settings Plugin settings from flc_settings option.
+	 * @param array<string, mixed> $settings Plugin settings from slkc_settings option.
 	 * @return array<string, array{
 	 *     url: string,
 	 *     url_hash: string,

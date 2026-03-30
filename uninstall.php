@@ -22,8 +22,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 /*
  * Delete plugin options.
  */
-delete_option( 'flc_db_version' );
-delete_option( 'flc_settings' );
+delete_option( 'slkc_db_version' );
+delete_option( 'slkc_settings' );
 
 /*
  * Unschedule all Action Scheduler actions.
@@ -40,8 +40,8 @@ global $wpdb;
 $wpdb->query(
 	$wpdb->prepare(
 		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-		$wpdb->esc_like( '_transient_flc_' ) . '%',
-		$wpdb->esc_like( '_transient_timeout_flc_' ) . '%'
+		$wpdb->esc_like( '_transient_slkc_' ) . '%',
+		$wpdb->esc_like( '_transient_timeout_slkc_' ) . '%'
 	)
 );
-delete_option( 'flc_last_scan_date' );
+delete_option( 'slkc_last_scan_date' );

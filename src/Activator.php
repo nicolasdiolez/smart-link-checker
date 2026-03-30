@@ -29,9 +29,9 @@ class Activator {
 	public static function activate(): void {
 		( new Migrator() )->create_tables();
 
-		if ( false === get_option( 'flc_settings' ) ) {
+		if ( false === get_option( 'slkc_settings' ) ) {
 			update_option(
-				'flc_settings',
+				'slkc_settings',
 				array(
 					'scan_post_types'    => array( 'post', 'page' ),
 					'check_timeout'      => 15,

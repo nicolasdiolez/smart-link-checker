@@ -25,25 +25,25 @@ $should_reset = ( isset( $argv[1] ) && 'reset' === $argv[1] ) || ( isset( $args[
 
 if ( $should_reset ) {
 	echo "Resetting scan status and clearing existing data...\n";
-	delete_transient( 'flc_scan_status' );
-	delete_transient( 'flc_transition_lock' );
+	delete_transient( 'slkc_scan_status' );
+	delete_transient( 'slkc_transition_lock' );
 
 	// Ensure redirect_chain column exists.
-	$has_column = $GLOBALS['wpdb']->get_results( "SHOW COLUMNS FROM {$GLOBALS['wpdb']->prefix}flc_links LIKE 'redirect_chain'" );
+	$has_column = $GLOBALS['wpdb']->get_results( "SHOW COLUMNS FROM {$GLOBALS['wpdb']->prefix}slkc_links LIKE 'redirect_chain'" );
 	if ( empty( $has_column ) ) {
 		echo "Fixing schema: adding redirect_chain column...\n";
-		$GLOBALS['wpdb']->query( "ALTER TABLE {$GLOBALS['wpdb']->prefix}flc_links ADD COLUMN redirect_chain text DEFAULT NULL AFTER redirect_count" );
+		$GLOBALS['wpdb']->query( "ALTER TABLE {$GLOBALS['wpdb']->prefix}slkc_links ADD COLUMN redirect_chain text DEFAULT NULL AFTER redirect_count" );
 	}
 
-	$GLOBALS['wpdb']->query( "TRUNCATE TABLE {$GLOBALS['wpdb']->prefix}flc_instances" );
-	$GLOBALS['wpdb']->query( "TRUNCATE TABLE {$GLOBALS['wpdb']->prefix}flc_links" );
+	$GLOBALS['wpdb']->query( "TRUNCATE TABLE {$GLOBALS['wpdb']->prefix}slkc_instances" );
+	$GLOBALS['wpdb']->query( "TRUNCATE TABLE {$GLOBALS['wpdb']->prefix}slkc_links" );
 	// Clear all AS actions for this plugin.
 	if ( class_exists( 'ActionScheduler_DBStore' ) ) {
 		\ActionScheduler_DBStore::instance()->cancel_actions_by_group( 'sentinel-link-checker' );
 	}
 }
 
-$settings = get_option( 'flc_settings', array() );
+$settings = get_option( 'slkc_settings', array() );
 echo "Current Settings: " . json_encode( $settings ) . "\n";
 
 $limit_const = defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : 'Not Defined';

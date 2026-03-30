@@ -130,6 +130,6 @@ class BlockParser {
 		 *
 		 * @param array<string, string[]> $defaults Block name => attribute names.
 		 */
-		return apply_filters( 'flc/scanner/block_url_attributes', $defaults );
+		return apply_filters( 'slkc/scanner/block_url_attributes', $defaults );
 	}
 }

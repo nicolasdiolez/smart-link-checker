@@ -65,21 +65,21 @@ class ScanJob {
 
 		if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			\error_log( "[FlavorLinkChecker] ScanJob::process_batch() started for batch {$batch_id}." );
+			\error_log( "[SentinelLinkChecker] ScanJob::process_batch() started for batch {$batch_id}." );
 		}
 
-		$batch_data = \get_transient( 'flc_scan_batch_' . $batch_id );
+		$batch_data = \get_transient( 'slkc_scan_batch_' . $batch_id );
 		if ( false === $batch_data || ! \is_array( $batch_data ) ) {
 			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				\error_log( "[FlavorLinkChecker] ScanJob::process_batch() failed to load data for batch {$batch_id}." );
+				\error_log( "[SentinelLinkChecker] ScanJob::process_batch() failed to load data for batch {$batch_id}." );
 			}
 			return;
 		}
 
 		$post_ids = $batch_data['post_ids'] ?? array();
 		$offset   = $batch_data['offset'] ?? 0;
-		$settings = \get_option( 'flc_settings', array() );
+		$settings = \get_option( 'slkc_settings', array() );
 
 		// Shared-hosting optimizations.
 		\wp_suspend_cache_addition( true );
@@ -105,7 +105,7 @@ class ScanJob {
 
 					// Save offset and re-enqueue for continuation.
 					$batch_data['offset'] = $i + 1;
-					\set_transient( 'flc_scan_batch_' . $batch_id, $batch_data, \HOUR_IN_SECONDS );
+					\set_transient( 'slkc_scan_batch_' . $batch_id, $batch_data, \HOUR_IN_SECONDS );
 					SchedulerBootstrap::enqueue_scan_batch( $batch_id );
 					return;
 				}
@@ -125,9 +125,9 @@ class ScanJob {
 			// All posts in this batch are processed.
 			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				\error_log( "[FlavorLinkChecker] ScanJob batch {$batch_id}: completed, processed {$count} posts." );
+				\error_log( "[SentinelLinkChecker] ScanJob batch {$batch_id}: completed, processed {$count} posts." );
 			}
-			\delete_transient( 'flc_scan_batch_' . $batch_id );
+			\delete_transient( 'slkc_scan_batch_' . $batch_id );
 
 			/**
 			 * Fires when a scan batch completes.
@@ -136,11 +136,11 @@ class ScanJob {
 			 *
 			 * @param string $batch_id The completed batch identifier.
 			 */
-			\do_action( 'flc/scan/batch_complete', $batch_id );
+			\do_action( 'slkc/scan/batch_complete', $batch_id );
 		} catch ( \Throwable $e ) {
 			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				\error_log( '[FlavorLinkChecker] ScanJob error in batch ' . $batch_id . ': ' . $e->getMessage() );
+				\error_log( '[SentinelLinkChecker] ScanJob error in batch ' . $batch_id . ': ' . $e->getMessage() );
 			}
 		} finally {
 			\wp_suspend_cache_addition( false );
@@ -211,7 +211,7 @@ class ScanJob {
 		 *
 		 * @param int $post_id The processed post ID.
 		 */
-		\do_action( 'flc/scan/post_processed', $post->ID );
+		\do_action( 'slkc/scan/post_processed', $post->ID );
 	}
 
 	/**
@@ -232,7 +232,7 @@ class ScanJob {
 			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				\error_log( \sprintf(
-					'[FlavorLinkChecker] Low resources detected! Memory: %.2f MB / %.2f MB, Time: %.2f s. Pausing batch.',
+					'[SentinelLinkChecker] Low resources detected! Memory: %.2f MB / %.2f MB, Time: %.2f s. Pausing batch.',
 					$memory_usage / 1024 / 1024,
 					$limit_bytes / 1024 / 1024,
 					$time_elapsed
@@ -251,10 +251,10 @@ class ScanJob {
 	 * @param int $increment Number of posts processed to add to the total.
 	 */
 	private function update_progress( int $increment ): void {
-		$status = \get_transient( 'flc_scan_status' );
+		$status = \get_transient( 'slkc_scan_status' );
 		if ( \is_array( $status ) ) {
 			$status['scanned_posts'] = ( $status['scanned_posts'] ?? 0 ) + $increment;
-			\set_transient( 'flc_scan_status', $status, \HOUR_IN_SECONDS );
+			\set_transient( 'slkc_scan_status', $status, \HOUR_IN_SECONDS );
 		}
 	}
 }

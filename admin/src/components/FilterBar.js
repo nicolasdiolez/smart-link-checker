@@ -18,7 +18,7 @@ const QUICK_FILTERS = [
 
 const FilterBar = ( { currentStatus, onStatusChange } ) => {
 	return (
-		<div className="flc-filter-bar">
+		<div className="slkc-filter-bar">
 			<ButtonGroup>
 				{ QUICK_FILTERS.map( ( filter ) => (
 					<Button

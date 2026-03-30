@@ -29,33 +29,33 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-define( 'FLC_VERSION', '1.0.0' );
+define( 'SLKC_VERSION', '1.0.0' );
 
 /**
  * Path to the main plugin file.
  *
  * @since 1.0.0
  */
-define( 'FLC_PLUGIN_FILE', __FILE__ );
+define( 'SLKC_PLUGIN_FILE', __FILE__ );
 
 /**
  * Plugin directory path with trailing slash.
  *
  * @since 1.0.0
  */
-define( 'FLC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'SLKC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
  * Plugin directory URL with trailing slash.
  *
  * @since 1.0.0
  */
-define( 'FLC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'SLKC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 /*
  * Composer autoloader.
  */
-if ( ! file_exists( FLC_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+if ( ! file_exists( SLKC_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 	add_action(
 		'admin_notices',
 		static function (): void {
@@ -67,13 +67,13 @@ if ( ! file_exists( FLC_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 	return;
 }
 
-require_once FLC_PLUGIN_DIR . 'vendor/autoload.php';
+require_once SLKC_PLUGIN_DIR . 'vendor/autoload.php';
 
 /*
  * Action Scheduler.
  */
-if ( file_exists( FLC_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
-	require_once FLC_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
+if ( file_exists( SLKC_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
+	require_once SLKC_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
 }
 
 /*

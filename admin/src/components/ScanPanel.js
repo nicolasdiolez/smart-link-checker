@@ -81,8 +81,8 @@ const ScanPanel = () => {
 	}
 
 	return (
-		<div className="flc-scan-panel">
-			<div className="flc-scan-panel__controls">
+		<div className="slkc-scan-panel">
+			<div className="slkc-scan-panel__controls">
 				{!isRunning ? (
 					<>
 						<Button
@@ -98,7 +98,7 @@ const ScanPanel = () => {
 							onClick={handleStart('delta')}
 							isBusy={scanLoading}
 							disabled={scanLoading}
-							className="flc-scan-panel__delta-btn"
+							className="slkc-scan-panel__delta-btn"
 						>
 							{__('Delta Scan', 'sentinel-link-checker')}
 						</Button>
@@ -134,9 +134,9 @@ const ScanPanel = () => {
 			</div>
 
 			{isRunning && (
-				<div className="flc-scan-panel__progress" aria-label={ __( 'Scan progress details', 'sentinel-link-checker' ) }>
+				<div className="slkc-scan-panel__progress" aria-label={ __( 'Scan progress details', 'sentinel-link-checker' ) }>
 					<div
-						className="flc-progress-bar"
+						className="slkc-progress-bar"
 						role="progressbar"
 						aria-valuenow={ progress }
 						aria-valuemin={ 0 }
@@ -144,11 +144,11 @@ const ScanPanel = () => {
 						aria-label={ __( 'Scan progress', 'sentinel-link-checker' ) }
 					>
 						<div
-							className="flc-progress-bar__fill"
+							className="slkc-progress-bar__fill"
 							style={{ width: `${progress}%` }}
 						/>
 					</div>
-					<span className="flc-scan-panel__status">
+					<span className="slkc-scan-panel__status">
 						{phase === 'checking'
 							? sprintf(
 								/* translators: 1: checked links, 2: total links, 3: progress percentage. */
@@ -175,7 +175,7 @@ const ScanPanel = () => {
 			)}
 
 			{scanStatus?.status === 'complete' && (
-				<p className="flc-scan-panel__complete">
+				<p className="slkc-scan-panel__complete">
 					{sprintf(
 						/* translators: 1: total links, 2: ok count, 3: broken count, 4: redirects, 5: errors. */
 						__(
@@ -194,7 +194,7 @@ const ScanPanel = () => {
 						href="https://wordpress.org/support/plugin/sentinel-link-checker/reviews/#new-post"
 						target="_blank"
 						rel="noopener noreferrer"
-						className="flc-scan-panel__review-link"
+						className="slkc-scan-panel__review-link"
 					>
 						{__( 'Enjoying the plugin? Please leave a 5-star review!', 'sentinel-link-checker' )}
 					</a>
@@ -202,7 +202,7 @@ const ScanPanel = () => {
 			)}
 
 			{!isRunning && (
-				<p className="flc-scan-panel__help">
+				<p className="slkc-scan-panel__help">
 					{__('Delta Scan only checks posts modified since the last successful scan.', 'sentinel-link-checker')}
 				</p>
 			)}

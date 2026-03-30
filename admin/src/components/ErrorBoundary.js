@@ -37,7 +37,7 @@ class ErrorBoundary extends Component {
 	render() {
 		if ( this.state.hasError ) {
 			return (
-				<div className="flc-error-boundary">
+				<div className="slkc-error-boundary">
 					<Notice status="error" isDismissible={ false }>
 						<p>
 							<strong>

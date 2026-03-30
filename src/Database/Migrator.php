@@ -29,7 +29,7 @@ class Migrator {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-		$sql_links = "CREATE TABLE {$wpdb->prefix}flc_links (
+		$sql_links = "CREATE TABLE {$wpdb->prefix}slkc_links (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			url text NOT NULL,
 			url_hash char(64) NOT NULL,
@@ -56,7 +56,7 @@ class Migrator {
 		KEY idx_redirect_count (redirect_count)
 		) {$charset_collate};";
 
-		$sql_instances = "CREATE TABLE {$wpdb->prefix}flc_instances (
+		$sql_instances = "CREATE TABLE {$wpdb->prefix}slkc_instances (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			link_id bigint(20) unsigned NOT NULL,
 			post_id bigint(20) unsigned NOT NULL,
@@ -82,7 +82,7 @@ class Migrator {
 		dbDelta( $sql_links );
 		dbDelta( $sql_instances );
 
-		update_option( 'flc_db_version', FLC_VERSION );
+		update_option( 'slkc_db_version', SLKC_VERSION );
 	}
 
 	/**
@@ -94,8 +94,8 @@ class Migrator {
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}flc_instances" );
+		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}slkc_instances" );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}flc_links" );
+		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}slkc_links" );
 	}
 }

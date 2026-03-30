@@ -13,7 +13,7 @@ namespace FlavorLinkChecker\Models;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Immutable DTO representing a row in the flc_instances table.
+ * Immutable DTO representing a row in the slkc_instances table.
  *
  * Each instance tracks one occurrence of a link within a specific post.
  *
@@ -27,7 +27,7 @@ readonly class LinkInstance {
 	 * @since 1.0.0
 	 *
 	 * @param int                $id            Instance ID.
-	 * @param int                $link_id       FK to flc_links.id.
+	 * @param int                $link_id       FK to slkc_links.id.
 	 * @param int                $post_id       WordPress post ID.
 	 * @param string             $source_type   Where the link was found (post_content, post_excerpt, custom_field, block_attribute).
 	 * @param string|null        $anchor_text   Visible link text.
