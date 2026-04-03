@@ -2,13 +2,13 @@
 /**
  * Link status categories.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Models\Enums;
+namespace MuriLinkTracker\Models\Enums;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -54,13 +54,13 @@ enum LinkStatus: string {
 	 */
 	public function label(): string {
 		return match ( $this ) {
-			self::Pending  => __( 'Pending', 'sentinel-link-checker' ),
-			self::Ok       => __( 'OK', 'sentinel-link-checker' ),
-			self::Redirect => __( 'Redirect', 'sentinel-link-checker' ),
-			self::Broken   => __( 'Broken', 'sentinel-link-checker' ),
-			self::Error    => __( 'Error', 'sentinel-link-checker' ),
-			self::Timeout  => __( 'Timeout', 'sentinel-link-checker' ),
-			self::Skipped  => __( 'Skipped', 'sentinel-link-checker' ),
+			self::Pending  => __( 'Pending', 'muri-link-tracker' ),
+			self::Ok       => __( 'OK', 'muri-link-tracker' ),
+			self::Redirect => __( 'Redirect', 'muri-link-tracker' ),
+			self::Broken   => __( 'Broken', 'muri-link-tracker' ),
+			self::Error    => __( 'Error', 'muri-link-tracker' ),
+			self::Timeout  => __( 'Timeout', 'muri-link-tracker' ),
+			self::Skipped  => __( 'Skipped', 'muri-link-tracker' ),
 		};
 	}
 }

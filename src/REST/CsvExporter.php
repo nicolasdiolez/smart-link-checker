@@ -2,19 +2,19 @@
 /**
  * CSV exporter for link data.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\REST;
+namespace MuriLinkTracker\REST;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Database\InstancesRepository;
-use FlavorLinkChecker\Database\QueryBuilder;
-use FlavorLinkChecker\Models\Link;
+use MuriLinkTracker\Database\InstancesRepository;
+use MuriLinkTracker\Database\QueryBuilder;
+use MuriLinkTracker\Models\Link;
 
 /**
  * Generates and streams a CSV file from the link database.
@@ -46,20 +46,20 @@ class CsvExporter {
 		fputcsv(
 			$csv,
 			array(
-				__( 'ID', 'sentinel-link-checker' ),
-				__( 'URL', 'sentinel-link-checker' ),
-				__( 'Final URL', 'sentinel-link-checker' ),
-				__( 'HTTP Status', 'sentinel-link-checker' ),
-				__( 'Status', 'sentinel-link-checker' ),
-				__( 'Type', 'sentinel-link-checker' ),
-				__( 'Affiliate', 'sentinel-link-checker' ),
-				__( 'Network', 'sentinel-link-checker' ),
-				__( 'Cloaked', 'sentinel-link-checker' ),
-				__( 'Redirect Count', 'sentinel-link-checker' ),
-				__( 'Response Time (ms)', 'sentinel-link-checker' ),
-				__( 'Instances', 'sentinel-link-checker' ),
-				__( 'Last Checked', 'sentinel-link-checker' ),
-				__( 'Last Error', 'sentinel-link-checker' ),
+				__( 'ID', 'muri-link-tracker' ),
+				__( 'URL', 'muri-link-tracker' ),
+				__( 'Final URL', 'muri-link-tracker' ),
+				__( 'HTTP Status', 'muri-link-tracker' ),
+				__( 'Status', 'muri-link-tracker' ),
+				__( 'Type', 'muri-link-tracker' ),
+				__( 'Affiliate', 'muri-link-tracker' ),
+				__( 'Network', 'muri-link-tracker' ),
+				__( 'Cloaked', 'muri-link-tracker' ),
+				__( 'Redirect Count', 'muri-link-tracker' ),
+				__( 'Response Time (ms)', 'muri-link-tracker' ),
+				__( 'Instances', 'muri-link-tracker' ),
+				__( 'Last Checked', 'muri-link-tracker' ),
+				__( 'Last Error', 'muri-link-tracker' ),
 			)
 		);
 
@@ -86,10 +86,10 @@ class CsvExporter {
 						$this->sanitize_csv_value( $link->final_url ?? '' ),
 						$link->http_status ?? '',
 						$link->status_category->value,
-						$link->is_external ? __( 'external', 'sentinel-link-checker' ) : __( 'internal', 'sentinel-link-checker' ),
-						$link->is_affiliate ? __( 'yes', 'sentinel-link-checker' ) : __( 'no', 'sentinel-link-checker' ),
+						$link->is_external ? __( 'external', 'muri-link-tracker' ) : __( 'internal', 'muri-link-tracker' ),
+						$link->is_affiliate ? __( 'yes', 'muri-link-tracker' ) : __( 'no', 'muri-link-tracker' ),
 						$this->sanitize_csv_value( $link->affiliate_network ?? '' ),
-						$is_cloaked ? __( 'yes', 'sentinel-link-checker' ) : __( 'no', 'sentinel-link-checker' ),
+						$is_cloaked ? __( 'yes', 'muri-link-tracker' ) : __( 'no', 'muri-link-tracker' ),
 						$link->redirect_count,
 						$link->response_time ?? '',
 						$instance_counts[ $link->id ] ?? 0,

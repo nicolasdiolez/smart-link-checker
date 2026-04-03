@@ -2,17 +2,17 @@
 /**
  * Gutenberg block parser for link extraction.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Scanner;
+namespace MuriLinkTracker\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Models\ScanResult;
+use MuriLinkTracker\Models\ScanResult;
 
 /**
  * Extracts links from Gutenberg blocks recursively.
@@ -130,6 +130,6 @@ class BlockParser {
 		 *
 		 * @param array<string, string[]> $defaults Block name => attribute names.
 		 */
-		return apply_filters( 'slkc/scanner/block_url_attributes', $defaults );
+		return apply_filters( 'mltr/scanner/block_url_attributes', $defaults );
 	}
 }

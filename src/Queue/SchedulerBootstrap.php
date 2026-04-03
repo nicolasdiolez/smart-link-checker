@@ -2,13 +2,13 @@
 /**
  * Action Scheduler bootstrap and helpers.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Queue;
+namespace MuriLinkTracker\Queue;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,7 +26,7 @@ class SchedulerBootstrap {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	public const GROUP = 'sentinel-link-checker';
+	public const GROUP = 'muri-link-tracker';
 
 	/**
 	 * Action hook for processing a batch of posts (link extraction).
@@ -34,7 +34,7 @@ class SchedulerBootstrap {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	public const SCAN_BATCH_HOOK = 'slkc/scan/process_batch';
+	public const SCAN_BATCH_HOOK = 'mltr/scan/process_batch';
 
 	/**
 	 * Action hook for processing a batch of links (HTTP checks).
@@ -42,7 +42,7 @@ class SchedulerBootstrap {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	public const CHECK_BATCH_HOOK = 'slkc/check/process_batch';
+	public const CHECK_BATCH_HOOK = 'mltr/check/process_batch';
 
 	/**
 	 * Action hook for the daily recheck of stale links.
@@ -50,7 +50,7 @@ class SchedulerBootstrap {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	public const RECHECK_DAILY_HOOK = 'slkc/recheck/daily';
+	public const RECHECK_DAILY_HOOK = 'mltr/recheck/daily';
 
 	/**
 	 * Action hook for periodic maintenance (orphan cleanup).
@@ -58,7 +58,7 @@ class SchedulerBootstrap {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	public const CLEANUP_HOOK = 'slkc/maintenance/cleanup';
+	public const CLEANUP_HOOK = 'mltr/maintenance/cleanup';
 
 	/**
 	 * Checks if Action Scheduler is available.
@@ -82,7 +82,7 @@ class SchedulerBootstrap {
 		if ( ! self::is_available() ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( '[SentinelLinkChecker] enqueue_scan_batch: Action Scheduler not available.' );
+				error_log( '[MuriLinkTracker] enqueue_scan_batch: Action Scheduler not available.' );
 			}
 			return 0;
 		}
@@ -96,7 +96,7 @@ class SchedulerBootstrap {
 		if ( 0 === $action_id ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( "[SentinelLinkChecker] enqueue_scan_batch: as_enqueue_async_action returned 0 for batch {$batch_id}." );
+				error_log( "[MuriLinkTracker] enqueue_scan_batch: as_enqueue_async_action returned 0 for batch {$batch_id}." );
 			}
 		}
 
@@ -114,7 +114,7 @@ class SchedulerBootstrap {
 		if ( ! self::is_available() ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( '[SentinelLinkChecker] enqueue_check_batch: Action Scheduler not available.' );
+				error_log( '[MuriLinkTracker] enqueue_check_batch: Action Scheduler not available.' );
 			}
 			return 0;
 		}
@@ -128,7 +128,7 @@ class SchedulerBootstrap {
 		if ( 0 === $action_id ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( '[SentinelLinkChecker] enqueue_check_batch: as_enqueue_async_action returned 0.' );
+				error_log( '[MuriLinkTracker] enqueue_check_batch: as_enqueue_async_action returned 0.' );
 			}
 		}
 
@@ -256,7 +256,7 @@ class SchedulerBootstrap {
 			return;
 		}
 
-		\ActionScheduler_QueueRunner::instance()->run( 'SLKC Status Poll' );
+		\ActionScheduler_QueueRunner::instance()->run( 'MLTR Status Poll' );
 	}
 
 	/**

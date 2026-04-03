@@ -2,18 +2,18 @@
 /**
  * REST controller for scan endpoints.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\REST;
+namespace MuriLinkTracker\REST;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Queue\BatchOrchestrator;
-use FlavorLinkChecker\Queue\SchedulerBootstrap;
+use MuriLinkTracker\Queue\BatchOrchestrator;
+use MuriLinkTracker\Queue\SchedulerBootstrap;
 
 /**
  * Handles REST API endpoints for scan lifecycle (start, status, cancel).
@@ -28,7 +28,7 @@ class ScanController extends \WP_REST_Controller {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	protected $namespace = 'sentinel-link-checker/v1';
+	protected $namespace = 'muri-link-tracker/v1';
 
 	/**
 	 * REST base route.
@@ -161,12 +161,12 @@ array(
 	 * @return \WP_Error|null WP_Error if rate-limited, null if OK.
 	 */
 	private function check_rate_limit( string $action ): ?\WP_Error {
-		$transient_key = 'slkc_rate_limit_' . $action;
+		$transient_key = 'mltr_rate_limit_' . $action;
 
 		if ( false !== \get_transient( $transient_key ) ) {
 			return new \WP_Error(
-				'slkc_rate_limited',
-				\__( 'Please wait a few seconds before trying again.', 'sentinel-link-checker' ),
+				'mltr_rate_limited',
+				\__( 'Please wait a few seconds before trying again.', 'muri-link-tracker' ),
 				array( 'status' => 429 )
 			);
 		}
@@ -196,8 +196,8 @@ array(
 
 		if ( 'running' === $current_status['status'] ) {
 			return new \WP_Error(
-				'slkc_scan_already_running',
-				\__( 'A scan is already in progress.', 'sentinel-link-checker' ),
+				'mltr_scan_already_running',
+				\__( 'A scan is already in progress.', 'muri-link-tracker' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -262,8 +262,8 @@ array(
 
 		if ( ! $resumed ) {
 			return new \WP_Error(
-				'slkc_scan_cannot_resume',
-				\__( 'Scan cannot be resumed. It may have already finished or was never started.', 'sentinel-link-checker' ),
+				'mltr_scan_cannot_resume',
+				\__( 'Scan cannot be resumed. It may have already finished or was never started.', 'muri-link-tracker' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -302,7 +302,7 @@ array(
 		return new \WP_REST_Response(
 			array(
 				'scan_status'  => $this->orchestrator->get_status(),
-				'diagnostics'  => \FlavorLinkChecker\Queue\SchedulerBootstrap::get_diagnostics(),
+				'diagnostics'  => \MuriLinkTracker\Queue\SchedulerBootstrap::get_diagnostics(),
 				'php_version'  => \PHP_VERSION,
 				'wp_version'   => \get_bloginfo( 'version' ),
 				'memory_limit' => \defined( 'WP_MEMORY_LIMIT' ) ? \WP_MEMORY_LIMIT : \ini_get( 'memory_limit' ),

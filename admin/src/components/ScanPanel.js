@@ -81,8 +81,8 @@ const ScanPanel = () => {
 	}
 
 	return (
-		<div className="slkc-scan-panel">
-			<div className="slkc-scan-panel__controls">
+		<div className="mltr-scan-panel">
+			<div className="mltr-scan-panel__controls">
 				{!isRunning ? (
 					<>
 						<Button
@@ -91,16 +91,16 @@ const ScanPanel = () => {
 							isBusy={scanLoading}
 							disabled={scanLoading}
 						>
-							{__('Full Scan', 'sentinel-link-checker')}
+							{__('Full Scan', 'muri-link-tracker')}
 						</Button>
 						<Button
 							variant="secondary"
 							onClick={handleStart('delta')}
 							isBusy={scanLoading}
 							disabled={scanLoading}
-							className="slkc-scan-panel__delta-btn"
+							className="mltr-scan-panel__delta-btn"
 						>
-							{__('Delta Scan', 'sentinel-link-checker')}
+							{__('Delta Scan', 'muri-link-tracker')}
 						</Button>
 						{scanStatus?.status === 'cancelled' && (
 							<Button
@@ -109,7 +109,7 @@ const ScanPanel = () => {
 								isBusy={scanLoading}
 								disabled={scanLoading}
 							>
-								{__('Resume Scan', 'sentinel-link-checker')}
+								{__('Resume Scan', 'muri-link-tracker')}
 							</Button>
 						)}
 						<Button
@@ -119,7 +119,7 @@ const ScanPanel = () => {
 							isBusy={scanLoading}
 							disabled={scanLoading}
 						>
-							{__('Reset Data', 'sentinel-link-checker')}
+							{__('Reset Data', 'muri-link-tracker')}
 						</Button>
 					</>
 				) : (
@@ -128,33 +128,33 @@ const ScanPanel = () => {
 						isDestructive
 						onClick={cancelScan}
 					>
-						{__('Cancel Scan', 'sentinel-link-checker')}
+						{__('Cancel Scan', 'muri-link-tracker')}
 					</Button>
 				)}
 			</div>
 
 			{isRunning && (
-				<div className="slkc-scan-panel__progress" aria-label={ __( 'Scan progress details', 'sentinel-link-checker' ) }>
+				<div className="mltr-scan-panel__progress" aria-label={ __( 'Scan progress details', 'muri-link-tracker' ) }>
 					<div
-						className="slkc-progress-bar"
+						className="mltr-progress-bar"
 						role="progressbar"
 						aria-valuenow={ progress }
 						aria-valuemin={ 0 }
 						aria-valuemax={ 100 }
-						aria-label={ __( 'Scan progress', 'sentinel-link-checker' ) }
+						aria-label={ __( 'Scan progress', 'muri-link-tracker' ) }
 					>
 						<div
-							className="slkc-progress-bar__fill"
+							className="mltr-progress-bar__fill"
 							style={{ width: `${progress}%` }}
 						/>
 					</div>
-					<span className="slkc-scan-panel__status">
+					<span className="mltr-scan-panel__status">
 						{phase === 'checking'
 							? sprintf(
 								/* translators: 1: checked links, 2: total links, 3: progress percentage. */
 								__(
 									'Checking links: %1$d / %2$d (%3$d%%)',
-									'sentinel-link-checker'
+									'muri-link-tracker'
 								),
 								scanStatus.checked_links,
 								scanStatus.total_links,
@@ -164,7 +164,7 @@ const ScanPanel = () => {
 								/* translators: 1: scanned posts, 2: total posts, 3: progress percentage. */
 								__(
 									'Scanning posts: %1$d / %2$d (%3$d%%)',
-									'sentinel-link-checker'
+									'muri-link-tracker'
 								),
 								scanStatus.scanned_posts,
 								scanStatus.total_posts,
@@ -175,12 +175,12 @@ const ScanPanel = () => {
 			)}
 
 			{scanStatus?.status === 'complete' && (
-				<p className="slkc-scan-panel__complete">
+				<p className="mltr-scan-panel__complete">
 					{sprintf(
 						/* translators: 1: total links, 2: ok count, 3: broken count, 4: redirects, 5: errors. */
 						__(
 							'Scan complete — %1$d links checked: %2$d OK, %3$d redirects, %4$d broken, %5$d errors.',
-							'sentinel-link-checker'
+							'muri-link-tracker'
 						),
 						scanStatus.total_links || 0,
 						scanStatus.ok_count || 0,
@@ -191,19 +191,19 @@ const ScanPanel = () => {
 							( scanStatus.skipped_count || 0 )
 					)}
 					<a
-						href="https://wordpress.org/support/plugin/sentinel-link-checker/reviews/#new-post"
+						href="https://wordpress.org/support/plugin/muri-link-tracker/reviews/#new-post"
 						target="_blank"
 						rel="noopener noreferrer"
-						className="slkc-scan-panel__review-link"
+						className="mltr-scan-panel__review-link"
 					>
-						{__( 'Enjoying the plugin? Please leave a 5-star review!', 'sentinel-link-checker' )}
+						{__( 'Enjoying the plugin? Please leave a 5-star review!', 'muri-link-tracker' )}
 					</a>
 				</p>
 			)}
 
 			{!isRunning && (
-				<p className="slkc-scan-panel__help">
-					{__('Delta Scan only checks posts modified since the last successful scan.', 'sentinel-link-checker')}
+				<p className="mltr-scan-panel__help">
+					{__('Delta Scan only checks posts modified since the last successful scan.', 'muri-link-tracker')}
 				</p>
 			)}
 		{ isResetConfirmOpen && (
@@ -211,7 +211,7 @@ const ScanPanel = () => {
 					onConfirm={ handleResetConfirm }
 					onCancel={ handleResetCancel }
 				>
-					{ __( 'Are you sure you want to reset all scan data? This will clear all links found so far.', 'sentinel-link-checker' ) }
+					{ __( 'Are you sure you want to reset all scan data? This will clear all links found so far.', 'muri-link-tracker' ) }
 				</ConfirmDialog>
 			) }
 		</div>

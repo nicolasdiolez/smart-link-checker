@@ -4,7 +4,7 @@
  *
  * Drops all custom tables, deletes options, and clears scheduled actions.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
@@ -17,19 +17,19 @@ require_once __DIR__ . '/vendor/autoload.php';
 /*
  * Drop custom database tables.
  */
-( new \FlavorLinkChecker\Database\Migrator() )->drop_tables();
+( new \MuriLinkTracker\Database\Migrator() )->drop_tables();
 
 /*
  * Delete plugin options.
  */
-delete_option( 'slkc_db_version' );
-delete_option( 'slkc_settings' );
+delete_option( 'mltr_db_version' );
+delete_option( 'mltr_settings' );
 
 /*
  * Unschedule all Action Scheduler actions.
  */
 if ( function_exists( 'as_unschedule_all_actions' ) ) {
-	as_unschedule_all_actions( '', array(), 'sentinel-link-checker' );
+	as_unschedule_all_actions( '', array(), 'muri-link-tracker' );
 }
 
 /*
@@ -40,8 +40,8 @@ global $wpdb;
 $wpdb->query(
 	$wpdb->prepare(
 		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-		$wpdb->esc_like( '_transient_slkc_' ) . '%',
-		$wpdb->esc_like( '_transient_timeout_slkc_' ) . '%'
+		$wpdb->esc_like( '_transient_mltr_' ) . '%',
+		$wpdb->esc_like( '_transient_timeout_mltr_' ) . '%'
 	)
 );
-delete_option( 'slkc_last_scan_date' );
+delete_option( 'mltr_last_scan_date' );

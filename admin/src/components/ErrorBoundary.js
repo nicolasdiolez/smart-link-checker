@@ -1,7 +1,7 @@
 /**
  * ErrorBoundary component — Catches React rendering errors and shows a recovery UI.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
@@ -27,7 +27,7 @@ class ErrorBoundary extends Component {
 
 	componentDidCatch( error, errorInfo ) {
 		// eslint-disable-next-line no-console
-		console.error( '[SentinelLinkChecker] UI Error:', error, errorInfo );
+		console.error( '[MuriLinkTracker] UI Error:', error, errorInfo );
 	}
 
 	handleReload = () => {
@@ -37,20 +37,20 @@ class ErrorBoundary extends Component {
 	render() {
 		if ( this.state.hasError ) {
 			return (
-				<div className="slkc-error-boundary">
+				<div className="mltr-error-boundary">
 					<Notice status="error" isDismissible={ false }>
 						<p>
 							<strong>
 								{ __(
 									'Something went wrong.',
-									'sentinel-link-checker'
+									'muri-link-tracker'
 								) }
 							</strong>
 						</p>
 						<p>
 							{ __(
 								'An unexpected error occurred in the plugin interface. Please try reloading.',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							) }
 						</p>
 						{ this.state.error && (
@@ -58,7 +58,7 @@ class ErrorBoundary extends Component {
 								<summary>
 									{ __(
 										'Error details',
-										'sentinel-link-checker'
+										'muri-link-tracker'
 									) }
 								</summary>
 								<pre
@@ -75,7 +75,7 @@ class ErrorBoundary extends Component {
 					</Notice>
 					<div style={ { marginTop: '12px' } }>
 						<Button variant="primary" onClick={ this.handleReload }>
-							{ __( 'Try Again', 'sentinel-link-checker' ) }
+							{ __( 'Try Again', 'muri-link-tracker' ) }
 						</Button>
 					</div>
 				</div>

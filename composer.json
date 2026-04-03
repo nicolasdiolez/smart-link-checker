@@ -1,5 +1,5 @@
 {
-    "name": "nicolasdiolez/sentinel-link-checker",
+    "name": "nicolasdiolez/muri-link-tracker",
     "description": "A high-performance link checker for WordPress with affiliate detection.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
@@ -24,12 +24,12 @@
     },
     "autoload": {
         "psr-4": {
-            "FlavorLinkChecker\\": "src/"
+            "MuriLinkTracker\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "FlavorLinkChecker\\Tests\\": "tests/php/"
+            "MuriLinkTracker\\Tests\\": "tests/php/"
         }
     },
     "config": {

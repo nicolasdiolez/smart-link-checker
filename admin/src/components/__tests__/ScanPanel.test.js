@@ -55,7 +55,7 @@ jest.mock('@wordpress/components', () => ({
 	),
 }));
 
-jest.mock('../../store', () => ({ STORE_NAME: 'sentinel-link-checker' }));
+jest.mock('../../store', () => ({ STORE_NAME: 'muri-link-tracker' }));
 
 describe('ScanPanel', () => {
 	beforeEach(() => {
@@ -136,7 +136,7 @@ describe('ScanPanel', () => {
 
 		const { container } = render(<ScanPanel />);
 
-		const fill = container.querySelector('.slkc-progress-bar__fill');
+		const fill = container.querySelector('.mltr-progress-bar__fill');
 		expect(fill).toBeInTheDocument();
 		expect(fill.style.width).toBe('50%');
 	});

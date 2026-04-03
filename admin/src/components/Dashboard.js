@@ -24,31 +24,31 @@ const Dashboard = () => {
 	const overviewCards = [
 		{
 			key: 'total',
-			label: __( 'Total Links', 'sentinel-link-checker' ),
+			label: __( 'Total Links', 'muri-link-tracker' ),
 			value: scanStatus?.total_links ?? stats?.byCategory?.total ?? '—',
 			className: '',
 		},
 		{
 			key: 'ok',
-			label: __( 'OK Links', 'sentinel-link-checker' ),
+			label: __( 'OK Links', 'muri-link-tracker' ),
 			value: scanStatus?.ok_count ?? stats?.byCategory?.ok_count ?? '—',
-			className: 'slkc-summary-card--ok',
+			className: 'mltr-summary-card--ok',
 		},
 		{
 			key: 'redirects',
-			label: __( 'Redirects', 'sentinel-link-checker' ),
+			label: __( 'Redirects', 'muri-link-tracker' ),
 			value: scanStatus?.redirect_count ?? stats?.byCategory?.redirect_count ?? '—',
-			className: 'slkc-summary-card--redirect',
+			className: 'mltr-summary-card--redirect',
 		},
 		{
 			key: 'broken',
-			label: __( 'Broken', 'sentinel-link-checker' ),
+			label: __( 'Broken', 'muri-link-tracker' ),
 			value: scanStatus?.broken_count ?? stats?.byCategory?.broken_count ?? '—',
-			className: 'slkc-summary-card--broken',
+			className: 'mltr-summary-card--broken',
 		},
 		{
 			key: 'errors',
-			label: __( 'Errors', 'sentinel-link-checker' ),
+			label: __( 'Errors', 'muri-link-tracker' ),
 			value:
 				( scanStatus?.error_count ?? 0 ) +
 					( scanStatus?.timeout_count ?? 0 ) +
@@ -57,11 +57,11 @@ const Dashboard = () => {
 					( stats?.byCategory?.timeout_count ?? 0 ) +
 					( stats?.byCategory?.skipped_count ?? 0 ) ||
 				0,
-			className: 'slkc-summary-card--broken',
+			className: 'mltr-summary-card--broken',
 		},
 		{
 			key: 'checked',
-			label: __( 'Checked', 'sentinel-link-checker' ),
+			label: __( 'Checked', 'muri-link-tracker' ),
 			value: scanStatus?.checked_links ?? (stats?.byCategory ? (stats.byCategory.total - stats.byCategory.pending_count) : '—'),
 			className: '',
 		},
@@ -72,27 +72,27 @@ const Dashboard = () => {
 		? [
 				{
 					key: 'internal',
-					label: __( 'Internal', 'sentinel-link-checker' ),
+					label: __( 'Internal', 'muri-link-tracker' ),
 					value: byCategory.internal_count ?? 0,
-					className: 'slkc-summary-card--internal',
+					className: 'mltr-summary-card--internal',
 				},
 				{
 					key: 'external',
-					label: __( 'External', 'sentinel-link-checker' ),
+					label: __( 'External', 'muri-link-tracker' ),
 					value: byCategory.external_count ?? 0,
-					className: 'slkc-summary-card--external',
+					className: 'mltr-summary-card--external',
 				},
 				{
 					key: 'affiliate',
-					label: __( 'Affiliate', 'sentinel-link-checker' ),
+					label: __( 'Affiliate', 'muri-link-tracker' ),
 					value: byCategory.affiliate_count ?? 0,
-					className: 'slkc-summary-card--affiliate',
+					className: 'mltr-summary-card--affiliate',
 				},
 				{
 					key: 'cloaked',
-					label: __( 'Cloaked', 'sentinel-link-checker' ),
+					label: __( 'Cloaked', 'muri-link-tracker' ),
 					value: byCategory.cloaked_count ?? 0,
-					className: 'slkc-summary-card--cloaked',
+					className: 'mltr-summary-card--cloaked',
 				},
 		  ]
 		: null;
@@ -103,7 +103,7 @@ const Dashboard = () => {
 				key: network,
 				label: network.charAt( 0 ).toUpperCase() + network.slice( 1 ),
 				value: count,
-				className: 'slkc-summary-card--affiliate',
+				className: 'mltr-summary-card--affiliate',
 		  } ) )
 		: null;
 
@@ -111,40 +111,40 @@ const Dashboard = () => {
 		? [
 				{
 					key: 'single-redirect',
-					label: __( 'Single (1 hop)', 'sentinel-link-checker' ),
+					label: __( 'Single (1 hop)', 'muri-link-tracker' ),
 					value: byCategory.single_redirect_count ?? 0,
-					className: 'slkc-summary-card--redirect',
+					className: 'mltr-summary-card--redirect',
 				},
 				{
 					key: 'chain-redirect',
-					label: __( 'Chains (2+)', 'sentinel-link-checker' ),
+					label: __( 'Chains (2+)', 'muri-link-tracker' ),
 					value: byCategory.chain_redirect_count ?? 0,
-					className: 'slkc-summary-card--redirect',
+					className: 'mltr-summary-card--redirect',
 				},
 				{
 					key: 'loop-redirect',
-					label: __( 'Loops', 'sentinel-link-checker' ),
+					label: __( 'Loops', 'muri-link-tracker' ),
 					value: byCategory.loop_count ?? 0,
-					className: 'slkc-summary-card--broken',
+					className: 'mltr-summary-card--broken',
 				},
 		  ]
 		: null;
 
 	return (
-		<div className="slkc-dashboard">
+		<div className="mltr-dashboard">
 			<ScanPanel />
 
-			<div className="slkc-summary-cards">
+			<div className="mltr-summary-cards">
 				{ overviewCards.map( ( card ) => (
 					<div
 						key={ card.key }
-						className={ `slkc-summary-card ${ card.className }` }
+						className={ `mltr-summary-card ${ card.className }` }
 						aria-label={ `${ card.label }: ${ card.value }` }
 					>
-						<span className="slkc-summary-card__value">
+						<span className="mltr-summary-card__value">
 							{ card.value }
 						</span>
-						<span className="slkc-summary-card__label">
+						<span className="mltr-summary-card__label">
 							{ card.label }
 						</span>
 					</div>
@@ -152,18 +152,18 @@ const Dashboard = () => {
 			</div>
 
 			{ typeCards && (
-				<div className="slkc-dashboard__section">
-					<h3>{ __( 'Link Types', 'sentinel-link-checker' ) }</h3>
-					<div className="slkc-summary-cards">
+				<div className="mltr-dashboard__section">
+					<h3>{ __( 'Link Types', 'muri-link-tracker' ) }</h3>
+					<div className="mltr-summary-cards">
 						{ typeCards.map( ( card ) => (
 							<div
 								key={ card.key }
-								className={ `slkc-summary-card ${ card.className }` }
+								className={ `mltr-summary-card ${ card.className }` }
 							>
-								<span className="slkc-summary-card__value">
+								<span className="mltr-summary-card__value">
 									{ card.value }
 								</span>
-								<span className="slkc-summary-card__label">
+								<span className="mltr-summary-card__label">
 									{ card.label }
 								</span>
 							</div>
@@ -173,20 +173,20 @@ const Dashboard = () => {
 			) }
 
 			{ networkCards && networkCards.length > 0 && (
-				<div className="slkc-dashboard__section">
+				<div className="mltr-dashboard__section">
 					<h3>
-						{ __( 'Affiliate Networks', 'sentinel-link-checker' ) }
+						{ __( 'Affiliate Networks', 'muri-link-tracker' ) }
 					</h3>
-					<div className="slkc-summary-cards">
+					<div className="mltr-summary-cards">
 						{ networkCards.map( ( card ) => (
 							<div
 								key={ card.key }
-								className={ `slkc-summary-card ${ card.className }` }
+								className={ `mltr-summary-card ${ card.className }` }
 							>
-								<span className="slkc-summary-card__value">
+								<span className="mltr-summary-card__value">
 									{ card.value }
 								</span>
-								<span className="slkc-summary-card__label">
+								<span className="mltr-summary-card__label">
 									{ card.label }
 								</span>
 							</div>
@@ -196,18 +196,18 @@ const Dashboard = () => {
 			) }
 
 			{ redirectCards && (
-				<div className="slkc-dashboard__section">
-					<h3>{ __( 'Redirections', 'sentinel-link-checker' ) }</h3>
-					<div className="slkc-summary-cards">
+				<div className="mltr-dashboard__section">
+					<h3>{ __( 'Redirections', 'muri-link-tracker' ) }</h3>
+					<div className="mltr-summary-cards">
 						{ redirectCards.map( ( card ) => (
 							<div
 								key={ card.key }
-								className={ `slkc-summary-card ${ card.className }` }
+								className={ `mltr-summary-card ${ card.className }` }
 							>
-								<span className="slkc-summary-card__value">
+								<span className="mltr-summary-card__value">
 									{ card.value }
 								</span>
-								<span className="slkc-summary-card__label">
+								<span className="mltr-summary-card__label">
 									{ card.label }
 								</span>
 							</div>
@@ -216,28 +216,28 @@ const Dashboard = () => {
 				</div>
 			) }
 
-			<div className="slkc-dashboard__section slkc-dashboard__support">
-				<div className="slkc-support-card">
-					<div className="slkc-support-card__content">
-						<h3>{ __( 'Support & Feedback', 'sentinel-link-checker' ) }</h3>
-						<p>{ __( 'Are we missing a feature? Found a bug? Or just want to say thanks?', 'sentinel-link-checker' ) }</p>
+			<div className="mltr-dashboard__section mltr-dashboard__support">
+				<div className="mltr-support-card">
+					<div className="mltr-support-card__content">
+						<h3>{ __( 'Support & Feedback', 'muri-link-tracker' ) }</h3>
+						<p>{ __( 'Are we missing a feature? Found a bug? Or just want to say thanks?', 'muri-link-tracker' ) }</p>
 					</div>
-					<div className="slkc-support-card__actions">
+					<div className="mltr-support-card__actions">
 						<a 
-							href="https://wordpress.org/support/plugin/sentinel-link-checker/" 
+							href="https://wordpress.org/support/plugin/muri-link-tracker/" 
 							target="_blank" 
 							rel="noopener noreferrer"
 							className="button"
 						>
-							{ __( 'Get Support', 'sentinel-link-checker' ) }
+							{ __( 'Get Support', 'muri-link-tracker' ) }
 						</a>
 						<a 
-							href="https://wordpress.org/support/plugin/sentinel-link-checker/reviews/#new-post" 
+							href="https://wordpress.org/support/plugin/muri-link-tracker/reviews/#new-post" 
 							target="_blank" 
 							rel="noopener noreferrer"
 							className="button button-primary"
 						>
-							{ __( 'Leave a Review', 'sentinel-link-checker' ) }
+							{ __( 'Leave a Review', 'muri-link-tracker' ) }
 						</a>
 					</div>
 				</div>

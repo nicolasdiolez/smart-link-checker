@@ -2,13 +2,13 @@
 /**
  * Review notice logic for WordPress.org.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Admin;
+namespace MuriLinkTracker\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,21 +24,21 @@ class ReviewNotice {
 	 *
 	 * @since 1.0.0
 	 */
-	private const OPTION_FIRST_SCAN = 'slkc_first_scan_date';
+	private const OPTION_FIRST_SCAN = 'mltr_first_scan_date';
 
 	/**
 	 * Option key for notice dismissal.
 	 *
 	 * @since 1.0.0
 	 */
-	private const OPTION_DISMISSED = 'slkc_review_notice_dismissed';
+	private const OPTION_DISMISSED = 'mltr_review_notice_dismissed';
 
 	/**
 	 * Ajax action name for dismissal.
 	 *
 	 * @since 1.0.0
 	 */
-	private const AJAX_ACTION = 'slkc_dismiss_review_notice';
+	private const AJAX_ACTION = 'mltr_dismiss_review_notice';
 
 	/**
 	 * Registers WordPress hooks.
@@ -52,7 +52,7 @@ class ReviewNotice {
 		
 		// Track completion via scan controller/orchestrator would be ideal, 
 		// but we can also hook into flc/scan/complete.
-		\add_action( 'slkc/scan/complete', $this->track_scan_completion( ... ) );
+		\add_action( 'mltr/scan/complete', $this->track_scan_completion( ... ) );
 	}
 
 	/**
@@ -74,7 +74,7 @@ class ReviewNotice {
 	public function maybe_display_notice(): void {
 		// Do not show on the plugin's own page to avoid clutter.
 		$screen = \get_current_screen();
-		if ( $screen && 'toplevel_page_sentinel-link-checker' === $screen->id ) {
+		if ( $screen && 'toplevel_page_muri-link-tracker' === $screen->id ) {
 			return;
 		}
 
@@ -92,19 +92,19 @@ class ReviewNotice {
 			return;
 		}
 
-		$review_url = 'https://wordpress.org/support/plugin/sentinel-link-checker/reviews/#new-post';
+		$review_url = 'https://wordpress.org/support/plugin/muri-link-tracker/reviews/#new-post';
 		?>
-		<div id="slkc-review-notice" class="notice notice-info is-dismissible" style="position: relative;">
+		<div id="mltr-review-notice" class="notice notice-info is-dismissible" style="position: relative;">
 			<p>
-				<strong><?php \esc_html_e( 'How do you like Sentinel Link Checker?', 'sentinel-link-checker' ); ?></strong><br>
-				<?php \esc_html_e( 'We hope the plugin is helping you maintain a healthy site! If you have a moment, could you please leave us a 5-star rating on WordPress.org? It helps us a lot!', 'sentinel-link-checker' ); ?>
+				<strong><?php \esc_html_e( 'How do you like Muri Link Tracker?', 'muri-link-tracker' ); ?></strong><br>
+				<?php \esc_html_e( 'We hope the plugin is helping you maintain a healthy site! If you have a moment, could you please leave us a 5-star rating on WordPress.org? It helps us a lot!', 'muri-link-tracker' ); ?>
 			</p>
 			<p>
 				<a href="<?php echo \esc_url( $review_url ); ?>" class="button button-primary" target="_blank" rel="noopener noreferrer">
-					<?php \esc_html_e( 'Leave a Review', 'sentinel-link-checker' ); ?>
+					<?php \esc_html_e( 'Leave a Review', 'muri-link-tracker' ); ?>
 				</a>
-				<button type="button" class="button button-link slkc-dismiss-review" style="margin-left: 10px;">
-					<?php \esc_html_e( 'Maybe later', 'sentinel-link-checker' ); ?>
+				<button type="button" class="button button-link mltr-dismiss-review" style="margin-left: 10px;">
+					<?php \esc_html_e( 'Maybe later', 'muri-link-tracker' ); ?>
 				</button>
 			</p>
 		</div>
@@ -135,15 +135,15 @@ class ReviewNotice {
 
 		\wp_add_inline_script(
 			'common',
-			'var slkcReviewData = ' . \wp_json_encode(
+			'var mltrReviewData = ' . \wp_json_encode(
 				array(
 					'action' => self::AJAX_ACTION,
 					'nonce'  => \wp_create_nonce( self::AJAX_ACTION ),
 				)
 			) . ';'
-			. 'jQuery(document).on("click", "#slkc-review-notice .notice-dismiss, .slkc-dismiss-review", function() {'
-			. '    jQuery.post(ajaxurl, slkcReviewData);'
-			. '    jQuery("#slkc-review-notice").fadeOut();'
+			. 'jQuery(document).on("click", "#mltr-review-notice .notice-dismiss, .mltr-dismiss-review", function() {'
+			. '    jQuery.post(ajaxurl, mltrReviewData);'
+			. '    jQuery("#mltr-review-notice").fadeOut();'
 			. '});'
 		);
 	}

@@ -2,17 +2,17 @@
 /**
  * HTML content parser for link extraction.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Scanner;
+namespace MuriLinkTracker\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Models\ScanResult;
+use MuriLinkTracker\Models\ScanResult;
 
 /**
  * Extracts links from HTML content using DOMDocument.

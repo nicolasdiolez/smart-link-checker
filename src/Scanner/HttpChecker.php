@@ -2,17 +2,17 @@
 /**
  * HTTP link checker.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Scanner;
+namespace MuriLinkTracker\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Models\Enums\LinkStatus;
+use MuriLinkTracker\Models\Enums\LinkStatus;
 
 /**
  * Verifies the HTTP status of a URL using HEAD with GET fallback.
@@ -88,7 +88,7 @@ class HttpChecker {
 	) {
 		$this->timeout    = $timeout;
 		$this->site_url   = '' !== $site_url ? $site_url : \home_url();
-		$this->user_agent = 'Mozilla/5.0 (compatible; SentinelLinkChecker/' . SLKC_VERSION . '; +' . $this->site_url . ')';
+		$this->user_agent = 'Mozilla/5.0 (compatible; MuriLinkTracker/' . MLTR_VERSION . '; +' . $this->site_url . ')';
 	}
 
 	/**

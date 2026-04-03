@@ -2,8 +2,8 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Sentinel Link Checker 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/sentinel-link-checker\n"
+"Project-Id-Version: Muri Link Tracker 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/muri-link-tracker\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -12,43 +12,43 @@ msgstr ""
 "POT-Creation-Date: 2026-03-29T22:15:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: sentinel-link-checker\n"
+"X-Domain: muri-link-tracker\n"
 
 #. Plugin Name of the plugin
-#: sentinel-link-checker.php
+#: muri-link-tracker.php
 #: src/Admin/AdminPage.php:39
 #: src/Admin/AdminPage.php:40
 #: admin/src/App.js:54
 #: build/index.js:155
-msgid "Sentinel Link Checker"
+msgid "Muri Link Tracker"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: sentinel-link-checker.php
-msgid "https://github.com/nicolasdiolez/sentinel-link-checker"
+#: muri-link-tracker.php
+msgid "https://github.com/nicolasdiolez/muri-link-tracker"
 msgstr ""
 
 #. Description of the plugin
-#: sentinel-link-checker.php
+#: muri-link-tracker.php
 msgid "A high-performance link checker for WordPress with affiliate detection, redirect tracking, and background processing."
 msgstr ""
 
 #. Author of the plugin
-#: sentinel-link-checker.php
+#: muri-link-tracker.php
 msgid "Nicolas Diolez"
 msgstr ""
 
 #. Author URI of the plugin
-#: sentinel-link-checker.php
+#: muri-link-tracker.php
 msgid "https://nicolasdiolez.com"
 msgstr ""
 
-#: sentinel-link-checker.php:63
-msgid "Sentinel Link Checker: Composer autoloader not found. Please run \"composer install\" in the plugin directory."
+#: muri-link-tracker.php:63
+msgid "Muri Link Tracker: Composer autoloader not found. Please run \"composer install\" in the plugin directory."
 msgstr ""
 
 #: src/Admin/ReviewNotice.php:99
-msgid "How do you like Sentinel Link Checker?"
+msgid "How do you like Muri Link Tracker?"
 msgstr ""
 
 #: src/Admin/ReviewNotice.php:100

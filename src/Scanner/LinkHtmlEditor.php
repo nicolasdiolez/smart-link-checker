@@ -2,13 +2,13 @@
 /**
  * HTML link editor — modifies anchor tags within post content.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Scanner;
+namespace MuriLinkTracker\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 

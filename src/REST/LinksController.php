@@ -2,24 +2,24 @@
 /**
  * REST controller for link endpoints.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\REST;
+namespace MuriLinkTracker\REST;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Database\InstancesRepository;
-use FlavorLinkChecker\Database\LinksRepository;
-use FlavorLinkChecker\Database\QueryBuilder;
-use FlavorLinkChecker\Models\Enums\LinkStatus;
-use FlavorLinkChecker\Models\Link;
-use FlavorLinkChecker\Models\LinkInstance;
-use FlavorLinkChecker\Queue\SchedulerBootstrap;
-use FlavorLinkChecker\Scanner\LinkHtmlEditor;
+use MuriLinkTracker\Database\InstancesRepository;
+use MuriLinkTracker\Database\LinksRepository;
+use MuriLinkTracker\Database\QueryBuilder;
+use MuriLinkTracker\Models\Enums\LinkStatus;
+use MuriLinkTracker\Models\Link;
+use MuriLinkTracker\Models\LinkInstance;
+use MuriLinkTracker\Queue\SchedulerBootstrap;
+use MuriLinkTracker\Scanner\LinkHtmlEditor;
 
 /**
  * Handles REST API endpoints for links.
@@ -34,7 +34,7 @@ class LinksController extends \WP_REST_Controller {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	protected $namespace = 'sentinel-link-checker/v1';
+	protected $namespace = 'muri-link-tracker/v1';
 
 	/**
 	 * REST base route.
@@ -259,8 +259,8 @@ class LinksController extends \WP_REST_Controller {
 
 		if ( null === $link ) {
 			return new \WP_Error(
-				'slkc_link_not_found',
-				__( 'Link not found.', 'sentinel-link-checker' ),
+				'mltr_link_not_found',
+				__( 'Link not found.', 'muri-link-tracker' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -286,8 +286,8 @@ class LinksController extends \WP_REST_Controller {
 
 		if ( null === $link ) {
 			return new \WP_Error(
-				'slkc_link_not_found',
-				__( 'Link not found.', 'sentinel-link-checker' ),
+				'mltr_link_not_found',
+				__( 'Link not found.', 'muri-link-tracker' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -297,8 +297,8 @@ class LinksController extends \WP_REST_Controller {
 
 		if ( null === $new_url && null === $new_rel ) {
 			return new \WP_Error(
-				'slkc_nothing_to_update',
-				__( 'Provide at least url or rel to update.', 'sentinel-link-checker' ),
+				'mltr_nothing_to_update',
+				__( 'Provide at least url or rel to update.', 'muri-link-tracker' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -328,7 +328,7 @@ class LinksController extends \WP_REST_Controller {
 		// Update the link record in DB if URL changed.
 		if ( null !== $new_url && $new_url !== $link->url ) {
 			global $wpdb;
-			$links_table = $wpdb->prefix . 'slkc_links';
+			$links_table = $wpdb->prefix . 'mltr_links';
 			$new_hash    = hash( 'sha256', $new_url );
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -365,8 +365,8 @@ class LinksController extends \WP_REST_Controller {
 
 		if ( null === $link ) {
 			return new \WP_Error(
-				'slkc_link_not_found',
-				__( 'Link not found.', 'sentinel-link-checker' ),
+				'mltr_link_not_found',
+				__( 'Link not found.', 'muri-link-tracker' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -440,8 +440,8 @@ class LinksController extends \WP_REST_Controller {
 
 		if ( null === $link ) {
 			return new \WP_Error(
-				'slkc_link_not_found',
-				__( 'Link not found.', 'sentinel-link-checker' ),
+				'mltr_link_not_found',
+				__( 'Link not found.', 'muri-link-tracker' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -464,7 +464,7 @@ class LinksController extends \WP_REST_Controller {
 			array(
 				'id'      => $id,
 				'status'  => 'pending',
-				'message' => __( 'Link queued for re-checking.', 'sentinel-link-checker' ),
+				'message' => __( 'Link queued for re-checking.', 'muri-link-tracker' ),
 			),
 			200
 		);
@@ -522,7 +522,7 @@ class LinksController extends \WP_REST_Controller {
 		$csv_data = $this->csv_exporter->export( $this->query_builder, $this->instances_repo, $args );
 
 		$response = new \WP_REST_Response( $csv_data, 200 );
-		$response->header( 'X-SLKC-Export', 'csv' );
+		$response->header( 'X-MLTR-Export', 'csv' );
 
 		return $response;
 	}
@@ -682,10 +682,10 @@ class LinksController extends \WP_REST_Controller {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \FlavorLinkChecker\Models\Link $link Link DTO.
+	 * @param \MuriLinkTracker\Models\Link $link Link DTO.
 	 * @return void
 	 */
-	private function perform_link_deletion( \FlavorLinkChecker\Models\Link $link ): void {
+	private function perform_link_deletion( \MuriLinkTracker\Models\Link $link ): void {
 		// Remove link from post content (replace <a> with its text content).
 		$instances = $this->instances_repo->find_by_link( $link->id );
 

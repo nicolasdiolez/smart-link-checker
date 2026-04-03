@@ -2,15 +2,15 @@
 /**
  * Unit tests for HttpChecker.
  *
- * @package FlavorLinkChecker\Tests\Unit
+ * @package MuriLinkTracker\Tests\Unit
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Tests\Unit;
+namespace MuriLinkTracker\Tests\Unit;
 
-use FlavorLinkChecker\Models\Enums\LinkStatus;
-use FlavorLinkChecker\Scanner\HttpChecker;
+use MuriLinkTracker\Models\Enums\LinkStatus;
+use MuriLinkTracker\Scanner\HttpChecker;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 use WpHttpStub;

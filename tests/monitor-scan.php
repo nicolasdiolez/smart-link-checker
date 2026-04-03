@@ -13,10 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	require_once $current_dir . '/wp-load.php';
 }
 
-require_once wp_normalize_path( WP_PLUGIN_DIR . '/sentinel-link-checker/vendor/autoload.php' );
+require_once wp_normalize_path( WP_PLUGIN_DIR . '/muri-link-tracker/vendor/autoload.php' );
 
-$links_repo   = new \FlavorLinkChecker\Database\LinksRepository( $GLOBALS['wpdb'] );
-$orchestrator = new \FlavorLinkChecker\Queue\BatchOrchestrator( $links_repo );
+$links_repo   = new \MuriLinkTracker\Database\LinksRepository( $GLOBALS['wpdb'] );
+$orchestrator = new \MuriLinkTracker\Queue\BatchOrchestrator( $links_repo );
 
 echo "Monitoring scan status...\n";
 
@@ -25,25 +25,25 @@ $should_reset = ( isset( $argv[1] ) && 'reset' === $argv[1] ) || ( isset( $args[
 
 if ( $should_reset ) {
 	echo "Resetting scan status and clearing existing data...\n";
-	delete_transient( 'slkc_scan_status' );
-	delete_transient( 'slkc_transition_lock' );
+	delete_transient( 'mltr_scan_status' );
+	delete_transient( 'mltr_transition_lock' );
 
 	// Ensure redirect_chain column exists.
-	$has_column = $GLOBALS['wpdb']->get_results( "SHOW COLUMNS FROM {$GLOBALS['wpdb']->prefix}slkc_links LIKE 'redirect_chain'" );
+	$has_column = $GLOBALS['wpdb']->get_results( "SHOW COLUMNS FROM {$GLOBALS['wpdb']->prefix}mltr_links LIKE 'redirect_chain'" );
 	if ( empty( $has_column ) ) {
 		echo "Fixing schema: adding redirect_chain column...\n";
-		$GLOBALS['wpdb']->query( "ALTER TABLE {$GLOBALS['wpdb']->prefix}slkc_links ADD COLUMN redirect_chain text DEFAULT NULL AFTER redirect_count" );
+		$GLOBALS['wpdb']->query( "ALTER TABLE {$GLOBALS['wpdb']->prefix}mltr_links ADD COLUMN redirect_chain text DEFAULT NULL AFTER redirect_count" );
 	}
 
-	$GLOBALS['wpdb']->query( "TRUNCATE TABLE {$GLOBALS['wpdb']->prefix}slkc_instances" );
-	$GLOBALS['wpdb']->query( "TRUNCATE TABLE {$GLOBALS['wpdb']->prefix}slkc_links" );
+	$GLOBALS['wpdb']->query( "TRUNCATE TABLE {$GLOBALS['wpdb']->prefix}mltr_instances" );
+	$GLOBALS['wpdb']->query( "TRUNCATE TABLE {$GLOBALS['wpdb']->prefix}mltr_links" );
 	// Clear all AS actions for this plugin.
 	if ( class_exists( 'ActionScheduler_DBStore' ) ) {
-		\ActionScheduler_DBStore::instance()->cancel_actions_by_group( 'sentinel-link-checker' );
+		\ActionScheduler_DBStore::instance()->cancel_actions_by_group( 'muri-link-tracker' );
 	}
 }
 
-$settings = get_option( 'slkc_settings', array() );
+$settings = get_option( 'mltr_settings', array() );
 echo "Current Settings: " . json_encode( $settings ) . "\n";
 
 $limit_const = defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : 'Not Defined';
@@ -60,19 +60,19 @@ if ( 'idle' === $status['status'] ) {
 }
 
 echo "Detected Posts to Scan: " . $status['total_posts'] . "\n";
-echo "Action Scheduler Diagnostics: " . json_encode( \FlavorLinkChecker\Queue\SchedulerBootstrap::get_diagnostics() ) . "\n";
+echo "Action Scheduler Diagnostics: " . json_encode( \MuriLinkTracker\Queue\SchedulerBootstrap::get_diagnostics() ) . "\n";
 echo str_repeat( "-", 80 ) . "\n";
 printf( "%-20s | %-10s | %-10s | %-12s | %-12s | %-8s | %-10s\n", "Time", "Status", "Phase", "Posts", "Links", "Pending", "Memory" );
 echo str_repeat( "-", 80 ) . "\n";
 
 while ( true ) {
 	$status  = $orchestrator->get_status();
-	$diag    = \FlavorLinkChecker\Queue\SchedulerBootstrap::get_diagnostics();
+	$diag    = \MuriLinkTracker\Queue\SchedulerBootstrap::get_diagnostics();
 	$pending = $diag['pending'] ?? 0;
 	
 	// Also check for 'running' actions.
 	$running = count( as_get_scheduled_actions( [
-		'group'    => 'sentinel-link-checker',
+		'group'    => 'muri-link-tracker',
 		'status'   => 'in-progress',
 		'per_page' => 0,
 	], 'ids' ) );

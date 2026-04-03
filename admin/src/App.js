@@ -1,5 +1,5 @@
 /**
- * App component — Root of the Sentinel Link Checker admin interface.
+ * App component — Root of the Muri Link Tracker admin interface.
  *
  * @package
  * @since   1.0.0
@@ -18,9 +18,9 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { STORE_NAME } from './store';
 
 const TABS = [
-	{ name: 'dashboard', title: __( 'Dashboard', 'sentinel-link-checker' ) },
-	{ name: 'links', title: __( 'Links', 'sentinel-link-checker' ) },
-	{ name: 'settings', title: __( 'Settings', 'sentinel-link-checker' ) },
+	{ name: 'dashboard', title: __( 'Dashboard', 'muri-link-tracker' ) },
+	{ name: 'links', title: __( 'Links', 'muri-link-tracker' ) },
+	{ name: 'settings', title: __( 'Settings', 'muri-link-tracker' ) },
 ];
 
 const App = () => {
@@ -50,8 +50,8 @@ const App = () => {
 
 	return (
 		<ErrorBoundary>
-			<div className="slkc-app">
-				<h1>{ __( 'Sentinel Link Checker', 'sentinel-link-checker' ) }</h1>
+			<div className="mltr-app">
+				<h1>{ __( 'Muri Link Tracker', 'muri-link-tracker' ) }</h1>
 
 				<TabPanel tabs={ TABS }>
 					{ ( tab ) => {
@@ -78,7 +78,7 @@ const App = () => {
 				<SnackbarList
 					notices={ snackbarNotices }
 					onRemove={ removeNotice }
-					className="slkc-snackbar-list"
+					className="mltr-snackbar-list"
 				/>
 			</div>
 		</ErrorBoundary>

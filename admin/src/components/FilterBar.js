@@ -9,16 +9,16 @@ import { Button, ButtonGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const QUICK_FILTERS = [
-	{ key: '', label: __( 'All', 'sentinel-link-checker' ) },
-	{ key: 'broken', label: __( 'Broken', 'sentinel-link-checker' ) },
-	{ key: 'redirect', label: __( 'Redirects', 'sentinel-link-checker' ) },
-	{ key: 'ok', label: __( 'OK', 'sentinel-link-checker' ) },
-	{ key: 'pending', label: __( 'Pending', 'sentinel-link-checker' ) },
+	{ key: '', label: __( 'All', 'muri-link-tracker' ) },
+	{ key: 'broken', label: __( 'Broken', 'muri-link-tracker' ) },
+	{ key: 'redirect', label: __( 'Redirects', 'muri-link-tracker' ) },
+	{ key: 'ok', label: __( 'OK', 'muri-link-tracker' ) },
+	{ key: 'pending', label: __( 'Pending', 'muri-link-tracker' ) },
 ];
 
 const FilterBar = ( { currentStatus, onStatusChange } ) => {
 	return (
-		<div className="slkc-filter-bar">
+		<div className="mltr-filter-bar">
 			<ButtonGroup>
 				{ QUICK_FILTERS.map( ( filter ) => (
 					<Button

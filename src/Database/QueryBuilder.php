@@ -2,21 +2,21 @@
 /**
  * Query builder for filtered, paginated link queries.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Database;
+namespace MuriLinkTracker\Database;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Models\Link;
+use MuriLinkTracker\Models\Link;
 
 /**
- * Builds filtered SQL queries against the slkc_links table
- * with optional JOIN on slkc_instances for rel/search/post_id filters.
+ * Builds filtered SQL queries against the mltr_links table
+ * with optional JOIN on mltr_instances for rel/search/post_id filters.
  *
  * @since 1.0.0
  */
@@ -48,8 +48,8 @@ class QueryBuilder {
 	public function __construct(
 		private readonly \wpdb $wpdb,
 	) {
-		$this->links_table     = $this->wpdb->prefix . 'slkc_links';
-		$this->instances_table = $this->wpdb->prefix . 'slkc_instances';
+		$this->links_table     = $this->wpdb->prefix . 'mltr_links';
+		$this->instances_table = $this->wpdb->prefix . 'mltr_instances';
 	}
 
 	/**
@@ -78,7 +78,7 @@ class QueryBuilder {
 		$where_params  = array();
 		$needs_join    = false;
 
-		// --- Filters on slkc_links ---
+		// --- Filters on mltr_links ---
 
 		if ( ! empty( $args['status'] ) ) {
 			if ( 'redirect' === $args['status'] ) {
@@ -109,7 +109,7 @@ class QueryBuilder {
 			$where_params[]  = $args['affiliate_network'];
 		}
 
-		// --- Filters requiring JOIN on slkc_instances ---
+		// --- Filters requiring JOIN on mltr_instances ---
 
 		if ( ! empty( $args['rel'] ) ) {
 			$needs_join = true;

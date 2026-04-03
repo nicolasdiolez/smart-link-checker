@@ -53,17 +53,17 @@ const SettingsPanel = () => {
 	}
 
 	return (
-		<div className="slkc-settings">
+		<div className="mltr-settings">
 			<Panel>
 				<PanelBody
-					title={__('Scanning', 'sentinel-link-checker')}
+					title={__('Scanning', 'muri-link-tracker')}
 					initialOpen
 				>
 					<PanelRow>
 						<TextControl
 							label={__(
 								'Post types to scan',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							)}
 							value={(form.scan_post_types || []).join(
 								', '
@@ -79,14 +79,14 @@ const SettingsPanel = () => {
 							}
 							help={__(
 								'Comma-separated list: post, page, product…',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							)}
 							__nextHasNoMarginBottom
 						/>
 					</PanelRow>
 					<PanelRow>
 						<TextControl
-							label={__('Batch size', 'sentinel-link-checker')}
+							label={__('Batch size', 'muri-link-tracker')}
 							type="number"
 							min={10}
 							max={200}
@@ -104,7 +104,7 @@ const SettingsPanel = () => {
 						<ToggleControl
 							label={__(
 								'Scan custom fields',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							)}
 							checked={!!form.scan_custom_fields}
 							onChange={(val) =>
@@ -116,14 +116,14 @@ const SettingsPanel = () => {
 				</PanelBody>
 
 				<PanelBody
-					title={__('HTTP Checks', 'sentinel-link-checker')}
+					title={__('HTTP Checks', 'muri-link-tracker')}
 					initialOpen
 				>
 					<PanelRow>
 						<TextControl
 							label={__(
 								'Timeout (seconds)',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							)}
 							type="number"
 							min={5}
@@ -142,7 +142,7 @@ const SettingsPanel = () => {
 						<TextControl
 							label={__(
 								'Delay between requests (ms)',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							)}
 							type="number"
 							min={0}
@@ -161,7 +161,7 @@ const SettingsPanel = () => {
 						<TextControl
 							label={__(
 								'Recheck interval (days)',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							)}
 							type="number"
 							min={1}
@@ -179,14 +179,14 @@ const SettingsPanel = () => {
 				</PanelBody>
 
 				<PanelBody
-					title={__('Exclusions', 'sentinel-link-checker')}
+					title={__('Exclusions', 'muri-link-tracker')}
 					initialOpen={false}
 				>
 					<PanelRow>
 						<ToggleControl
 							label={__(
 								'Exclude media files',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							)}
 							checked={!!form.exclude_media}
 							onChange={(val) =>
@@ -194,7 +194,7 @@ const SettingsPanel = () => {
 							}
 							help={__(
 								'Skip images, videos, and document files (PDF, etc.) during scanning.',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							)}
 							__nextHasNoMarginBottom
 						/>
@@ -203,7 +203,7 @@ const SettingsPanel = () => {
 						<TextareaControl
 							label={__(
 								'Excluded URLs',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							)}
 							value={(form.excluded_urls || []).join('\n')}
 							onChange={(val) =>
@@ -217,7 +217,7 @@ const SettingsPanel = () => {
 							}
 							help={__(
 								'One URL pattern per line.',
-								'sentinel-link-checker'
+								'muri-link-tracker'
 							)}
 							rows={4}
 							__nextHasNoMarginBottom
@@ -226,14 +226,14 @@ const SettingsPanel = () => {
 				</PanelBody>
 			</Panel>
 
-			<div className="slkc-settings__actions">
+			<div className="mltr-settings__actions">
 				<Button
 					variant="primary"
 					onClick={handleSave}
 					isBusy={loading}
 					disabled={loading}
 				>
-					{__('Save Settings', 'sentinel-link-checker')}
+					{__('Save Settings', 'muri-link-tracker')}
 				</Button>
 			</div>
 		</div>

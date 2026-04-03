@@ -202,7 +202,7 @@ const LinkTable = ( { onEditLink } ) => {
 	const fields = [
 		{
 			id: 'url',
-			label: __( 'URL', 'sentinel-link-checker' ),
+			label: __( 'URL', 'muri-link-tracker' ),
 			enableSorting: true,
 			enableGlobalSearch: true,
 			render: ( { item } ) => (
@@ -210,7 +210,7 @@ const LinkTable = ( { onEditLink } ) => {
 					href={ item.url }
 					target="_blank"
 					rel="noopener noreferrer"
-					className="slkc-link-url"
+					className="mltr-link-url"
 					title={ item.url }
 				>
 					{ item.url.length > 60
@@ -221,11 +221,11 @@ const LinkTable = ( { onEditLink } ) => {
 		},
 		{
 			id: 'httpStatus',
-			label: __( 'HTTP', 'sentinel-link-checker' ),
+			label: __( 'HTTP', 'muri-link-tracker' ),
 			enableSorting: true,
 			render: ( { item } ) => (
 				<span
-					className={ `slkc-http-status slkc-http-status--${ item.statusCategory }` }
+					className={ `mltr-http-status mltr-http-status--${ item.statusCategory }` }
 				>
 					{ item.httpStatus || '—' }
 				</span>
@@ -233,7 +233,7 @@ const LinkTable = ( { onEditLink } ) => {
 		},
 		{
 			id: 'statusCategory',
-			label: __( 'Status', 'sentinel-link-checker' ),
+			label: __( 'Status', 'muri-link-tracker' ),
 			enableSorting: false,
 			elements: Object.entries( STATUS_LABELS ).map(
 				( [ value, label ] ) => ( { value, label } )
@@ -241,7 +241,7 @@ const LinkTable = ( { onEditLink } ) => {
 			filterBy: { operators: [ 'is' ] },
 			render: ( { item } ) => (
 				<span
-					className={ `slkc-badge slkc-badge--${ item.statusCategory }` }
+					className={ `mltr-badge mltr-badge--${ item.statusCategory }` }
 					style={ { color: STATUS_COLORS[ item.statusCategory ] } }
 				>
 					{ STATUS_LABELS[ item.statusCategory ] ||
@@ -251,29 +251,29 @@ const LinkTable = ( { onEditLink } ) => {
 		},
 		{
 			id: 'isExternal',
-			label: __( 'Type', 'sentinel-link-checker' ),
+			label: __( 'Type', 'muri-link-tracker' ),
 			elements: [
 				{
 					value: 'true',
-					label: __( 'External', 'sentinel-link-checker' ),
+					label: __( 'External', 'muri-link-tracker' ),
 				},
 				{
 					value: 'false',
-					label: __( 'Internal', 'sentinel-link-checker' ),
+					label: __( 'Internal', 'muri-link-tracker' ),
 				},
 			],
 			filterBy: { operators: [ 'is' ] },
 			render: ( { item } ) => (
-				<span className="slkc-link-type">
+				<span className="mltr-link-type">
 					{ item.isExternal
-						? __( 'External', 'sentinel-link-checker' )
-						: __( 'Internal', 'sentinel-link-checker' ) }
+						? __( 'External', 'muri-link-tracker' )
+						: __( 'Internal', 'muri-link-tracker' ) }
 				</span>
 			),
 		},
 		{
 			id: 'lastChecked',
-			label: __( 'Last Checked', 'sentinel-link-checker' ),
+			label: __( 'Last Checked', 'muri-link-tracker' ),
 			enableSorting: true,
 			render: ( { item } ) =>
 				item.lastChecked
@@ -289,14 +289,14 @@ const LinkTable = ( { onEditLink } ) => {
 	} );
 
 	return (
-		<div className={ `slkc-link-table is-density-${ view.layout?.density || 'balanced' }` }>
-			<div className="slkc-link-table__toolbar">
+		<div className={ `mltr-link-table is-density-${ view.layout?.density || 'balanced' }` }>
+			<div className="mltr-link-table__toolbar">
 				<FilterBar
 					currentStatus={ quickStatus }
 					onStatusChange={ handleStatusChange }
 				/>
 				<Button variant="secondary" onClick={ handleExport }>
-					{ __( 'Export CSV', 'sentinel-link-checker' ) }
+					{ __( 'Export CSV', 'muri-link-tracker' ) }
 				</Button>
 			</div>
 

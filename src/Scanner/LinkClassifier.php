@@ -2,18 +2,18 @@
 /**
  * Link classification engine.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Scanner;
+namespace MuriLinkTracker\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Models\Enums\LinkType;
-use FlavorLinkChecker\Models\Enums\RelAttribute;
+use MuriLinkTracker\Models\Enums\LinkType;
+use MuriLinkTracker\Models\Enums\RelAttribute;
 
 /**
  * Classifies links by type (internal/external), affiliate status, and rel attributes.
@@ -137,7 +137,7 @@ class LinkClassifier {
 		 *
 		 * @param string[] $hosts Array of internal hostnames.
 		 */
-		$internal_hosts = apply_filters( 'slkc/classifier/site_hosts', array( $this->site_host ) );
+		$internal_hosts = apply_filters( 'mltr/classifier/site_hosts', array( $this->site_host ) );
 
 		foreach ( $internal_hosts as $internal_host ) {
 			if ( $host === $internal_host || str_ends_with( $host, '.' . $internal_host ) ) {
@@ -178,7 +178,7 @@ class LinkClassifier {
 		 * @param array{domains: array<string, string[]>, paths: string[], params: string[]} $patterns
 		 */
 		$patterns = apply_filters(
-			'slkc/classifier/affiliate_patterns',
+			'mltr/classifier/affiliate_patterns',
 			array(
 				'domains' => self::AFFILIATE_DOMAINS,
 				'paths'   => self::AFFILIATE_PATH_PATTERNS,

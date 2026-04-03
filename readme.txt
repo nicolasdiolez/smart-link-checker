@@ -1,4 +1,4 @@
-=== Sentinel Link Checker ===
+=== Muri Link Tracker ===
 Contributors: muri3, nicolasdiolez
 Tags: link checker, broken links, affiliate links, redirect checker, seo
 Requires at least: 6.9
@@ -12,7 +12,7 @@ A high-performance link checker for WordPress with affiliate detection, redirect
 
 == Description ==
 
-**Sentinel Link Checker** is a powerful WordPress plugin designed to help site owners maintain their SEO health and user experience by identifying broken links, analyzing redirects, and detecting affiliate patterns — all without slowing down your site.
+**Muri Link Tracker** is a powerful WordPress plugin designed to help site owners maintain their SEO health and user experience by identifying broken links, analyzing redirects, and detecting affiliate patterns — all without slowing down your site.
 
 = Key Features =
 
@@ -37,18 +37,18 @@ A high-performance link checker for WordPress with affiliate detection, redirect
 
 = Privacy =
 
-Sentinel Link Checker makes outbound HTTP requests to verify the status of links found in your content. These requests use a clearly identified User-Agent string (`SentinelLinkChecker/1.0.0`). No personal user data is collected, stored, or transmitted to third parties.
+Muri Link Tracker makes outbound HTTP requests to verify the status of links found in your content. These requests use a clearly identified User-Agent string (`MuriLinkTracker/1.0.0`). No personal user data is collected, stored, or transmitted to third parties.
 
 = Development =
 
 The full source code, including React/JavaScript source files and build configuration, is available on GitHub:
-[https://github.com/nicolasdiolez/sentinel-link-checker](https://github.com/nicolasdiolez/sentinel-link-checker)
+[https://github.com/nicolasdiolez/muri-link-tracker](https://github.com/nicolasdiolez/muri-link-tracker)
 
 == Installation ==
 
-1. Upload the `sentinel-link-checker` folder to the `/wp-content/plugins/` directory.
+1. Upload the `muri-link-tracker` folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Access the dashboard via **Sentinel Link Checker** in the admin sidebar.
+3. Access the dashboard via **Muri Link Tracker** in the admin sidebar.
 4. Click **Full Scan** to analyze all your published content.
 
 = Requirements =
@@ -60,7 +60,7 @@ The full source code, including React/JavaScript source files and build configur
 
 = How does the scanning work? =
 
-Sentinel Link Checker uses WordPress Action Scheduler to process scans in the background. Posts are scanned in configurable batches, and each link is verified via HTTP HEAD request with GET fallback. This ensures your site remains responsive during scans.
+Muri Link Tracker uses WordPress Action Scheduler to process scans in the background. Posts are scanned in configurable batches, and each link is verified via HTTP HEAD request with GET fallback. This ensures your site remains responsive during scans.
 
 = Does it slow down my site? =
 
@@ -109,4 +109,4 @@ Yes. If a scan is cancelled or interrupted, you can resume it from the dashboard
 == Upgrade Notice ==
 
 = 1.0.0 =
-Initial release of Sentinel Link Checker.
+Initial release of Muri Link Tracker.

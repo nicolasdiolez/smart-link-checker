@@ -2,22 +2,22 @@
 /**
  * Unit tests for LinkHtmlEditor.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Tests\Unit;
+namespace MuriLinkTracker\Tests\Unit;
 
-use FlavorLinkChecker\Scanner\LinkHtmlEditor;
+use MuriLinkTracker\Scanner\LinkHtmlEditor;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for the LinkHtmlEditor class which handles DOM-based link modifications.
  *
  * @since 1.0.0
- * @covers \FlavorLinkChecker\Scanner\LinkHtmlEditor
+ * @covers \MuriLinkTracker\Scanner\LinkHtmlEditor
  */
 class LinkHtmlEditorTest extends TestCase {
 

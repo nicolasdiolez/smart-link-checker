@@ -1,6 +1,6 @@
 <?php
 /**
- * Load Test Data Generator for sentinel-link-checker.
+ * Load Test Data Generator for muri-link-tracker.
  *
  * Generates 5000+ posts with various types of links for scale testing.
  *

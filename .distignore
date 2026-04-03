@@ -32,4 +32,4 @@ assets/
 composer.lock
 
 # Build artifacts
-sentinel-link-checker.zip
+muri-link-tracker.zip

@@ -5,12 +5,12 @@ parameters:
     level: 5
     paths:
         - src/
-        - sentinel-link-checker.php
+        - muri-link-tracker.php
         - uninstall.php
     bootstrapFiles:
         - vendor/autoload.php
-        - sentinel-link-checker.php
+        - muri-link-tracker.php
     scanDirectories:
         - vendor/woocommerce/action-scheduler/
     ignoreErrors:
-        - '#Constant (FLC_PLUGIN_DIR|FLC_PLUGIN_URL|WP_MEMORY_LIMIT) not found#'
+        - '#Constant (MLTR_PLUGIN_DIR|MLTR_PLUGIN_URL|WP_MEMORY_LIMIT) not found#'

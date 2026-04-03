@@ -98,7 +98,7 @@ export function startScan(scanType = 'full') {
 			registry
 				.dispatch('core/notices')
 				.createSuccessNotice(
-					__('Scan started.', 'sentinel-link-checker'),
+					__('Scan started.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 		} catch (error) {
@@ -106,7 +106,7 @@ export function startScan(scanType = 'full') {
 				.dispatch('core/notices')
 				.createErrorNotice(
 					error.message ||
-					__('Failed to start scan.', 'sentinel-link-checker'),
+					__('Failed to start scan.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 		} finally {
@@ -123,7 +123,7 @@ export function cancelScan() {
 			registry
 				.dispatch('core/notices')
 				.createSuccessNotice(
-					__('Scan cancelled.', 'sentinel-link-checker'),
+					__('Scan cancelled.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 		} catch {
@@ -142,7 +142,7 @@ export function resumeScan() {
 			registry
 				.dispatch('core/notices')
 				.createSuccessNotice(
-					__('Scan resumed.', 'sentinel-link-checker'),
+					__('Scan resumed.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 		} catch (error) {
@@ -150,7 +150,7 @@ export function resumeScan() {
 				.dispatch('core/notices')
 				.createErrorNotice(
 					error.message ||
-					__('Failed to resume scan.', 'sentinel-link-checker'),
+					__('Failed to resume scan.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 		} finally {
@@ -170,7 +170,7 @@ export function resetScan() {
 			registry
 				.dispatch('core/notices')
 				.createSuccessNotice(
-					__('Scan data reset.', 'sentinel-link-checker'),
+					__('Scan data reset.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 		} catch (error) {
@@ -178,7 +178,7 @@ export function resetScan() {
 				.dispatch('core/notices')
 				.createErrorNotice(
 					error.message ||
-					__('Failed to reset scan.', 'sentinel-link-checker'),
+					__('Failed to reset scan.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 		} finally {
@@ -219,7 +219,7 @@ export function updateSettings(data) {
 			registry
 				.dispatch('core/notices')
 				.createSuccessNotice(
-					__('Settings saved.', 'sentinel-link-checker'),
+					__('Settings saved.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 		} catch (error) {
@@ -227,7 +227,7 @@ export function updateSettings(data) {
 				.dispatch('core/notices')
 				.createErrorNotice(
 					error.message ||
-					__('Failed to save settings.', 'sentinel-link-checker'),
+					__('Failed to save settings.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 		} finally {
@@ -243,7 +243,7 @@ export function updateLink(id, data) {
 			registry
 				.dispatch('core/notices')
 				.createSuccessNotice(
-					__('Link updated.', 'sentinel-link-checker'),
+					__('Link updated.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 			return result;
@@ -252,7 +252,7 @@ export function updateLink(id, data) {
 				.dispatch('core/notices')
 				.createErrorNotice(
 					error.message ||
-					__('Failed to update link.', 'sentinel-link-checker'),
+					__('Failed to update link.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 			return null;
@@ -267,7 +267,7 @@ export function deleteLink(id) {
 			registry
 				.dispatch('core/notices')
 				.createSuccessNotice(
-					__('Link deleted.', 'sentinel-link-checker'),
+					__('Link deleted.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 			return true;
@@ -276,7 +276,7 @@ export function deleteLink(id) {
 				.dispatch('core/notices')
 				.createErrorNotice(
 					error.message ||
-					__('Failed to delete link.', 'sentinel-link-checker'),
+					__('Failed to delete link.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 			return false;
@@ -291,7 +291,7 @@ export function recheckLink(id) {
 			registry
 				.dispatch('core/notices')
 				.createSuccessNotice(
-					__('Recheck scheduled.', 'sentinel-link-checker'),
+					__('Recheck scheduled.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 			return true;
@@ -302,7 +302,7 @@ export function recheckLink(id) {
 					error.message ||
 					__(
 						'Failed to schedule recheck.',
-						'sentinel-link-checker'
+						'muri-link-tracker'
 					),
 					{ type: 'snackbar' }
 				);
@@ -318,7 +318,7 @@ export function bulkAction(action, ids) {
 			registry.dispatch('core/notices').createSuccessNotice(
 				sprintf(
 					/* translators: %d: number of links processed. */
-					__('%d link(s) processed.', 'sentinel-link-checker'),
+					__('%d link(s) processed.', 'muri-link-tracker'),
 					result.success
 				),
 				{ type: 'snackbar' }
@@ -329,7 +329,7 @@ export function bulkAction(action, ids) {
 				.dispatch('core/notices')
 				.createErrorNotice(
 					error.message ||
-					__('Bulk action failed.', 'sentinel-link-checker'),
+					__('Bulk action failed.', 'muri-link-tracker'),
 					{ type: 'snackbar' }
 				);
 			return null;

@@ -2,18 +2,18 @@
 /**
  * Link extraction orchestrator.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Scanner;
+namespace MuriLinkTracker\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Models\Enums\LinkType;
-use FlavorLinkChecker\Models\ScanResult;
+use MuriLinkTracker\Models\Enums\LinkType;
+use MuriLinkTracker\Models\ScanResult;
 
 /**
  * Orchestrates link extraction from a WordPress post by combining
@@ -47,7 +47,7 @@ class LinkExtractor {
 	 * @since 1.0.0
 	 *
 	 * @param \WP_Post             $post     The post to extract links from.
-	 * @param array<string, mixed> $settings Plugin settings from slkc_settings option.
+	 * @param array<string, mixed> $settings Plugin settings from mltr_settings option.
 	 * @return array<string, array{
 	 *     url: string,
 	 *     url_hash: string,

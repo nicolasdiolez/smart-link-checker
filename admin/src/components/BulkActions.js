@@ -20,7 +20,7 @@ export function getLinkActions( { onRecheck, onDelete, onEdit } ) {
 	return [
 		{
 			id: 'edit',
-			label: __( 'Edit', 'sentinel-link-checker' ),
+			label: __( 'Edit', 'muri-link-tracker' ),
 			isPrimary: true,
 			supportsBulk: false,
 			callback: ( items ) => {
@@ -31,13 +31,13 @@ export function getLinkActions( { onRecheck, onDelete, onEdit } ) {
 		},
 		{
 			id: 'recheck',
-			label: __( 'Recheck', 'sentinel-link-checker' ),
+			label: __( 'Recheck', 'muri-link-tracker' ),
 			supportsBulk: true,
 			callback: ( items ) => onRecheck( items.map( ( i ) => i.id ) ),
 		},
 		{
 			id: 'delete',
-			label: __( 'Delete', 'sentinel-link-checker' ),
+			label: __( 'Delete', 'muri-link-tracker' ),
 			isDestructive: true,
 			supportsBulk: true,
 			callback: ( items ) => onDelete( items.map( ( i ) => i.id ) ),

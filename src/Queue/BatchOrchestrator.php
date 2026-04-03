@@ -2,18 +2,18 @@
 /**
  * Batch orchestrator for scan and check workflows.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Queue;
+namespace MuriLinkTracker\Queue;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Database\InstancesRepository;
-use FlavorLinkChecker\Database\LinksRepository;
+use MuriLinkTracker\Database\InstancesRepository;
+use MuriLinkTracker\Database\LinksRepository;
 
 /**
  * Orchestrates the creation and management of scan and check batches.
@@ -67,11 +67,11 @@ class BatchOrchestrator {
 		 *
 		 * @param int $batch_size Calculated batch size.
 		 */
-		$batch_size = (int) apply_filters( 'slkc/scanner/batch_size', $batch_size );
+		$batch_size = (int) apply_filters( 'mltr/scanner/batch_size', $batch_size );
 
 		// Initialize scan status.
 		set_transient(
-			'slkc_scan_status',
+			'mltr_scan_status',
 			array(
 				'status'         => 'running',
 				'phase'          => 'scanning',
@@ -107,11 +107,11 @@ class BatchOrchestrator {
 		$chunks   = array_chunk( $link_ids, self::MAX_CHECK_BATCH_SIZE );
 
 		// Update scan status with total links and batches.
-		$status = get_transient( 'slkc_scan_status' );
+		$status = get_transient( 'mltr_scan_status' );
 		if ( is_array( $status ) ) {
 			$status['total_links']   = count( $link_ids );
 			$status['check_batches'] = $chunks;
-			set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
+			set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
 		}
 
 		return $this->enqueue_check_batches( $chunks );
@@ -125,7 +125,7 @@ class BatchOrchestrator {
 	 * @since 1.0.0
 	 */
 	public function recheck_stale_links(): void {
-		$settings     = get_option( 'slkc_settings', array() );
+		$settings     = get_option( 'mltr_settings', array() );
 		$recheck_days = (int) ( $settings['recheck_interval'] ?? 7 );
 		$batch_size   = (int) ( $settings['batch_size'] ?? 50 );
 
@@ -145,10 +145,10 @@ class BatchOrchestrator {
 	public function cancel(): void {
 		SchedulerBootstrap::cancel_all();
 
-		$status = get_transient( 'slkc_scan_status' );
+		$status = get_transient( 'mltr_scan_status' );
 		if ( is_array( $status ) ) {
 			$status['status'] = 'cancelled';
-			set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
+			set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -163,8 +163,8 @@ class BatchOrchestrator {
 		$this->instances_repo->truncate();
 		$this->links_repo->truncate();
 
-		delete_transient( 'slkc_scan_status' );
-		delete_option( 'slkc_last_scan_date' );
+		delete_transient( 'mltr_scan_status' );
+		delete_option( 'mltr_last_scan_date' );
 	}
 
 	/**
@@ -175,13 +175,13 @@ class BatchOrchestrator {
 	 * @return bool True if scan was resumed.
 	 */
 	public function resume(): bool {
-		$status = get_transient( 'slkc_scan_status' );
+		$status = get_transient( 'mltr_scan_status' );
 		if ( ! is_array( $status ) || 'cancelled' !== $status['status'] ) {
 			return false;
 		}
 
 		$status['status'] = 'running';
-		set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
+		set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
 
 		if ( 'scanning' === $status['phase'] ) {
 			foreach ( $status['scan_batches'] as $batch_id ) {
@@ -202,10 +202,10 @@ class BatchOrchestrator {
 	 * @param string $batch_id Batch identifier.
 	 */
 	public function remove_scan_batch( string $batch_id ): void {
-		$status = get_transient( 'slkc_scan_status' );
+		$status = get_transient( 'mltr_scan_status' );
 		if ( is_array( $status ) && isset( $status['scan_batches'] ) ) {
 			$status['scan_batches'] = array_values( array_diff( $status['scan_batches'], array( $batch_id ) ) );
-			set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
+			set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -217,7 +217,7 @@ class BatchOrchestrator {
 	 * @param int[] $link_ids Link IDs that were in the batch.
 	 */
 	public function remove_check_batch( array $link_ids ): void {
-		$status = get_transient( 'slkc_scan_status' );
+		$status = get_transient( 'mltr_scan_status' );
 		if ( is_array( $status ) && isset( $status['check_batches'] ) ) {
 			foreach ( $status['check_batches'] as $index => $chunk ) {
 				// We compare the arrays to find the batch that just finished.
@@ -227,7 +227,7 @@ class BatchOrchestrator {
 					break;
 				}
 			}
-			set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
+			set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -240,7 +240,7 @@ class BatchOrchestrator {
 	 * @param int[] $new_link_ids Remaining link IDs.
 	 */
 	public function handle_check_batch_split( array $old_link_ids, array $new_link_ids ): void {
-		$status = get_transient( 'slkc_scan_status' );
+		$status = get_transient( 'mltr_scan_status' );
 		if ( is_array( $status ) && isset( $status['check_batches'] ) ) {
 			foreach ( $status['check_batches'] as $index => $chunk ) {
 				if ( $chunk === $old_link_ids ) {
@@ -248,7 +248,7 @@ class BatchOrchestrator {
 					break;
 				}
 			}
-			set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
+			set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -260,10 +260,10 @@ class BatchOrchestrator {
 	 * @param int[] $link_ids Link IDs in the new batch.
 	 */
 	public function add_check_batch( array $link_ids ): void {
-		$status = get_transient( 'slkc_scan_status' );
+		$status = get_transient( 'mltr_scan_status' );
 		if ( is_array( $status ) && isset( $status['check_batches'] ) ) {
 			$status['check_batches'][] = $link_ids;
-			set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
+			set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -275,7 +275,7 @@ class BatchOrchestrator {
 	 * @return array{status: string, total_posts: int, scanned_posts: int, total_links: int, checked_links: int, broken_count: int, redirect_count: int, started_at: string|null}
 	 */
 	public function get_status(): array {
-		$status = get_transient( 'slkc_scan_status' );
+		$status = get_transient( 'mltr_scan_status' );
 
 		if ( ! is_array( $status ) ) {
 			return $this->get_idle_status();
@@ -299,35 +299,35 @@ class BatchOrchestrator {
 
 		if ( 'scanning' === $phase && 0 === $pending_count ) {
 			// Prevent concurrent polls from triggering the transition twice.
-			if ( false !== get_transient( 'slkc_transition_lock' ) ) {
+			if ( false !== get_transient( 'mltr_transition_lock' ) ) {
 				return $status;
 			}
-			set_transient( 'slkc_transition_lock', 1, 30 );
+			set_transient( 'mltr_transition_lock', 1, 30 );
 
 			// All scan batches done — transition to check phase.
 			$check_batches = $this->start_check();
-			delete_transient( 'slkc_transition_lock' );
-			delete_transient( 'slkc_stats_cache' );
+			delete_transient( 'mltr_transition_lock' );
+			delete_transient( 'mltr_stats_cache' );
 
 			if ( $check_batches > 0 ) {
 				// Re-read transient to pick up total_links and check_batches set by start_check().
-				$status = get_transient( 'slkc_scan_status' );
+				$status = get_transient( 'mltr_scan_status' );
 				if ( ! is_array( $status ) ) {
 					return $this->get_idle_status();
 				}
 				$status['phase'] = 'checking';
-				set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
+				set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
 			} else {
 				$status['status'] = 'complete';
-				update_option( 'slkc_last_scan_date', $status['started_at'] );
-				set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
-				do_action( 'slkc/scan/complete' );
+				update_option( 'mltr_last_scan_date', $status['started_at'] );
+				set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
+				do_action( 'mltr/scan/complete' );
 			}
 		} elseif ( 'checking' === $phase && 0 === $pending_count ) {
 			$status['status'] = 'complete';
-			update_option( 'slkc_last_scan_date', $status['started_at'] );
-			set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
-			do_action( 'slkc/scan/complete' );
+			update_option( 'mltr_last_scan_date', $status['started_at'] );
+			set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
+			do_action( 'mltr/scan/complete' );
 		}
 
 		$stats = $this->get_cached_stats();
@@ -379,13 +379,13 @@ class BatchOrchestrator {
 	 * @return array<string, int>
 	 */
 	private function get_cached_stats(): array {
-		$cached = get_transient( 'slkc_stats_cache' );
+		$cached = get_transient( 'mltr_stats_cache' );
 		if ( is_array( $cached ) ) {
 			return $cached;
 		}
 
 		$stats = $this->links_repo->get_category_stats();
-		set_transient( 'slkc_stats_cache', $stats, 30 );
+		set_transient( 'mltr_stats_cache', $stats, 30 );
 
 		return $stats;
 	}
@@ -413,7 +413,7 @@ class BatchOrchestrator {
 	 * @return int[] Post IDs.
 	 */
 	private function get_scannable_post_ids( string $scan_type ): array {
-		$settings = get_option( 'slkc_settings', array() );
+		$settings = get_option( 'mltr_settings', array() );
 
 		$query_args = array(
 			'post_type'      => $settings['scan_post_types'] ?? array( 'post', 'page' ),
@@ -425,7 +425,7 @@ class BatchOrchestrator {
 
 		// Delta scan: only posts modified since last successful scan.
 		if ( 'delta' === $scan_type ) {
-			$last_scan = get_option( 'slkc_last_scan_date' );
+			$last_scan = get_option( 'mltr_last_scan_date' );
 			if ( $last_scan ) {
 				$query_args['date_query'] = array(
 					array(
@@ -461,10 +461,10 @@ class BatchOrchestrator {
 		$scan_batches = array();
 
 		foreach ( $chunks as $chunk ) {
-			$batch_id = wp_unique_id( 'slkc_batch_' );
+			$batch_id = wp_unique_id( 'mltr_batch_' );
 
 			set_transient(
-				'slkc_scan_batch_' . $batch_id,
+				'mltr_scan_batch_' . $batch_id,
 				array(
 					'post_ids' => $chunk,
 					'offset'   => 0,
@@ -482,22 +482,22 @@ class BatchOrchestrator {
 		}
 
 		// Update status with tracked batches.
-		$status = get_transient( 'slkc_scan_status' );
+		$status = get_transient( 'mltr_scan_status' );
 		if ( is_array( $status ) ) {
 			$status['scan_batches'] = $scan_batches;
-			set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
+			set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
 		}
 
 		if ( $fail_count > 0 && $fail_count === $batch_count ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( "[SentinelLinkChecker] All {$batch_count} scan batches failed to enqueue." );
+				error_log( "[MuriLinkTracker] All {$batch_count} scan batches failed to enqueue." );
 			}
-			$status = get_transient( 'slkc_scan_status' );
+			$status = get_transient( 'mltr_scan_status' );
 			if ( is_array( $status ) ) {
 				$status['status']        = 'error';
-				$status['error_message'] = __( 'Action Scheduler failed to enqueue scan batches. Check server error logs.', 'sentinel-link-checker' );
-				set_transient( 'slkc_scan_status', $status, HOUR_IN_SECONDS );
+				$status['error_message'] = __( 'Action Scheduler failed to enqueue scan batches. Check server error logs.', 'muri-link-tracker' );
+				set_transient( 'mltr_scan_status', $status, HOUR_IN_SECONDS );
 			}
 		}
 
@@ -527,7 +527,7 @@ class BatchOrchestrator {
 		if ( $fail_count > 0 && $fail_count === $batch_count ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( "[SentinelLinkChecker] All {$batch_count} check batches failed to enqueue." );
+				error_log( "[MuriLinkTracker] All {$batch_count} check batches failed to enqueue." );
 			}
 		}
 

@@ -2,13 +2,13 @@
 /**
  * Admin page registration and React asset enqueue.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Admin;
+namespace MuriLinkTracker\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -36,10 +36,10 @@ class AdminPage {
 	 */
 	private function add_menu_page(): void {
 		add_menu_page(
-			__( 'Sentinel Link Checker', 'sentinel-link-checker' ),
-			__( 'Sentinel Link Checker', 'sentinel-link-checker' ),
+			__( 'Muri Link Tracker', 'muri-link-tracker' ),
+			__( 'Muri Link Tracker', 'muri-link-tracker' ),
 			'manage_options',
-			'sentinel-link-checker',
+			'muri-link-tracker',
 			$this->render_page( ... ),
 			'dashicons-admin-links',
 			82
@@ -52,7 +52,7 @@ class AdminPage {
 	 * @since 1.0.0
 	 */
 	private function render_page(): void {
-		echo '<div class="wrap"><div id="slkc-root"></div></div>';
+		echo '<div class="wrap"><div id="mltr-root"></div></div>';
 	}
 
 	/**
@@ -63,11 +63,11 @@ class AdminPage {
 	 * @param string $hook_suffix The current admin page hook suffix.
 	 */
 	private function enqueue_assets( string $hook_suffix ): void {
-		if ( 'toplevel_page_sentinel-link-checker' !== $hook_suffix ) {
+		if ( 'toplevel_page_muri-link-tracker' !== $hook_suffix ) {
 			return;
 		}
 
-		$asset_file = SLKC_PLUGIN_DIR . 'build/index.asset.php';
+		$asset_file = MLTR_PLUGIN_DIR . 'build/index.asset.php';
 		if ( ! file_exists( $asset_file ) ) {
 			return;
 		}
@@ -75,30 +75,30 @@ class AdminPage {
 		$asset = require $asset_file;
 
 		wp_enqueue_script(
-			'slkc-admin',
-			SLKC_PLUGIN_URL . 'build/index.js',
+			'mltr-admin',
+			MLTR_PLUGIN_URL . 'build/index.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 
-		if ( file_exists( SLKC_PLUGIN_DIR . 'build/index.css' ) ) {
+		if ( file_exists( MLTR_PLUGIN_DIR . 'build/index.css' ) ) {
 			wp_enqueue_style(
-				'slkc-admin',
-				SLKC_PLUGIN_URL . 'build/index.css',
+				'mltr-admin',
+				MLTR_PLUGIN_URL . 'build/index.css',
 				array( 'wp-components' ),
 				$asset['version']
 			);
 		}
 
 		wp_add_inline_script(
-			'slkc-admin',
-			'window.slkcData = ' . wp_json_encode(
+			'mltr-admin',
+			'window.mltrData = ' . wp_json_encode(
 				array(
-					'restUrl'  => rest_url( 'sentinel-link-checker/v1/' ),
+					'restUrl'  => rest_url( 'muri-link-tracker/v1/' ),
 					'nonce'    => wp_create_nonce( 'wp_rest' ),
 					'adminUrl' => admin_url(),
-					'version'  => SLKC_VERSION,
+					'version'  => MLTR_VERSION,
 				)
 			) . ';',
 			'before'

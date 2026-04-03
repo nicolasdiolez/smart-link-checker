@@ -2,20 +2,20 @@
 /**
  * Link data transfer object.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Models;
+namespace MuriLinkTracker\Models;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Models\Enums\LinkStatus;
+use MuriLinkTracker\Models\Enums\LinkStatus;
 
 /**
- * Immutable DTO representing a row in the slkc_links table.
+ * Immutable DTO representing a row in the mltr_links table.
  *
  * @since 1.0.0
  */

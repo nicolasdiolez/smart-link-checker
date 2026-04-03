@@ -2,13 +2,13 @@
 /**
  * Link rel attribute values.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Models\Enums;
+namespace MuriLinkTracker\Models\Enums;
 
 defined( 'ABSPATH' ) || exit;
 

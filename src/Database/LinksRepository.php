@@ -1,22 +1,22 @@
 <?php
 /**
- * Links repository for CRUD operations on the slkc_links table.
+ * Links repository for CRUD operations on the mltr_links table.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Database;
+namespace MuriLinkTracker\Database;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Models\Enums\LinkStatus;
-use FlavorLinkChecker\Models\Link;
+use MuriLinkTracker\Models\Enums\LinkStatus;
+use MuriLinkTracker\Models\Link;
 
 /**
- * Handles all database operations for the slkc_links table.
+ * Handles all database operations for the mltr_links table.
  *
  * @since 1.0.0
  */
@@ -40,7 +40,7 @@ class LinksRepository {
 	public function __construct(
 		private readonly \wpdb $wpdb,
 	) {
-		$this->table = $this->wpdb->prefix . 'slkc_links';
+		$this->table = $this->wpdb->prefix . 'mltr_links';
 	}
 
 	/**
@@ -337,7 +337,7 @@ class LinksRepository {
 	 * @return bool True on success.
 	 */
 	public function delete( int $id ): bool {
-		$instances_table = $this->wpdb->prefix . 'slkc_instances';
+		$instances_table = $this->wpdb->prefix . 'mltr_instances';
 
 		// Delete instances first.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -496,7 +496,7 @@ class LinksRepository {
 	 * @return int Number of deleted orphan links.
 	 */
 	public function cleanup_orphans(): int {
-		$instances_table = $this->wpdb->prefix . 'slkc_instances';
+		$instances_table = $this->wpdb->prefix . 'mltr_instances';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$deleted = $this->wpdb->query(

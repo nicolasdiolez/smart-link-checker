@@ -2,20 +2,20 @@
 /**
  * HTTP check batch job.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Queue;
+namespace MuriLinkTracker\Queue;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Database\LinksRepository;
-use FlavorLinkChecker\Models\Enums\LinkStatus;
-use FlavorLinkChecker\Scanner\HttpChecker;
-use FlavorLinkChecker\Scanner\InternalLinkChecker;
+use MuriLinkTracker\Database\LinksRepository;
+use MuriLinkTracker\Models\Enums\LinkStatus;
+use MuriLinkTracker\Scanner\HttpChecker;
+use MuriLinkTracker\Scanner\InternalLinkChecker;
 
 /**
  * Processes a batch of links: verifies their HTTP status in parallel.
@@ -70,7 +70,7 @@ class CheckJob {
 		// Suspend object cache additions during batch processing.
 		\wp_suspend_cache_addition( true );
 
-		$settings            = \get_option( 'slkc_settings', array() );
+		$settings            = \get_option( 'mltr_settings', array() );
 		$this->request_delay = (int) ( $settings['http_request_delay'] ?? 300 );
 		$parallel_size       = 5; // Default parallel cluster size.
 
@@ -128,14 +128,14 @@ class CheckJob {
 				$remaining = \array_slice( $link_ids, $offset );
 
 				\wp_suspend_cache_addition( false );
-				\do_action( 'slkc/check/batch_split', $link_ids, $remaining );
+				\do_action( 'mltr/check/batch_split', $link_ids, $remaining );
 				SchedulerBootstrap::enqueue_check_batch( $remaining );
 				return;
 			}
 		}
 
 		\wp_suspend_cache_addition( false );
-		\do_action( 'slkc/check/batch_complete', $link_ids );
+		\do_action( 'mltr/check/batch_complete', $link_ids );
 	}
 
 	/**
@@ -168,10 +168,10 @@ class CheckJob {
 				$error
 			);
 
-			\do_action( 'slkc/check/link_checked', $link_id, $result );
+			\do_action( 'mltr/check/link_checked', $link_id, $result );
 
 			// Update progress.
-			$status = \get_transient( 'slkc_scan_status' );
+			$status = \get_transient( 'mltr_scan_status' );
 			if ( \is_array( $status ) ) {
 				$status['checked_links']  = ( $status['checked_links'] ?? 0 ) + 1;
 				$category                 = $result['status_category'];
@@ -182,7 +182,7 @@ class CheckJob {
 					$status['redirect_count'] = ( $status['redirect_count'] ?? 0 ) + 1;
 				}
 
-				\set_transient( 'slkc_scan_status', $status, \HOUR_IN_SECONDS );
+				\set_transient( 'mltr_scan_status', $status, \HOUR_IN_SECONDS );
 			}
 		} catch ( \Throwable $e ) {
 			$this->links_repo->update_check_result(

@@ -2,17 +2,17 @@
 /**
  * Internal link checker — bypasses HTTP for local URLs.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Scanner;
+namespace MuriLinkTracker\Scanner;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Models\Enums\LinkStatus;
+use MuriLinkTracker\Models\Enums\LinkStatus;
 
 /**
  * Checks internal links without performing HTTP requests.

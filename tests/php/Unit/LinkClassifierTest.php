@@ -2,15 +2,15 @@
 /**
  * Unit tests for LinkClassifier.
  *
- * @package FlavorLinkChecker\Tests\Unit
+ * @package MuriLinkTracker\Tests\Unit
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Tests\Unit;
+namespace MuriLinkTracker\Tests\Unit;
 
-use FlavorLinkChecker\Models\Enums\LinkType;
-use FlavorLinkChecker\Scanner\LinkClassifier;
+use MuriLinkTracker\Models\Enums\LinkType;
+use MuriLinkTracker\Scanner\LinkClassifier;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 

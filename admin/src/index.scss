@@ -1,13 +1,13 @@
 /**
- * Sentinel Link Checker admin styles.
+ * Muri Link Tracker admin styles.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 /* ── App layout ─────────────────────────────────────────────────── */
 
-.slkc-app {
+.mltr-app {
 	max-width: 1200px;
 	margin: 20px 0;
 
@@ -18,14 +18,14 @@
 
 /* ── Dashboard summary cards ────────────────────────────────────── */
 
-.slkc-summary-cards {
+.mltr-summary-cards {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 	gap: 16px;
 	margin-top: 20px;
 }
 
-.slkc-summary-card {
+.mltr-summary-card {
 	background: #fff;
 	border: 1px solid #ddd;
 	border-radius: 4px;
@@ -46,36 +46,36 @@
 		color: #646970;
 	}
 
-	&--broken .slkc-summary-card__value {
+	&--broken .mltr-summary-card__value {
 		color: #d63638;
 	}
 
-	&--ok .slkc-summary-card__value {
+	&--ok .mltr-summary-card__value {
 		color: #00a32a;
 	}
 
-	&--redirect .slkc-summary-card__value {
+	&--redirect .mltr-summary-card__value {
 		color: #dba617;
 	}
 
-	&--internal .slkc-summary-card__value {
+	&--internal .mltr-summary-card__value {
 		color: #2271b1;
 	}
 
-	&--external .slkc-summary-card__value {
+	&--external .mltr-summary-card__value {
 		color: #8c8f94;
 	}
 
-	&--affiliate .slkc-summary-card__value {
+	&--affiliate .mltr-summary-card__value {
 		color: #9b59b6;
 	}
 
-	&--cloaked .slkc-summary-card__value {
+	&--cloaked .mltr-summary-card__value {
 		color: #e67e22;
 	}
 }
 
-.slkc-dashboard__section {
+.mltr-dashboard__section {
 	margin-top: 24px;
 
 	h3 {
@@ -88,7 +88,7 @@
 
 /* ── Scan panel ─────────────────────────────────────────────────── */
 
-.slkc-scan-panel {
+.mltr-scan-panel {
 	background: #fff;
 	border: 1px solid #ddd;
 	border-radius: 4px;
@@ -132,7 +132,7 @@
 	}
 }
 
-.slkc-progress-bar {
+.mltr-progress-bar {
 	height: 8px;
 	background: #ddd;
 	border-radius: 4px;
@@ -148,13 +148,13 @@
 
 /* ── Filter bar ─────────────────────────────────────────────────── */
 
-.slkc-filter-bar {
+.mltr-filter-bar {
 	margin-bottom: 12px;
 }
 
 /* ── Link table ─────────────────────────────────────────────────── */
 
-.slkc-link-table {
+.mltr-link-table {
 	margin-top: 16px;
 
 	&__toolbar {
@@ -186,18 +186,18 @@
 			font-size: 12px;
 		}
  
-		.slkc-badge {
+		.mltr-badge {
 			font-size: 10px;
 			padding: 2px 4px;
 		}
  
-		.slkc-http-status {
+		.mltr-http-status {
 			font-size: 11px;
 		}
 	}
 }
 
-.slkc-link-url {
+.mltr-link-url {
 	word-break: break-all;
 	color: #2271b1;
 	text-decoration: none;
@@ -207,7 +207,7 @@
 	}
 }
 
-.slkc-http-status {
+.mltr-http-status {
 	font-weight: 600;
 
 	&--broken,
@@ -229,7 +229,7 @@
 	}
 }
 
-.slkc-badge {
+.mltr-badge {
 	font-size: 12px;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -237,7 +237,7 @@
 
 /* ── Edit modal ─────────────────────────────────────────────────── */
 
-.slkc-edit-modal {
+.mltr-edit-modal {
 	&__instances {
 		margin-top: 16px;
 		padding-top: 16px;
@@ -275,7 +275,7 @@
 
 /* ── Settings ───────────────────────────────────────────────────── */
 
-.slkc-settings {
+.mltr-settings {
 	margin-top: 16px;
 
 	&__actions {
@@ -285,7 +285,7 @@
 
 /* ── Support Card ────────────────────────────────────────────────── */
 
-.slkc-support-card {
+.mltr-support-card {
 	background: #fff;
 	border: 1px solid #ddd;
 	border-radius: 4px;
@@ -325,7 +325,7 @@
 
 /* ── Snackbar ───────────────────────────────────────────────────── */
 
-.slkc-snackbar-list {
+.mltr-snackbar-list {
 	position: fixed;
 	bottom: 40px;
 	left: 50%;

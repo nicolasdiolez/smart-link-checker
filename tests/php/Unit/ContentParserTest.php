@@ -2,14 +2,14 @@
 /**
  * Unit tests for ContentParser.
  *
- * @package FlavorLinkChecker\Tests\Unit
+ * @package MuriLinkTracker\Tests\Unit
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Tests\Unit;
+namespace MuriLinkTracker\Tests\Unit;
 
-use FlavorLinkChecker\Scanner\ContentParser;
+use MuriLinkTracker\Scanner\ContentParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 

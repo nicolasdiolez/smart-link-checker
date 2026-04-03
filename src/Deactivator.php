@@ -2,13 +2,13 @@
 /**
  * Plugin deactivation handler.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker;
+namespace MuriLinkTracker;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,7 +26,7 @@ class Deactivator {
 	 */
 	public static function deactivate(): void {
 		if ( function_exists( 'as_unschedule_all_actions' ) ) {
-			as_unschedule_all_actions( '', array(), 'sentinel-link-checker' );
+			as_unschedule_all_actions( '', array(), 'muri-link-tracker' );
 		}
 	}
 }

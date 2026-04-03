@@ -79,34 +79,34 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 
 	return (
 		<Modal
-			title={ __( 'Edit Link', 'sentinel-link-checker' ) }
+			title={ __( 'Edit Link', 'muri-link-tracker' ) }
 			onRequestClose={ () => onClose( false ) }
-			className="slkc-edit-modal"
+			className="mltr-edit-modal"
 		>
 			{ loading && <Spinner /> }
 			{ ! loading && currentLink && (
 				<>
 					<TextControl
-						label={ __( 'URL', 'sentinel-link-checker' ) }
+						label={ __( 'URL', 'muri-link-tracker' ) }
 						value={ url }
 						onChange={ setUrl }
 						__nextHasNoMarginBottom
 					/>
 					<TextControl
-						label={ __( 'Rel attribute', 'sentinel-link-checker' ) }
+						label={ __( 'Rel attribute', 'muri-link-tracker' ) }
 						value={ rel }
 						onChange={ setRel }
 						help={ __(
 							'e.g. nofollow sponsored',
-							'sentinel-link-checker'
+							'muri-link-tracker'
 						) }
 						__nextHasNoMarginBottom
 					/>
 
 					{ currentLink.instances?.length > 0 && (
-						<div className="slkc-edit-modal__instances">
+						<div className="mltr-edit-modal__instances">
 							<h3>
-								{ __( 'Found in:', 'sentinel-link-checker' ) }
+								{ __( 'Found in:', 'muri-link-tracker' ) }
 							</h3>
 							<ul>
 								{ currentLink.instances.map( ( inst ) => (
@@ -119,7 +119,7 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 											{ inst.postTitle }
 										</a>
 										{ inst.anchorText && (
-											<span className="slkc-edit-modal__anchor">
+											<span className="mltr-edit-modal__anchor">
 												{ ' — "' }
 												{ inst.anchorText }
 												{ '"' }
@@ -131,20 +131,20 @@ const LinkEditModal = ( { linkId, onClose } ) => {
 						</div>
 					) }
 
-					<div className="slkc-edit-modal__actions">
+					<div className="mltr-edit-modal__actions">
 						<Button
 							variant="primary"
 							onClick={ handleSave }
 							isBusy={ saving }
 							disabled={ saving }
 						>
-							{ __( 'Save', 'sentinel-link-checker' ) }
+							{ __( 'Save', 'muri-link-tracker' ) }
 						</Button>
 						<Button
 							variant="tertiary"
 							onClick={ () => onClose( false ) }
 						>
-							{ __( 'Cancel', 'sentinel-link-checker' ) }
+							{ __( 'Cancel', 'muri-link-tracker' ) }
 						</Button>
 					</div>
 				</>

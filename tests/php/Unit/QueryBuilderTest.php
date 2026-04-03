@@ -2,14 +2,14 @@
 /**
  * Unit tests for QueryBuilder.
  *
- * @package FlavorLinkChecker\Tests\Unit
+ * @package MuriLinkTracker\Tests\Unit
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Tests\Unit;
+namespace MuriLinkTracker\Tests\Unit;
 
-use FlavorLinkChecker\Database\QueryBuilder;
+use MuriLinkTracker\Database\QueryBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 

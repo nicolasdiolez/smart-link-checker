@@ -2,17 +2,17 @@
 /**
  * Plugin activation handler.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker;
+namespace MuriLinkTracker;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Database\Migrator;
+use MuriLinkTracker\Database\Migrator;
 
 /**
  * Runs on plugin activation via register_activation_hook().
@@ -29,9 +29,9 @@ class Activator {
 	public static function activate(): void {
 		( new Migrator() )->create_tables();
 
-		if ( false === get_option( 'slkc_settings' ) ) {
+		if ( false === get_option( 'mltr_settings' ) ) {
 			update_option(
-				'slkc_settings',
+				'mltr_settings',
 				array(
 					'scan_post_types'    => array( 'post', 'page' ),
 					'check_timeout'      => 15,

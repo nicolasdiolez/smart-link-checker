@@ -5,7 +5,7 @@
  * These stubs provide minimal implementations of WordPress functions
  * used by the plugin classes under test.
  *
- * @package FlavorLinkChecker\Tests
+ * @package MuriLinkTracker\Tests
  */
 
 namespace {

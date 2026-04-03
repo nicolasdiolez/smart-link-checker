@@ -1,21 +1,21 @@
 <?php
 /**
- * Instances repository for CRUD operations on the slkc_instances table.
+ * Instances repository for CRUD operations on the mltr_instances table.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Database;
+namespace MuriLinkTracker\Database;
 
 defined( 'ABSPATH' ) || exit;
 
-use FlavorLinkChecker\Models\LinkInstance;
+use MuriLinkTracker\Models\LinkInstance;
 
 /**
- * Handles all database operations for the slkc_instances table.
+ * Handles all database operations for the mltr_instances table.
  *
  * @since 1.0.0
  */
@@ -39,7 +39,7 @@ class InstancesRepository {
 	public function __construct(
 		private readonly \wpdb $wpdb,
 	) {
-		$this->table = $this->wpdb->prefix . 'slkc_instances';
+		$this->table = $this->wpdb->prefix . 'mltr_instances';
 	}
 
 	/**
@@ -71,7 +71,7 @@ class InstancesRepository {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int $link_id FK to slkc_links.id.
+	 * @param int $link_id FK to mltr_links.id.
 	 * @return LinkInstance[]
 	 */
 	public function find_by_link( int $link_id ): array {

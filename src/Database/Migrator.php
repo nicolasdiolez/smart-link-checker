@@ -2,13 +2,13 @@
 /**
  * Database table creation and migration.
  *
- * @package FlavorLinkChecker
+ * @package MuriLinkTracker
  * @since   1.0.0
  */
 
 declare( strict_types=1 );
 
-namespace FlavorLinkChecker\Database;
+namespace MuriLinkTracker\Database;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -29,7 +29,7 @@ class Migrator {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-		$sql_links = "CREATE TABLE {$wpdb->prefix}slkc_links (
+		$sql_links = "CREATE TABLE {$wpdb->prefix}mltr_links (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			url text NOT NULL,
 			url_hash char(64) NOT NULL,
@@ -56,7 +56,7 @@ class Migrator {
 		KEY idx_redirect_count (redirect_count)
 		) {$charset_collate};";
 
-		$sql_instances = "CREATE TABLE {$wpdb->prefix}slkc_instances (
+		$sql_instances = "CREATE TABLE {$wpdb->prefix}mltr_instances (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			link_id bigint(20) unsigned NOT NULL,
 			post_id bigint(20) unsigned NOT NULL,
@@ -82,7 +82,7 @@ class Migrator {
 		dbDelta( $sql_links );
 		dbDelta( $sql_instances );
 
-		update_option( 'slkc_db_version', SLKC_VERSION );
+		update_option( 'mltr_db_version', MLTR_VERSION );
 	}
 
 	/**
@@ -94,8 +94,8 @@ class Migrator {
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}slkc_instances" );
+		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}mltr_instances" );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}slkc_links" );
+		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}mltr_links" );
 	}
 }
