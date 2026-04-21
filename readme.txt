@@ -1,5 +1,5 @@
 === Muri Link Tracker ===
-Contributors: muri3, nicolasdiolez
+Contributors: muri3
 Tags: link checker, broken links, affiliate links, redirect checker, seo
 Requires at least: 6.9
 Tested up to: 6.9

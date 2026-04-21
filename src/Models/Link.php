@@ -19,7 +19,7 @@ use MuriLinkTracker\Models\Enums\LinkStatus;
  *
  * @since 1.0.0
  */
-readonly class Link {
+class Link {
 
 	/**
 	 * Constructor.
@@ -45,23 +45,23 @@ readonly class Link {
 	 * @param \DateTimeImmutable      $updated_at        Last update datetime.
 	 */
 	public function __construct(
-		public int $id,
-		public string $url,
-		public string $url_hash,
-		public ?string $final_url,
-		public ?int $http_status,
-		public LinkStatus $status_category,
-		public bool $is_external,
-		public bool $is_affiliate,
-		public ?string $affiliate_network,
-		public ?int $response_time,
-		public int $redirect_count,
-		public ?string $redirect_chain,
-		public ?\DateTimeImmutable $last_checked,
-		public int $check_count,
-		public ?string $last_error,
-		public \DateTimeImmutable $created_at,
-		public \DateTimeImmutable $updated_at,
+		public readonly int $id,
+		public readonly string $url,
+		public readonly string $url_hash,
+		public readonly ?string $final_url,
+		public readonly ?int $http_status,
+		public readonly LinkStatus $status_category,
+		public readonly bool $is_external,
+		public readonly bool $is_affiliate,
+		public readonly ?string $affiliate_network,
+		public readonly ?int $response_time,
+		public readonly int $redirect_count,
+		public readonly ?string $redirect_chain,
+		public readonly ?\DateTimeImmutable $last_checked,
+		public readonly int $check_count,
+		public readonly ?string $last_error,
+		public readonly \DateTimeImmutable $created_at,
+		public readonly \DateTimeImmutable $updated_at,
 	) {}
 
 	/**

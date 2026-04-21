@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.0.0
  */
-readonly class ScanResult {
+class ScanResult {
 
 	/**
 	 * Constructor.
@@ -34,11 +34,11 @@ readonly class ScanResult {
 	 * @param string|null $block_name    Gutenberg block name if applicable.
 	 */
 	public function __construct(
-		public string $url,
-		public string $anchor_text,
-		public string $rel,
-		public string $source_type,
-		public ?int $link_position,
-		public ?string $block_name,
+		public readonly string $url,
+		public readonly string $anchor_text,
+		public readonly string $rel,
+		public readonly string $source_type,
+		public readonly ?int $link_position,
+		public readonly ?string $block_name,
 	) {}
 }

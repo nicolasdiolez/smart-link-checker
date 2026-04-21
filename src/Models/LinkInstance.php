@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.0.0
  */
-readonly class LinkInstance {
+class LinkInstance {
 
 	/**
 	 * Constructor.
@@ -40,18 +40,18 @@ readonly class LinkInstance {
 	 * @param \DateTimeImmutable $created_at    Creation datetime.
 	 */
 	public function __construct(
-		public int $id,
-		public int $link_id,
-		public int $post_id,
-		public string $source_type,
-		public ?string $anchor_text,
-		public bool $rel_nofollow,
-		public bool $rel_sponsored,
-		public bool $rel_ugc,
-		public bool $is_dofollow,
-		public ?int $link_position,
-		public ?string $block_name,
-		public \DateTimeImmutable $created_at,
+		public readonly int $id,
+		public readonly int $link_id,
+		public readonly int $post_id,
+		public readonly string $source_type,
+		public readonly ?string $anchor_text,
+		public readonly bool $rel_nofollow,
+		public readonly bool $rel_sponsored,
+		public readonly bool $rel_ugc,
+		public readonly bool $is_dofollow,
+		public readonly ?int $link_position,
+		public readonly ?string $block_name,
+		public readonly \DateTimeImmutable $created_at,
 	) {}
 
 	/**
