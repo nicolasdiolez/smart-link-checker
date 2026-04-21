@@ -8,32 +8,39 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A high-performance link checker for WordPress with affiliate detection, redirect tracking, and background processing.
+A high-performance link checker for WordPress with affiliate detection, redirect chain analysis, and background processing.
 
 == Description ==
 
-**Muri Link Tracker** is a powerful WordPress plugin designed to help site owners maintain their SEO health and user experience by identifying broken links, analyzing redirects, and detecting affiliate patterns — all without slowing down your site.
+**Muri Link Tracker** is a powerful WordPress plugin designed to help site owners maintain their SEO health and user experience by identifying broken links, analyzing redirect chains, and detecting affiliate patterns — all without slowing down your site.
+
+Whether your site has 100 or 100,000 links, Muri Link Tracker scans them in the background and gives you a real-time dashboard to act on what matters: broken URLs, redirect loops, and missing rel attributes.
 
 = Key Features =
 
-* **Background Processing** — Scans run silently in the background using Action Scheduler, so your site stays fast.
-* **Affiliate Link Detection** — Automatically identifies affiliate links across 14+ networks (Amazon, Awin, CJ, ShareASale, Impact, and more), including cloaked internal redirects.
-* **Redirect Chain Analysis** — Detects single redirects, redirect chains, and redirect loops with full chain visualization.
-* **Modern React Dashboard** — Real-time statistics, filterable link table, inline editing, and bulk actions in a polished admin interface.
-* **Smart Delta Scans** — Only re-scan posts modified since the last scan, saving time and server resources.
-* **CSV Export** — Export your full link inventory with filters applied for reporting and auditing.
-* **Configurable** — Adjustable batch sizes, timeouts, request delays, and recheck intervals to fit any hosting environment.
-* **Scan Resume** — Interrupted scans can be resumed right where they left off.
-* **Gutenberg-Aware** — Extracts links from Gutenberg blocks with block-level metadata.
+* **Background Processing** — Scans run silently via Action Scheduler, so your admin stays responsive and your front-end stays fast.
+* **Three Scan Modes** — Launch a **Full Scan** of all content, a **Delta Scan** (only posts modified since the last scan) to save resources, or a **Reset Data** to wipe and start fresh.
+* **Live Progress Tracking** — Watch the scan progress in real time with a progress bar, counters, and the ability to cancel mid-scan.
+* **Affiliate Link Detection** — Automatically identifies affiliate links across 14+ networks (Amazon, Awin, CJ, ShareASale, Impact, Rakuten, ClickBank, PartnerStack, and more), including **cloaked internal redirects** (internal URLs that redirect to external affiliates).
+* **Redirect Chain Analysis** — Classifies every redirect as a **single hop**, a **chain of 2+ hops**, or a **loop**, so you know exactly what to fix first.
+* **Affiliate Networks Breakdown** — See at a glance how many links belong to each affiliate program (Amazon, CJ, Awin…).
+* **Modern React Dashboard** — Real-time statistics, quick filter tabs (All / Broken / Redirects / OK / Pending), inline editing, and bulk actions in a polished admin interface built with the WordPress design system.
+* **Smart Filtering & Search** — Filter by status, link type, or affiliate network, and search across URLs and anchor text instantly.
+* **CSV Export** — Export your full link inventory with active filters applied, perfect for reporting and auditing.
+* **Silent Link Editing** — Fix or remove a link directly from the dashboard without bumping the post's modified date or creating revision clutter.
+* **Configurable to Any Host** — Adjustable batch sizes, timeouts, request delays, and recheck intervals to fit shared hosting or dedicated servers.
+* **Scan Resume** — Interrupted scans pick up exactly where they left off.
+* **Gutenberg-Aware** — Extracts links from Gutenberg blocks with block-level metadata, including button blocks and navigation links.
 
 = What It Detects =
 
 * Broken links (4xx and 5xx HTTP status codes)
-* Redirect chains and loops
-* Affiliate links (domain patterns, URL paths, query parameters, rel="sponsored")
+* Redirect chains and loops (single hop, multi-hop, infinite loops)
+* Affiliate links via domain patterns, URL paths, query parameters, and `rel="sponsored"`
 * Cloaked affiliate links (internal URLs that redirect to external affiliates)
 * Missing rel attributes (nofollow, sponsored, ugc)
-* Timeout and connection errors
+* Timeout and SSL/connection errors
+* Both internal and external links, categorized automatically
 
 = Privacy =
 
@@ -49,7 +56,8 @@ The full source code, including React/JavaScript source files and build configur
 1. Upload the `muri-link-tracker` folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 3. Access the dashboard via **Muri Link Tracker** in the admin sidebar.
-4. Click **Full Scan** to analyze all your published content.
+4. Open the **Settings** tab to choose which post types to scan and tune timeouts to your hosting.
+5. Click **Full Scan** from the Dashboard to analyze all your published content.
 
 = Requirements =
 
@@ -60,50 +68,74 @@ The full source code, including React/JavaScript source files and build configur
 
 = How does the scanning work? =
 
-Muri Link Tracker uses WordPress Action Scheduler to process scans in the background. Posts are scanned in configurable batches, and each link is verified via HTTP HEAD request with GET fallback. This ensures your site remains responsive during scans.
+Muri Link Tracker uses WordPress Action Scheduler to process scans in the background. Posts are scanned in configurable batches, and each link is verified via HTTP HEAD request with GET fallback. This ensures your site remains responsive during scans, even on shared hosting.
+
+= What's the difference between Full Scan and Delta Scan? =
+
+**Full Scan** re-indexes every link on your site and re-checks each URL's HTTP status. **Delta Scan** only processes posts modified since the last successful scan — ideal for recurring maintenance on large sites. Use Full Scan after major content migrations, Delta Scan for weekly check-ups.
 
 = Does it slow down my site? =
 
-No. All scanning and link checking happens in background processes. The plugin also includes configurable request delays and batch sizes to prevent overloading your server.
+No. All scanning and link checking happens in background processes via Action Scheduler. The plugin also includes configurable request delays and batch sizes to prevent overloading your server, and it automatically adapts batch size to available memory.
 
 = What affiliate networks does it detect? =
 
-Amazon, ShareASale, Commission Junction, Impact, Rakuten, ClickBank, Awin, Tradedoubler, Webgains, Commission Factory, FlexOffers, Skimlinks, Sovrn/VigLink, and PartnerStack. You can extend detection patterns via the `flc/classifier/affiliate_patterns` filter.
+Amazon, ShareASale, Commission Junction (CJ), Impact, Rakuten, ClickBank, Awin, Tradedoubler, Webgains, Commission Factory, FlexOffers, Skimlinks, Sovrn/VigLink, and PartnerStack. You can extend detection patterns via the `mltr/classifier/affiliate_patterns` filter.
+
+= Can I detect cloaked affiliate links? =
+
+Yes. When an internal URL (e.g., `/go/product-name`) redirects to an external affiliate, Muri Link Tracker flags it as **Cloaked** so you can audit your entire affiliate footprint, even when it's hidden behind pretty URLs.
 
 = Can I scan only specific post types? =
 
-Yes. Go to Settings and select which post types to include in scans (posts, pages, or any custom post type).
+Yes. In Settings, enter a comma-separated list of post types (e.g., `post, page, product`) to include in scans. Any custom post type is supported.
 
-= What happens when I delete a link? =
+= What happens when I delete or edit a link? =
 
-When you delete a link through the plugin, it removes the `<a>` tag from your post content while preserving the anchor text. The post's `modified_date` is not updated, so your SEO timestamps remain intact.
+When you edit or delete a link through the plugin, it updates the `<a>` tag directly in the post content. The post's `modified_date` is **not** updated and no revision is created, so your SEO timestamps and revision history stay clean. Remember to purge your page cache after bulk edits if you use a caching plugin.
+
+= Can I cancel a scan that's already running? =
+
+Yes. A **Cancel Scan** button appears next to the progress bar during any active scan. Partial results are preserved.
 
 = Can I resume an interrupted scan? =
 
-Yes. If a scan is cancelled or interrupted, you can resume it from the dashboard. The plugin tracks scan progress and picks up right where it left off.
+Yes. If a scan is cancelled, crashes, or is interrupted by a server restart, you can resume it from the dashboard. The plugin tracks scan progress and picks up right where it left off.
+
+= How often are links re-checked? =
+
+You can configure a **Recheck Interval** (in days) from the Settings panel. Default is 7 days. Links past that threshold are automatically re-verified on the next Delta or Full Scan.
+
+= Is the plugin translation-ready? =
+
+Yes. All user-facing strings are internationalized and the text domain is `muri-link-tracker`. A POT file ships in `/languages/` for community translations.
 
 == Screenshots ==
 
-1. **The Pulse of Your Content** — The Dashboard provides a high-level view of your site's link health with real-time stats and intuitive scan controls.
-2. **Precision Link Management** — Explore every link on your site with the filterable link table. Spot broken URLs and affiliate patterns at a glance with status-coded labels.
-3. **Instant Fixes** — Correct URLs or update SEO attributes (nofollow, sponsored) directly from the dashboard without ever leaving the page.
-4. **Tailored to Your Hosting** — Fine-tune scan intensity, timeouts, and batch sizes in the Settings panel to ensure peak performance on any server.
+1. **Complete SEO Overview** — After a scan, the Dashboard shows the full picture at a glance: total links, OK/redirects/broken/errors counts, internal vs external vs affiliate vs cloaked breakdown, and a per-network affiliate tally (Amazon, CJ, Awin…).
+2. **Start in Seconds** — A clean Dashboard greets you with three clear actions: Full Scan, Delta Scan, or Reset Data. Delta Scan saves time on large sites by only checking posts modified since your last scan.
+3. **Focus on What's Broken** — The Broken filter surfaces every dead link (404, 410, DNS errors) in one view, ready for bulk fix or deletion. Silent editing keeps your post modified dates untouched.
+4. **Track Every Redirect** — The Redirects filter lists every link that forwards through one or more hops, so you can update them to their final destinations and preserve link equity.
+5. **Every Link at a Glance** — The link inventory mixes OK, broken, redirected, and errored URLs in a single sortable table, color-coded by status for instant triage.
+6. **Real-Time Scan Progress** — Watch scans unfold live: progress bar, item counters, and summary stats update in real time. Cancel at any moment — partial results are preserved and the scan can be resumed later.
+7. **Fine-Tune to Your Hosting** — The Settings panel lets you define which post types to scan, adjust batch size, set HTTP request timeouts and delays, and configure the automatic recheck interval to match any hosting environment.
 
 == Changelog ==
 
 = 1.0.0 =
 * Initial release.
-* Background link scanning via Action Scheduler.
+* Background link scanning via Action Scheduler with resume capability.
+* Three scan modes: Full Scan, Delta Scan (modified posts only), and Reset Data.
 * Parallel HTTP checking with HEAD/GET fallback.
-* Affiliate link detection for 14+ networks.
-* Redirect chain and loop detection.
-* Modern React admin dashboard with real-time stats.
-* Link table with filtering, pagination, and bulk actions.
-* Inline link editing with URL and rel attribute updates.
+* Affiliate link detection for 14+ networks, including cloaked internal redirects.
+* Redirect chain and loop detection (single, chains of 2+, loops).
+* Per-affiliate-network breakdown in the Dashboard.
+* Modern React admin dashboard with real-time scan progress and cancel control.
+* Link table with quick filter tabs (All / Broken / Redirects / OK / Pending), search, advanced filters, pagination, and bulk actions.
+* Inline link editing with URL and rel attribute updates — silent (no post_modified bump, no revision).
 * CSV export with active filters.
-* Delta scan (only modified posts since last scan).
-* Scan resume functionality.
-* Configurable batch sizes, timeouts, and request delays.
+* Scan resume after interruption.
+* Configurable post types, batch sizes, timeouts, request delays, and recheck intervals.
 * Full internationalization support (i18n ready).
 
 == Upgrade Notice ==
